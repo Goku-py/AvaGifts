@@ -14,6 +14,7 @@ import { PikuSprite } from "@/components/piku/piku-sprite";
 import { PIKU_ENQUIRY_SENT_EVENT } from "@/lib/events";
 import { EASE, SPRING_BOUNCY, SPRING_EMERGE, SPRING_FIRM, SPRING_SNAPPY, SPRING_SOFT } from "@/lib/motion";
 import { cn } from "@/lib/utils";
+import "./piku-concierge.css";
 import {
   buildWhatsAppUrl,
   conciergeBudgetOptions,
@@ -40,16 +41,40 @@ import { usePikuConcierge } from "./piku-concierge-context";
 /* Mass contrast: Piku's bubbles arrive light and bouncy; the user's own
    replies land on a heavier, more deliberate spring. The overshoot doubles
    as the "ack beat" after each answer. */
+/**
+ * Piku's face at bubble scale — a deliberately tiny stand-in for the full
+ * sprite. Every one of Piku's turns carries one so the panel reads as a
+ * conversation with someone rather than a form, and the full sprite would be
+ * hundreds of DOM nodes per turn.
+ */
+function PikuFace({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 32 32" aria-hidden="true" className={className}>
+      <circle cx="16" cy="16" r="16" fill="#0B2A4D" />
+      <ellipse cx="16" cy="18.5" rx="8" ry="9" fill="#F5F0E8" />
+      <circle cx="12.4" cy="13.6" r="3.1" fill="#fff" />
+      <circle cx="19.6" cy="13.6" r="3.1" fill="#fff" />
+      <circle cx="12.9" cy="14" r="1.35" fill="#1B1E25" />
+      <circle cx="19.1" cy="14" r="1.35" fill="#1B1E25" />
+      <path d="M14.2 18.4h3.6l-1.8 2.4-1.8-2.4Z" fill="#FF9A4D" />
+    </svg>
+  );
+}
+
 function PikuBubble({ children }: { children: ReactNode }) {
   const reduceMotion = useReducedMotion();
   return (
     <motion.div
+      data-bubble="piku"
       initial={{ opacity: 0, y: 10, scale: 0.97 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={reduceMotion ? { duration: 0 } : SPRING_BOUNCY}
-      className="max-w-[85%] rounded-2xl rounded-tl-md border border-divider bg-white px-4 py-3 text-sm leading-relaxed text-text-primary shadow-card"
+      className="flex max-w-[92%] items-start gap-2.5"
     >
-      {children}
+      <PikuFace className="piku-face mt-0.5 size-7 shrink-0" />
+      <div className="piku-said rounded-2xl rounded-tl-md border border-divider bg-white px-4 py-3 text-sm leading-relaxed text-text-primary shadow-card">
+        {children}
+      </div>
     </motion.div>
   );
 }
@@ -58,6 +83,7 @@ function UserBubble({ children }: { children: ReactNode }) {
   const reduceMotion = useReducedMotion();
   return (
     <motion.div
+      data-bubble="user"
       initial={{ opacity: 0, y: 8, scale: 0.98 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={reduceMotion ? { duration: 0 } : SPRING_FIRM}
@@ -223,7 +249,7 @@ function StepMotion({
 
   if (!typed) {
     return (
-      <div key={stepKey} className="flex flex-col gap-3">
+      <div key={stepKey} className="piku-turn flex flex-col gap-3">
         <TypingBubble />
       </div>
     );
@@ -235,7 +261,14 @@ function StepMotion({
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={reduceMotion ? { duration: 0 } : { duration: 0.4, ease: EASE }}
-      className="flex flex-col gap-3"
+      /*
+       * `piku-turn` is what lets piku-concierge.css collapse history: the
+       * ladder always renders turns in order, so the last one is the live
+       * step and every earlier one is answered. That keeps the collapse
+       * rule in one stylesheet instead of threading an `isPast` flag
+       * through every branch of the conversation.
+       */
+      className="piku-turn flex flex-col gap-3"
     >
       {children}
     </motion.div>
@@ -514,67 +547,37 @@ export function PikuModal() {
               </button>
             </div>
 
-            {/* Progress — three numbered stages with a remaining count */}
+            {/*
+              Progress — a single hairline bar with one quiet caption.
+              Three numbered pills, three labels and a "N to go" line stacked
+              above the question was more chrome than the question itself.
+            */}
             {showProgress ? (
-              <div className="border-b border-divider bg-white px-4 pb-3 pt-2.5 sm:px-5">
+              <div className="bg-white px-4 pb-2.5 pt-1 sm:px-5">
                 <div
                   role="progressbar"
                   aria-valuemin={1}
                   aria-valuemax={conciergeStages.length}
                   aria-valuenow={stage + 1}
                   aria-label={`Step ${stage + 1} of ${conciergeStages.length}: ${conciergeStages[stage].label}`}
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-1.5"
                 >
-                  {conciergeStages.map((item, index) => {
-                    const completed = index < stage;
-                    const current = index === stage;
-                    return (
-                      <span key={item.id} className="flex items-center gap-2">
-                        <span
-                          className={cn(
-                            "flex size-7 items-center justify-center rounded-full text-xs font-semibold transition-colors duration-200",
-                            completed
-                              ? "bg-primary text-white"
-                              : current
-                                ? "bg-[#1273EB] text-white"
-                                : "border border-divider bg-white text-text-secondary",
-                          )}
-                        >
-                          {completed ? (
-                            <Check aria-hidden="true" className="size-3.5" />
-                          ) : (
-                            index + 1
-                          )}
-                        </span>
-                        <span
-                          className={cn(
-                            "text-xs",
-                            current
-                              ? "font-semibold text-text-primary"
-                              : completed
-                                ? "font-medium text-text-primary"
-                                : "font-medium text-text-secondary",
-                          )}
-                        >
-                          {item.label}
-                        </span>
-                        {index < conciergeStages.length - 1 ? (
-                          <span
-                            aria-hidden="true"
-                            className={cn(
-                              "h-px w-6 transition-colors duration-200 sm:w-10",
-                              index < stage ? "bg-primary" : "bg-divider",
-                            )}
-                          />
-                        ) : null}
-                      </span>
-                    );
-                  })}
+                  {conciergeStages.map((item, index) => (
+                    <span
+                      key={item.id}
+                      className={cn(
+                        "h-1 flex-1 rounded-full transition-colors duration-300",
+                        index <= stage ? "bg-interactive" : "bg-divider",
+                      )}
+                    />
+                  ))}
                 </div>
-                <p className="mt-1.5 text-[11px] leading-relaxed text-text-secondary">
-                  {stagesLeft > 0
-                    ? `Step ${stage + 1} of ${conciergeStages.length} · ${stagesLeft} to go`
-                    : `Step ${stage + 1} of ${conciergeStages.length} · last step`}
+                <p className="mt-2 text-[11px] font-medium leading-relaxed text-text-secondary">
+                  {conciergeStages[stage].label}
+                  <span className="text-text-muted">
+                    {" · "}
+                    {stagesLeft > 0 ? `${stagesLeft} to go` : "last step"}
+                  </span>
                 </p>
               </div>
             ) : null}
@@ -583,19 +586,8 @@ export function PikuModal() {
             <div
               ref={scrollRef}
               id="piku-scroll-region"
-              className="piku-scroll min-h-0 flex-1 overflow-y-auto px-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-5 sm:px-5"
+              className="piku-scroll piku-thread min-h-0 flex-1 overflow-y-auto px-4 pb-5 pt-3 sm:px-5"
             >
-              {showBack ? (
-                <button
-                  type="button"
-                  onClick={goBack}
-                  className="mb-4 inline-flex items-center gap-1.5 text-xs font-medium text-text-secondary transition-colors hover:text-text-primary"
-                >
-                  <ArrowLeft aria-hidden="true" className="size-3.5" />
-                  Back
-                </button>
-              ) : null}
-
               <Conversation
                 step={step}
                 answers={answers}
@@ -611,6 +603,25 @@ export function PikuModal() {
                 openWhatsApp={openWhatsApp}
               />
             </div>
+
+            {/* Bottom bar — Back lives here rather than above the transcript,
+                where it competed with the question for first read. Each step's
+                own Continue action sits directly above it. */}
+            {showBack ? (
+              <div className="flex items-center justify-between gap-3 border-t border-divider bg-white px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:px-5">
+                <button
+                  type="button"
+                  onClick={goBack}
+                  className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold text-text-secondary transition-colors hover:bg-hover-surface hover:text-text-primary motion-reduce:transition-none"
+                >
+                  <ArrowLeft aria-hidden="true" className="size-3.5" />
+                  Back
+                </button>
+                <p className="text-[11px] text-text-muted">
+                  Takes about two minutes
+                </p>
+              </div>
+            ) : null}
           </motion.div>
         </motion.div>
       ) : null}
