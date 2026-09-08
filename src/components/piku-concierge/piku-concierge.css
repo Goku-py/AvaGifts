@@ -1,0 +1,11 @@
+/* ------------------------------------------------------------------ *
+ * Piku concierge companions
+ *
+ * 1. Lift the roaming Piku mascot above the fixed bottom dock so the two
+ *    never overlap. `translate` composes with the mascot's right/bottom
+ *    transitions without fighting its inline anchor styles.
+ * ------------------------------------------------------------------ */
+
+body:has([data-piku-dock]) .piku-root {
+  translate: 0 -72px;
+}

@@ -1,26 +1,113 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/* ------------------------------------------------------------------ */
+/* AvaGifts design tokens                                              */
+/* ------------------------------------------------------------------ */
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* Palette — warm-corporate, premium, quiet */
+  --color-paper: #faf9f6;
+  --color-ink: #17191e;
+  --color-ink-soft: #5a5e66;
+  --color-line: rgb(23 25 30 / 0.1);
+  --color-accent: #1e4034;
+  --color-accent-ink: #16332a;
+  --color-gold: #b9975b;
+  --color-cream: #f3f0e9;
+  --color-card: #ffffff;
+
+  /* Type */
+  --font-display: var(--font-fraunces), "Iowan Old Style", Georgia, serif;
+  --font-sans: var(--font-instrument-sans), ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", sans-serif;
+
+  /* Elevation */
+  --shadow-card: 0 1px 2px rgb(23 25 30 / 0.05);
+  --shadow-lift: 0 18px 40px -16px rgb(23 25 30 / 0.18);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* ------------------------------------------------------------------ */
+/* Base                                                                */
+/* ------------------------------------------------------------------ */
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background-color: var(--color-accent);
+    color: var(--color-paper);
+  }
+
+  /* Gold focus ring, site-wide */
+  :focus-visible {
+    outline: 2px solid var(--color-gold);
+    outline-offset: 3px;
+  }
+
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* ------------------------------------------------------------------ */
+/* Utilities                                                           */
+/* ------------------------------------------------------------------ */
+
+/* Subtle paper grain for ProductArt surfaces (pure CSS, no raster assets). */
+.art-grain {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23g)' opacity='0.38'/%3E%3C/svg%3E");
+  background-size: 160px 160px;
+}
+
+/* Gentle vertical drift for floating tags. */
+@keyframes drift {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.animate-drift {
+  animation: drift 6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-drift {
+    animation: none;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Catalog flipbook (StPageFlip) chrome                                */
+/* ------------------------------------------------------------------ */
+
+.catalog-flipbook img.catalog-page {
+  box-shadow: none;
+}
+
+.catalog-flipbook .stf__parent {
+  margin-inline: auto;
 }

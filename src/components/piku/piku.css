@@ -1,0 +1,622 @@
+/* ------------------------------------------------------------------ *
+ * Piku — flat 2D mascot (Duolingo-style penguin)
+ *
+ * Cascade:  .piku-btn  --(vars)-->  .piku-svg  --> .piku-depth-layer
+ * RAF writes continuous vars: --rx/--ry/--rz, --pupil-x/y/--pupil-scale,
+ * --scarf-*, --tie-*, --shadow-*. CSS handles discrete states via classes.
+ * ------------------------------------------------------------------ */
+
+/* ================================================================
+ * @property — enables interpolated custom props
+ * ================================================================ */
+@property --rx { syntax: "<number>"; inherits: true; initial-value: 0; }
+@property --ry { syntax: "<number>"; inherits: true; initial-value: 0; }
+@property --rz { syntax: "<number>"; inherits: true; initial-value: 0; }
+@property --pupil-x { syntax: "<length>"; inherits: true; initial-value: 0px; }
+@property --pupil-y { syntax: "<length>"; inherits: true; initial-value: 0px; }
+@property --pupil-scale { syntax: "<number>"; inherits: true; initial-value: 1; }
+@property --scarf-rx { syntax: "<number>"; inherits: true; initial-value: 0; }
+@property --scarf-ry { syntax: "<number>"; inherits: true; initial-value: 0; }
+@property --tie-rx { syntax: "<number>"; inherits: true; initial-value: 0; }
+@property --tie-ry { syntax: "<number>"; inherits: true; initial-value: 0; }
+@property --shadow-scale-x { syntax: "<number>"; inherits: true; initial-value: 1; }
+@property --shadow-scale-y { syntax: "<number>"; inherits: true; initial-value: 0.58; }
+@property --shadow-opacity { syntax: "<number>"; inherits: true; initial-value: 0.17; }
+@property --walk-bob { syntax: "<number>"; inherits: true; initial-value: 0; }
+@property --walk-step { syntax: "<number>"; inherits: true; initial-value: 0; }
+@property --walk-lift { syntax: "<number>"; inherits: true; initial-value: 0; }
+@property --walk-lift-l { syntax: "<number>"; inherits: true; initial-value: 0; }
+@property --walk-lift-r { syntax: "<number>"; inherits: true; initial-value: 0; }
+@property --walk-sway { syntax: "<number>"; inherits: true; initial-value: 0; }
+@property --walk-dir { syntax: "<number>"; inherits: true; initial-value: 1; }
+@property --walk-phase { syntax: "<number>"; inherits: true; initial-value: 0; }
+
+/* ================================================================
+ * Root — fixed widget, flat 2D
+ * ================================================================ */
+.piku-root {
+  position: fixed;
+  z-index: 40;
+  width: 96px;
+  height: 104px;
+  contain: layout style;
+  transition:
+    right 900ms cubic-bezier(0.22, 1, 0.36, 1),
+    bottom 900ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.piku-root.piku--roaming {
+  transition:
+    right 1200ms cubic-bezier(0.22, 1, 0.36, 1),
+    bottom 1200ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.piku-btn {
+  display: block;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transform-origin: 50% 90%;
+  transition: filter 320ms ease;
+}
+
+.piku-btn:focus-visible {
+  outline: 2px solid #F2B840;
+  outline-offset: 4px;
+  border-radius: 9999px;
+}
+
+@media (max-width: 767px) {
+  .piku-root { width: 76px; height: 84px; }
+  .piku-root { transition: right 480ms ease, bottom 480ms ease; }
+}
+
+/* ================================================================
+ * SVG — rotation from RAF + subtle breathe (flat, no perspective)
+ * ================================================================ */
+.piku-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  position: relative;
+  z-index: 1;
+  transform:
+    rotateX(calc(var(--rx, 0) * 1deg))
+    rotateY(calc(var(--ry, 0) * 1deg))
+    rotateZ(calc(var(--rz, 0) * 1deg));
+  transform-origin: 60px 90px;
+  will-change: transform;
+  animation: piku-breathe 4.1s ease-in-out infinite;
+}
+
+@keyframes piku-breathe {
+  0%, 100% { transform: rotateX(calc(var(--rx, 0) * 1deg)) rotateY(calc(var(--ry, 0) * 1deg)) rotateZ(calc(var(--rz, 0) * 1deg)) scaleY(1) translateY(0px); }
+  50%       { transform: rotateX(calc(var(--rx, 0) * 1deg)) rotateY(calc(var(--ry, 0) * 1deg)) rotateZ(calc(var(--rz, 0) * 1deg)) scaleY(1.012) translateY(-0.7px); }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .piku-btn.piku-hovering .piku-svg {
+    animation: none;
+    transform: rotateX(calc(var(--rx, 0) * 1deg)) rotateY(calc(var(--ry, 0) * 1deg)) rotateZ(calc(var(--rz, 0) * 1deg)) translateY(-4px) scaleY(1.008);
+    transition: transform 260ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .piku-btn.piku-hovering {
+    filter: drop-shadow(0 8px 18px rgba(23, 25, 30, 0.14)) drop-shadow(0 2px 8px rgba(30, 64, 52, 0.12));
+  }
+}
+
+.piku-squashing .piku-svg {
+  animation: none !important;
+  transform: rotateX(calc(var(--rx, 0) * 1deg)) rotateY(calc(var(--ry, 0) * 1deg)) rotateZ(calc(var(--rz, 0) * 1deg)) scaleY(0.82) scaleX(1.12) translateY(5px);
+  transition: transform 80ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.piku-bouncing .piku-svg {
+  animation: piku-spring-bounce 700ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards !important;
+}
+
+@keyframes piku-spring-bounce {
+  0%   { transform: rotateX(calc(var(--rx, 0) * 1deg)) rotateY(calc(var(--ry, 0) * 1deg)) scaleY(0.82) scaleX(1.12) translateY(5px); }
+  22%  { transform: rotateX(calc(var(--rx, 0) * 1deg)) rotateY(calc(var(--ry, 0) * 1deg)) scaleY(1.10) scaleX(0.95) translateY(-5px); }
+  42%  { transform: rotateX(calc(var(--rx, 0) * 1deg)) rotateY(calc(var(--ry, 0) * 1deg)) scaleY(0.94) scaleX(1.04) translateY(2.2px); }
+  62%  { transform: rotateX(calc(var(--rx, 0) * 1deg)) rotateY(calc(var(--ry, 0) * 1deg)) scaleY(1.03) scaleX(0.985) translateY(-1.2px); }
+  82%  { transform: rotateX(calc(var(--rx, 0) * 1deg)) rotateY(calc(var(--ry, 0) * 1deg)) scaleY(0.99) scaleX(1.008) translateY(0.6px); }
+  100% { transform: rotateX(calc(var(--rx, 0) * 1deg)) rotateY(calc(var(--ry, 0) * 1deg)) scaleY(1) scaleX(1) translateY(0px); }
+}
+
+/* ================================================================
+ * Walking — RAF driven via --walk-* vars, overrides breathe
+ * ================================================================ */
+.piku--walking .piku-svg,
+.piku-btn.piku--walking .piku-svg {
+  animation: none !important;
+  transform:
+    rotateX(calc(var(--rx, 0) * 1deg))
+    rotateY(calc(var(--ry, 0) * 1deg))
+    rotateZ(calc(var(--rz, 0) * 1deg + var(--walk-sway, 0) * 1deg))
+    translateY(calc(var(--walk-bob, 0) * 1px))
+    translateX(calc(var(--walk-step, 0) * 0.18px * var(--walk-dir, 1)));
+}
+
+.piku--walking .piku-ground-shadow {
+  transform: translateX(-50%) scaleX(var(--shadow-scale-x, 1)) scaleY(var(--shadow-scale-y, 0.58)) translateY(calc(var(--walk-bob, 0) * 0.12px));
+}
+.piku--walking .piku-ground-shadow-soft {
+  transform: translateX(-50%) scaleX(var(--shadow-scale-x, 1)) scaleY(calc(var(--shadow-scale-y, 0.58) * 1.12)) translateY(calc(var(--walk-bob, 0) * 0.08px));
+}
+
+/* Feet walking */
+.piku-foot {
+  will-change: transform;
+  transition: transform 95ms cubic-bezier(0.33, 0, 0.67, 1);
+}
+.piku-foot-left {
+  transform: translate(calc(var(--walk-step, 0) * 1px * var(--walk-dir, 1)), calc(var(--walk-lift-l, 0) * -1px));
+}
+.piku-foot-right {
+  transform: translate(calc(var(--walk-step, 0) * -1px * var(--walk-dir, 1)), calc(var(--walk-lift-r, 0) * -1px));
+}
+.piku--walking .piku-foot {
+  transition: transform 110ms cubic-bezier(0.3, 0, 0.7, 1);
+}
+.piku-dust-puff {
+  will-change: opacity, transform;
+  transition: opacity 120ms ease;
+}
+.piku--walking .piku-dust-left {
+  opacity: calc(clamp(0, var(--walk-lift-l, 0) * 0.18, 0.22) * clamp(0, var(--walk-step, 0) * 0.5 + 0.5, 1));
+}
+.piku--walking .piku-dust-right {
+  opacity: calc(clamp(0, var(--walk-lift-r, 0) * 0.18, 0.22) * clamp(0, var(--walk-step, 0) * -0.5 + 0.5, 1));
+}
+
+/* Waking snap when scroll interrupts walk */
+.piku--waking .piku-svg {
+  animation: piku-wake-hop 580ms cubic-bezier(0.22, 1, 0.36, 1) !important;
+}
+@keyframes piku-wake-hop {
+  0%   { transform: rotateX(calc(var(--rx, 0) * 1deg)) rotateY(calc(var(--ry, 0) * 1deg)) rotateZ(calc(var(--rz, 0) * 1deg)) translateY(calc(var(--walk-bob, 0) * 1px)) scaleY(1) scaleX(1); }
+  18%  { transform: rotateX(calc(var(--rx, 0) * 1deg - 3deg)) rotateY(calc(var(--ry, 0) * 1deg)) rotateZ(calc(var(--rz, 0) * 1deg)) translateY(-7px) scaleY(1.04) scaleX(0.98); }
+  42%  { transform: rotateX(calc(var(--rx, 0) * 1deg)) rotateY(calc(var(--ry, 0) * 1deg)) translateY(1.5px) scaleY(0.98) scaleX(1.02); }
+  72%  { transform: rotateX(calc(var(--rx, 0) * 1deg)) rotateY(calc(var(--ry, 0) * 1deg)) translateY(-1px) scaleY(1.01) scaleX(0.998); }
+  100% { transform: rotateX(calc(var(--rx, 0) * 1deg)) rotateY(calc(var(--ry, 0) * 1deg)) rotateZ(calc(var(--rz, 0) * 1deg)) translateY(0px) scaleY(1) scaleX(1); }
+}
+
+/* ================================================================
+ * Depth layers — simple z-index only, no parallax
+ * ================================================================ */
+.piku-depth-layer {
+  z-index: var(--layer-idx, 4);
+}
+
+/* ================================================================
+ * Tie tail sway
+ * ================================================================ */
+.piku-tie-tail,
+.piku-scarf-tail {
+  transform-origin: 60px 51px;
+  will-change: transform;
+}
+
+/* ================================================================
+ * Belly highlight — breathes with opacity
+ * ================================================================ */
+.piku-belly-highlight {
+  animation: piku-belly-pulse 4.1s ease-in-out infinite;
+}
+@keyframes piku-belly-pulse {
+  0%, 100% { opacity: 0.09; }
+  50%       { opacity: 0.16; }
+}
+
+.piku-wing-left,
+.piku-wing-right {
+  animation: piku-wing-breathe 4.1s ease-in-out infinite;
+}
+.piku-wing-right { animation-delay: -0.4s; }
+
+@keyframes piku-wing-breathe {
+  0%, 100% { transform: rotate(12deg); }
+  50%       { transform: rotate(13deg); }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .piku-btn.piku-hovering .piku-wing-left {
+    animation: piku-wing-hover 1.2s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+  }
+  .piku-btn.piku-hovering .piku-wing-right {
+    animation: piku-wing-hover 1.2s cubic-bezier(0.22, 1, 0.36, 1) infinite reverse;
+  }
+}
+@keyframes piku-wing-hover {
+  0%, 100% { transform: rotate(12deg); }
+  50%       { transform: rotate(16deg); }
+}
+
+/* ================================================================
+ * Ground shadow — flat ellipse, no 3D
+ * ================================================================ */
+.piku-ground-shadow,
+.piku-ground-shadow-soft {
+  position: absolute;
+  left: 50%;
+  pointer-events: none;
+  border-radius: 50%;
+  transform-origin: 50% 50%;
+  will-change: transform, opacity;
+  z-index: 0;
+}
+
+.piku-ground-shadow {
+  bottom: 6px;
+  width: 56px;
+  height: 10px;
+  background: rgba(23, 25, 30, 0.16);
+  filter: blur(4px);
+  transform: translateX(-50%) scaleX(var(--shadow-scale-x, 1)) scaleY(var(--shadow-scale-y, 0.58));
+  opacity: var(--shadow-opacity, 0.17);
+  transition: opacity 220ms ease;
+}
+
+.piku-ground-shadow-soft {
+  bottom: 4px;
+  width: 74px;
+  height: 14px;
+  background: rgba(23, 25, 30, 0.07);
+  filter: blur(7px);
+  transform: translateX(-50%) scaleX(var(--shadow-scale-x, 1)) scaleY(calc(var(--shadow-scale-y, 0.58) * 1.12));
+  opacity: calc(var(--shadow-opacity, 0.17) * 0.42);
+}
+
+@media (max-width: 767px) {
+  .piku-ground-shadow { width: 44px; height: 8px; bottom: 5px; filter: blur(3.5px); }
+  .piku-ground-shadow-soft { width: 58px; height: 11px; bottom: 3px; filter: blur(5.5px); }
+}
+
+/* ================================================================
+ * Blink — JS drives .piku-blinking
+ * ================================================================ */
+.piku-eyes {
+  transform-origin: 60px 50px;
+  will-change: transform;
+}
+.piku-pupils {
+  will-change: transform, opacity;
+  transition: opacity 120ms ease;
+}
+.piku-lids {
+  transition: opacity 90ms ease;
+  will-change: opacity;
+}
+.piku-blinking .piku-lids { opacity: 1 !important; }
+.piku-blinking .piku-pupils { opacity: 0.08; transition: opacity 80ms ease; }
+
+.piku--sleepy .piku-pupils {
+  opacity: 0 !important;
+}
+.piku--sleepy .piku-eyes {
+  opacity: 0.98;
+}
+
+@supports not (selector(:has(*))) {
+  .piku-eyes { animation: piku-blink-fallback 5.2s ease-in-out infinite; }
+  .piku-blinking .piku-eyes { animation: none; }
+}
+@keyframes piku-blink-fallback {
+  0%, 92%, 100% { transform: scaleY(1); }
+  94%, 96%     { transform: scaleY(0.10); }
+}
+
+/* ================================================================
+ * Burst particles
+ * ================================================================ */
+.piku-heart-burst,
+.piku-star-burst {
+  position: absolute;
+  left: 50%;
+  top: 44%;
+  width: 18px;
+  height: 18px;
+  pointer-events: none;
+  z-index: 20;
+  transform: translate(-50%, -50%) scale(0.55);
+  animation: piku-burst 900ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  will-change: transform, opacity;
+}
+
+.piku-heart-burst::before,
+.piku-heart-burst::after {
+  content: "♥";
+  position: absolute;
+  left: 0; top: 0;
+  font-size: 15px;
+  line-height: 1;
+  text-shadow: 0 1px 3px rgba(23,25,30,0.18);
+}
+.piku-heart-burst::before { color: #d4a5a5; }
+.piku-heart-burst::after  { color: #F2B840; transform: rotate(14deg) scale(0.78) translate(1px, 1px); opacity: 0.92; }
+
+.piku-star-burst::before,
+.piku-star-burst::after {
+  content: "★";
+  position: absolute;
+  left: 0; top: 0;
+  font-size: 15px;
+  line-height: 1;
+  text-shadow: 0 1px 3px rgba(23,25,30,0.18);
+}
+.piku-star-burst::before { color: #FFD87A; }
+.piku-star-burst::after  { color: #f0b85c; transform: rotate(18deg) scale(0.72) translate(1px, 0.5px); opacity: 0.95; }
+
+@keyframes piku-burst {
+  0%   { opacity: 1; transform: translate(-50%, -50%) scale(0.55) rotate(0deg); }
+  14%  { opacity: 1; transform: translate(calc(-50% + var(--burst-x, 0px) * 0.18), calc(-50% + var(--burst-y, 0px) * 0.18)) scale(1.05) rotate(calc(var(--burst-r, 0deg) * 0.2)); }
+  100% { opacity: 0; transform: translate(calc(-50% + var(--burst-x, 0px)), calc(-50% + var(--burst-y, 0px))) scale(1.15) rotate(var(--burst-r, 0deg)); }
+}
+
+/* ================================================================
+ * Emotions
+ * ================================================================ */
+
+.piku--wave .piku-wing-left {
+  animation: piku-wave-wing 1.75s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+}
+.piku--wave .piku-svg {
+  animation: piku-wave-body 1.75s cubic-bezier(0.22, 1, 0.36, 1);
+}
+@keyframes piku-wave-body {
+  0%, 100% { transform: rotateX(calc(var(--rx, 0) * 1deg)) rotateY(calc(var(--ry, 0) * 1deg)) rotateZ(calc(var(--rz, 0) * 1deg)) translateY(0px); }
+  18% { transform: rotateX(calc(var(--rx, 0) * 1deg)) rotateY(calc(var(--ry, 0) * 1deg - 3deg)) rotateZ(-5deg) translateY(-1px); }
+  42% { transform: rotateX(calc(var(--rx, 0) * 1deg)) rotateY(calc(var(--ry, 0) * 1deg + 2deg)) rotateZ(4deg) translateY(-0.5px); }
+  68% { transform: rotateX(calc(var(--rx, 0) * 1deg)) rotateY(calc(var(--ry, 0) * 1deg - 1deg)) rotateZ(-2deg) translateY(-0.8px); }
+}
+@keyframes piku-wave-wing {
+  0%, 100% { transform: rotate(12deg); }
+  20% { transform: rotate(-42deg); }
+  44% { transform: rotate(18deg); }
+  66% { transform: rotate(-28deg); }
+  84% { transform: rotate(10deg); }
+}
+
+.piku--happy .piku-svg {
+  animation: piku-happy-hop 0.88s cubic-bezier(0.22, 1, 0.36, 1) 2 !important;
+}
+@keyframes piku-happy-hop {
+  0%, 100% { transform: rotateX(calc(var(--rx, 0) * 1deg)) rotateY(calc(var(--ry, 0) * 1deg)) translateY(0px) scaleY(1) scaleX(1); }
+  32% { transform: rotateX(calc(var(--rx, 0) * 1deg)) rotateY(calc(var(--ry, 0) * 1deg)) translateY(-9px) scaleY(1.02) scaleX(0.985); }
+  54% { transform: rotateX(calc(var(--rx, 0) * 1deg)) rotateY(calc(var(--ry, 0) * 1deg)) translateY(2px) scaleY(0.96) scaleX(1.03); }
+  74% { transform: rotateX(calc(var(--rx, 0) * 1deg)) rotateY(calc(var(--ry, 0) * 1deg)) translateY(-1px) scaleY(1.015) scaleX(0.992); }
+}
+.piku--happy .piku-wing-left  { transform: rotate(-14deg) !important; animation: none !important; }
+.piku--happy .piku-wing-right { transform: rotate(14deg) !important; animation: none !important; }
+
+.piku--sleepy .piku-svg {
+  animation: piku-sleep-breathe 3.8s ease-in-out infinite !important;
+}
+@keyframes piku-sleep-breathe {
+  0%, 100% { transform: rotateX(calc(var(--rx, 0) * 1deg + 5deg)) rotateY(calc(var(--ry, 0) * 1deg)) rotateZ(calc(var(--rz, 0) * 1deg)) translateY(0.6px) scaleY(1); }
+  50%       { transform: rotateX(calc(var(--rx, 0) * 1deg + 8deg)) rotateY(calc(var(--ry, 0) * 1deg)) rotateZ(calc(var(--rz, 0) * 1deg)) translateY(-0.4px) scaleY(1.012); }
+}
+.piku--sleepy .piku-zzz text {
+  opacity: 0;
+  animation: piku-zzz-rise 2.9s ease-in-out infinite;
+}
+.piku--sleepy .piku-zzz text:nth-child(2) { animation-delay: 0.55s; }
+.piku--sleepy .piku-zzz text:nth-child(3) { animation-delay: 1.15s; }
+@keyframes piku-zzz-rise {
+  0%   { opacity: 0; transform: translate(0, 5px) scale(0.72); }
+  30%  { opacity: 0.9; }
+  100% { opacity: 0; transform: translate(2px, -16px) scale(1.28); }
+}
+
+.piku--surprised .piku-svg {
+  animation: piku-surprise-recoil 0.62s cubic-bezier(0.22, 1, 0.36, 1) !important;
+}
+@keyframes piku-surprise-recoil {
+  0%   { transform: rotateX(calc(var(--rx, 0) * 1deg)) rotateY(calc(var(--ry, 0) * 1deg)) scaleY(1) translateY(0px); }
+  28%  { transform: rotateX(calc(var(--rx, 0) * 1deg - 7deg)) rotateY(calc(var(--ry, 0) * 1deg)) scaleY(0.95) translateY(2.5px); }
+  58%  { transform: rotateX(calc(var(--rx, 0) * 1deg + 3deg)) rotateY(calc(var(--ry, 0) * 1deg)) scaleY(1.04) translateY(-2px); }
+  100% { transform: rotateX(calc(var(--rx, 0) * 1deg)) rotateY(calc(var(--ry, 0) * 1deg)) scaleY(1) translateY(0px); }
+}
+.piku--surprised .piku-sweat {
+  animation: piku-sweat-drip 1.1s ease-in-out infinite;
+}
+@keyframes piku-sweat-drip {
+  0%, 100% { transform: translate(0, 0) scale(1); opacity: 1; }
+  50%       { transform: translate(0, 3px) scale(1.04); opacity: 0.88; }
+}
+
+.piku--curious .piku-svg {
+  animation: piku-curious-tilt 3.2s ease-in-out infinite !important;
+}
+@keyframes piku-curious-tilt {
+  0%, 100% { transform: rotateX(calc(var(--rx, 0) * 1deg - 3deg)) rotateY(calc(var(--ry, 0) * 1deg)) rotateZ(1deg); }
+  34% { transform: rotateX(calc(var(--rx, 0) * 1deg - 5deg)) rotateY(calc(var(--ry, 0) * 1deg + 1.5deg)) rotateZ(6.5deg); }
+  66% { transform: rotateX(calc(var(--rx, 0) * 1deg - 2deg)) rotateY(calc(var(--ry, 0) * 1deg - 1deg)) rotateZ(-3.5deg); }
+}
+
+.piku--thinking .piku-svg {
+  animation: piku-thinking-pose 4s ease-in-out infinite !important;
+}
+@keyframes piku-thinking-pose {
+  0%, 100% { transform: rotateX(calc(var(--rx, 0) * 1deg - 2deg)) rotateY(calc(var(--ry, 0) * 1deg + 2deg)) rotateZ(2deg); }
+  36% { transform: rotateX(calc(var(--rx, 0) * 1deg - 4deg)) rotateY(calc(var(--ry, 0) * 1deg + 4deg)) rotateZ(4deg); }
+  68% { transform: rotateX(calc(var(--rx, 0) * 1deg - 1.5deg)) rotateY(calc(var(--ry, 0) * 1deg + 1deg)) rotateZ(0.5deg); }
+}
+.piku-think-dots circle {
+  animation: piku-think-pop 1.5s ease-in-out infinite;
+}
+.piku-think-dots circle:nth-child(2) { animation-delay: 0.28s; }
+.piku-think-dots circle:nth-child(3) { animation-delay: 0.56s; }
+@keyframes piku-think-pop {
+  0%, 100% { opacity: 0.28; transform: translateY(0) scale(1); }
+  50%       { opacity: 0.78; transform: translateY(-2.5px) scale(1.06); }
+}
+
+.piku--excited .piku-svg {
+  animation: piku-excited-hop 0.62s cubic-bezier(0.22, 1, 0.36, 1) 3 !important;
+}
+@keyframes piku-excited-hop {
+  0%, 100% { transform: rotateX(calc(var(--rx, 0) * 1deg)) rotateY(calc(var(--ry, 0) * 1deg)) translateY(0px) scaleY(1) scaleX(1); }
+  36% { transform: rotateX(calc(var(--rx, 0) * 1deg)) rotateY(calc(var(--ry, 0) * 1deg + 2deg)) translateY(-10px) scaleY(1.07) scaleX(0.96); }
+  62% { transform: rotateX(calc(var(--rx, 0) * 1deg)) rotateY(calc(var(--ry, 0) * 1deg)) translateY(3px) scaleY(0.94) scaleX(1.03); }
+  80% { transform: rotateX(calc(var(--rx, 0) * 1deg)) rotateY(calc(var(--ry, 0) * 1deg)) translateY(-1.5px) scaleY(1.02) scaleX(0.99); }
+}
+.piku--excited .piku-wing-left  { animation: piku-excited-wing 0.62s ease-in-out 3 !important; }
+.piku--excited .piku-wing-right { animation: piku-excited-wing 0.62s ease-in-out 3 reverse !important; }
+@keyframes piku-excited-wing {
+  0%, 100% { transform: rotate(12deg); }
+  45% { transform: rotate(-22deg); }
+}
+.piku-sparkles circle {
+  animation: piku-sparkle-twinkle 1.9s ease-in-out infinite;
+}
+.piku-sparkles circle:nth-child(2) { animation-delay: -0.48s; }
+.piku-sparkles circle:nth-child(3) { animation-delay: -0.96s; }
+.piku-sparkles circle:nth-child(4) { animation-delay: -1.44s; }
+@keyframes piku-sparkle-twinkle {
+  0%, 100% { opacity: 0.0; transform: scale(0.6); }
+  20% { opacity: 0.85; transform: scale(1); }
+  80% { opacity: 0.75; transform: scale(1); }
+  100% { opacity: 0; transform: scale(0.9) translateY(-3px); }
+}
+
+.piku--proud .piku-svg {
+  animation: piku-proud-puff 2.2s cubic-bezier(0.22, 1, 0.36, 1) !important;
+}
+@keyframes piku-proud-puff {
+  0%   { transform: rotateX(calc(var(--rx, 0) * 1deg)) rotateY(calc(var(--ry, 0) * 1deg)) translateY(0px) scaleY(1) scaleX(1); }
+  28%  { transform: rotateX(calc(var(--rx, 0) * 1deg - 4deg)) rotateY(calc(var(--ry, 0) * 1deg)) translateY(-2.5px) scaleY(0.96) scaleX(1.04); }
+  58%  { transform: rotateX(calc(var(--rx, 0) * 1deg - 2deg)) rotateY(calc(var(--ry, 0) * 1deg)) translateY(-1.5px) scaleY(0.98) scaleX(1.02); }
+  100% { transform: rotateX(calc(var(--rx, 0) * 1deg)) rotateY(calc(var(--ry, 0) * 1deg)) translateY(0px) scaleY(1) scaleX(1); }
+}
+.piku-proud-sparkle {
+  animation: piku-sparkle-twinkle 1.6s ease-in-out infinite;
+}
+
+.piku--nervous .piku-svg {
+  animation: piku-nervous-tremble 0.52s cubic-bezier(0.45, 0, 0.55, 1) infinite !important;
+}
+@keyframes piku-nervous-tremble {
+  0%, 100% { transform: rotateX(calc(var(--rx, 0) * 1deg)) rotateY(calc(var(--ry, 0) * 1deg)) rotateZ(calc(var(--rz, 0) * 1deg + 0deg)); }
+  24% { transform: rotateX(calc(var(--rx, 0) * 1deg)) rotateY(calc(var(--ry, 0) * 1deg)) rotateZ(calc(var(--rz, 0) * 1deg - 1.1deg)); }
+  52% { transform: rotateX(calc(var(--rx, 0) * 1deg)) rotateY(calc(var(--ry, 0) * 1deg)) rotateZ(calc(var(--rz, 0) * 1deg + 0.9deg)); }
+  76% { transform: rotateX(calc(var(--rx, 0) * 1deg)) rotateY(calc(var(--ry, 0) * 1deg)) rotateZ(calc(var(--rz, 0) * 1deg - 0.5deg)); }
+}
+.piku--nervous .piku-sweat { animation: piku-sweat-drip 0.9s ease-in-out infinite; }
+
+.piku--peeking .piku-svg {
+  transform:
+    translateY(34px)
+    rotateX(calc(var(--rx, 0) * 1deg))
+    rotateY(calc(var(--ry, 0) * 1deg))
+    rotateZ(calc(var(--rz, 0) * 1deg));
+  animation: piku-peek-bob 2.6s ease-in-out infinite !important;
+}
+@keyframes piku-peek-bob {
+  0%, 100% { transform: translateY(34px) rotateX(calc(var(--rx, 0) * 1deg)) rotateY(calc(var(--ry, 0) * 1deg)) rotateZ(calc(var(--rz, 0) * 1deg)); }
+  50%       { transform: translateY(30px) rotateX(calc(var(--rx, 0) * 1deg)) rotateY(calc(var(--ry, 0) * 1deg)) rotateZ(calc(var(--rz, 0) * 1deg + 1deg)); }
+}
+.piku--peeking .piku-peek-hat {
+  animation: piku-peek-hat-tilt 2.6s ease-in-out infinite;
+}
+@keyframes piku-peek-hat-tilt {
+  0%, 100% { transform: translate(40px, 7.5px) rotate(0deg); }
+  50%       { transform: translate(40px, 6px) rotate(-2deg); }
+}
+
+/* ================================================================
+ * Bubble
+ * ================================================================ */
+.piku-bubble {
+  position: absolute;
+  right: calc(100% + 12px);
+  bottom: 62%;
+  width: max-content;
+  max-width: min(240px, 60vw);
+  padding: 10px 14px;
+  border: 1px solid rgba(23, 25, 30, 0.08);
+  border-radius: 16px 16px 16px 4px;
+  background: #ffffff;
+  color: #17191e;
+  font-family: var(--font-instrument-sans, system-ui), sans-serif;
+  font-size: 12.5px;
+  line-height: 1.45;
+  letter-spacing: -0.01em;
+  box-shadow:
+    0 16px 40px -16px rgba(23, 25, 30, 0.28),
+    0 4px 12px -4px rgba(23, 25, 30, 0.14);
+  animation: piku-pop 240ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  pointer-events: none;
+  z-index: 10;
+}
+.piku-bubble::after {
+  content: "";
+  position: absolute;
+  right: -6px;
+  bottom: 12px;
+  width: 10px;
+  height: 10px;
+  background: inherit;
+  border-right: 1px solid rgba(23, 25, 30, 0.08);
+  border-top: 1px solid rgba(23, 25, 30, 0.08);
+  transform: rotate(45deg);
+}
+@keyframes piku-pop {
+  from { opacity: 0; transform: translateX(8px) translateY(6px) scale(0.94); }
+  to   { opacity: 1; transform: translateX(0) translateY(0) scale(1); }
+}
+
+/* ================================================================
+ * Reduced motion — disable all
+ * ================================================================ */
+@media (prefers-reduced-motion: reduce) {
+  .piku-svg,
+  .piku-depth-layer,
+  .piku-shadow,
+  .piku-shadow-soft,
+  .piku-ground-shadow,
+  .piku-ground-shadow-soft,
+  .piku-bubble,
+  .piku-wing-left,
+  .piku-wing-right,
+  .piku-wing-back,
+  .piku-pupils,
+  .piku-eyes,
+  .piku-lids,
+  .piku-zzz text,
+  .piku-sweat,
+  .piku-think-dots circle,
+  .piku-sparkles circle,
+  .piku-proud-sparkle,
+  .piku-heart-burst,
+  .piku-star-burst,
+  .piku-side-profile,
+  .piku-belly-highlight,
+  .piku-scarf-tail,
+  .piku-tie-tail,
+  .piku-tie,
+  .piku-glasses,
+  .piku-foot,
+  .piku-dust-puff {
+    animation: none !important;
+    transition: none !important;
+  }
+  .piku-btn:hover { filter: none !important; }
+  .piku-eyes { transform: none !important; }
+  .piku-blinking .piku-lids { opacity: 0 !important; }
+  .piku--walking .piku-svg { transform: none !important; animation: none !important; }
+  .piku-foot, .piku-foot-left, .piku-foot-right { transform: none !important; animation: none !important; transition: none !important; }
+  .piku--walking .piku-dust-puff { opacity: 0 !important; }
+  .piku--waking .piku-svg { animation: none !important; }
+}
+
+/* Touch devices: no hover visuals */
+@media (hover: none) {
+  .piku-btn.piku-hovering { filter: none !important; }
+}
