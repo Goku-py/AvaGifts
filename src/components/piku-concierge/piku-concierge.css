@@ -1,107 +1,78 @@
 /* ------------------------------------------------------------------ *
- * Piku concierge — conversation hierarchy
+ * Piku concierge — support-assistant thread
  *
- * The panel used to render every answered step at full size, so by the
- * third question the live question was one of eight equally-loud blocks.
- * These rules make the current turn the only thing shouting:
+ * This panel reads as a messaging thread: every message stays at full
+ * size and full contrast, Piku on the left with an avatar, the visitor's
+ * replies on the right.
  *
- *   - answered turns collapse to a quiet, compact line
- *   - the live question sits on its own tinted surface
- *   - the options below it stay white, so question and answers read as
- *     two different kinds of thing
+ * It previously collapsed answered turns to a muted, truncated line, and
+ * decided which turn was live from DOM position (`:not(:last-child)`).
+ * Both were wrong:
  *
- * The ladder always renders turns in document order, so `:last-child` is
- * the live step. That keeps this logic in one place rather than passing a
- * flag through every branch of a very long conditional tree.
+ *   - the intro step renders TWO blocks (the greeting and the "Let's
+ *     start" button), so the greeting was never `:last-child` and the
+ *     welcome message rendered as greyed-out truncated history;
+ *   - `:last-child` is structural and ignores `display: none`, so a
+ *     skipped step at the end collapsed the genuinely live turn too;
+ *   - muted grey under `opacity: .58` measured about 2.1:1, well under
+ *     the 4.5:1 minimum.
+ *
+ * Emphasis now comes from an explicit `data-state` written by the
+ * component, never from position, and nothing in the thread is muted,
+ * shrunk or truncated.
  * ------------------------------------------------------------------ */
 
-/* ---- Answered turns ------------------------------------------------ */
+/* ---- Thread rhythm ------------------------------------------------- */
 
-.piku-turn:not(:last-child) {
-  gap: 0.375rem;
-  opacity: 0.58;
-  transition:
-    opacity 240ms ease-out,
-    transform 240ms ease-out;
-}
-
-/* Bring history back to full strength when the reader goes looking. */
-.piku-turn:not(:last-child):hover,
-.piku-turn:not(:last-child):focus-within {
-  opacity: 1;
-}
-
-/* Piku's avatar is only needed on the live turn; in history it is noise. */
-.piku-turn:not(:last-child) .piku-face {
-  display: none;
-}
-
-.piku-turn:not(:last-child) .piku-said,
-.piku-turn:not(:last-child) [data-bubble="user"] {
-  padding: 0.3rem 0.7rem;
-  font-size: 12px;
-  line-height: 1.45;
-  border-radius: 999px;
-  box-shadow: none;
-}
-
-/* Answered questions recede furthest — the answer is the useful part. */
-.piku-turn:not(:last-child) .piku-said {
-  background: transparent;
-  border-color: transparent;
-  color: var(--color-text-muted, #868e96);
-  padding-left: 0;
-
-  /* One line each, so a long opener (the intro is the worst offender)
-     can't keep occupying the panel after it has been answered. Truncating
-     rather than clamping: line-clamp leaves a sliver of the next line
-     visible whenever line-height and box height disagree. The full text is
-     still there for screen readers and on hover. */
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* Hovering history restores the full text of whatever is being re-read. */
-.piku-turn:not(:last-child):hover .piku-said,
-.piku-turn:not(:last-child):focus-within .piku-said {
-  white-space: normal;
-  overflow: visible;
+/*
+ * Descendant, not child: `.piku-thread` is the scroll region and its only
+ * child is the conversation's own wrapper, so the turns are grandchildren.
+ * A `>` combinator here matched nothing at all.
+ */
+.piku-thread .piku-turn + .piku-turn {
+  margin-top: 0.75rem;
 }
 
 /*
- * Steps the visitor skipped render a turn with nothing in it. Without this
- * each one still contributes thread spacing, so three skipped questions
- * open a ~40px hole in the middle of the history.
+ * Steps the visitor skipped render a block with nothing in it. Without
+ * this each one still contributes thread spacing, so three skipped
+ * questions open a hole in the middle of the conversation.
  */
 .piku-turn:empty {
   display: none;
 }
 
-.piku-turn:not(:last-child) [data-bubble="user"] {
-  background: var(--color-surface, #f1f6fc);
-  color: var(--color-primary, #0b2a4d);
-  font-weight: 600;
+/* Answered turns sit closer together than the live turn does to them, so
+   the question being asked has a little air around it. */
+.piku-thread .piku-turn[data-state="done"] + .piku-turn[data-state="done"] {
+  margin-top: 0.5rem;
 }
 
-/* ---- The live turn ------------------------------------------------- */
+.piku-thread .piku-turn[data-state="live"] {
+  margin-top: 1.25rem;
+}
+
+/* ---- Messages ------------------------------------------------------ */
 
 /*
- * The question gets its own tinted surface so it is visibly a different
- * kind of thing from the white option chips underneath it.
+ * One size for every message, whether it was just asked or answered ten
+ * steps ago. A transcript people can actually re-read is the whole point
+ * of showing one.
  */
-.piku-turn:last-child .piku-said {
-  background: var(--color-surface, #f1f6fc);
-  border-color: transparent;
-  box-shadow: none;
+.piku-said {
   font-size: 15px;
-  line-height: 1.5;
-  font-weight: 500;
-  padding: 0.85rem 1.05rem;
+  line-height: 1.55;
 }
 
-.piku-turn:last-child .piku-face {
-  /* Settles in a beat after the bubble, so it reads as Piku arriving. */
+/* The live question carries a little more weight — it is the thing being
+   asked right now — but the same size and the same colour, so legibility
+   never depends on which turn you are on. */
+.piku-turn[data-state="live"] .piku-said {
+  font-weight: 500;
+}
+
+.piku-turn[data-state="live"] .piku-face {
+  /* Settles a beat after the bubble, so it reads as Piku arriving. */
   animation: piku-face-in 320ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
@@ -116,21 +87,8 @@
   }
 }
 
-/* Spacing between turns tightens as they collapse. */
-.piku-thread > * + * {
-  margin-top: 0.85rem;
-}
-
-.piku-thread > .piku-turn:not(:last-child) + .piku-turn:not(:last-child) {
-  margin-top: 0.4rem;
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .piku-turn:not(:last-child) {
-    transition: none;
-  }
-
-  .piku-turn:last-child .piku-face {
+  .piku-turn[data-state="live"] .piku-face {
     animation: none;
   }
 }

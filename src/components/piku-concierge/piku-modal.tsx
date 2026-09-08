@@ -87,7 +87,11 @@ function UserBubble({ children }: { children: ReactNode }) {
       initial={{ opacity: 0, y: 8, scale: 0.98 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={reduceMotion ? { duration: 0 } : SPRING_FIRM}
-      className="ml-auto max-w-[85%] rounded-2xl rounded-tr-md bg-interactive px-4 py-2.5 text-sm leading-relaxed text-white"
+      /* interactive-hover (#0e63cc), not interactive (#1273eb): white on the
+         lighter blue measures 4.49:1, a hair under AA. Same palette, and the
+         deeper blue reads better as a filled message bubble anyway.
+         `piku-said` keeps both sides of the conversation at one size. */
+      className="piku-said ml-auto max-w-[85%] rounded-2xl rounded-tr-md bg-interactive-hover px-4 py-2.5 leading-relaxed text-white"
     >
       {children}
     </motion.div>
@@ -188,8 +192,8 @@ function Chip({
         "inline-flex min-h-10 items-center gap-1.5 rounded-full border px-4 py-2 text-sm font-medium",
         "transition-[background-color,border-color,color] duration-200 ease-out motion-reduce:transition-none",
         selected
-          ? "border-interactive bg-interactive text-white"
-          : "border-primary/15 bg-white text-text-primary hover:border-primary/35",
+          ? "border-interactive-hover bg-interactive-hover text-white"
+          : "border-interactive bg-white text-text-primary hover:bg-surface",
       )}
     >
       <AnimatePresence initial={false}>
@@ -217,6 +221,7 @@ const TYPING_MS = 650;
 function StepMotion({
   stepKey,
   instant,
+  state = "done",
   children,
 }: {
   stepKey: string;
@@ -227,6 +232,16 @@ function StepMotion({
    * choreography needed.
    */
   instant?: boolean;
+  /**
+   * Whether this block is the question being asked right now.
+   *
+   * Passed explicitly rather than derived from DOM position. The previous
+   * `:last-child` rule broke on the intro step — which renders the
+   * greeting and the start button as two separate blocks, so the greeting
+   * was styled as answered history — and again whenever a skipped step
+   * was the last block rendered.
+   */
+  state?: "live" | "done";
   children: ReactNode;
 }) {
   const reduceMotion = useReducedMotion();
@@ -249,7 +264,7 @@ function StepMotion({
 
   if (!typed) {
     return (
-      <div key={stepKey} className="piku-turn flex flex-col gap-3">
+      <div key={stepKey} data-state={state} className="piku-turn flex flex-col gap-3">
         <TypingBubble />
       </div>
     );
@@ -258,16 +273,10 @@ function StepMotion({
     <motion.div
       key={stepKey}
       data-step-block={stepKey}
+      data-state={state}
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={reduceMotion ? { duration: 0 } : { duration: 0.4, ease: EASE }}
-      /*
-       * `piku-turn` is what lets piku-concierge.css collapse history: the
-       * ladder always renders turns in order, so the last one is the live
-       * step and every earlier one is answered. That keeps the collapse
-       * rule in one stylesheet instead of threading an `isPast` flag
-       * through every branch of the conversation.
-       */
       className="piku-turn flex flex-col gap-3"
     >
       {children}
@@ -276,10 +285,10 @@ function StepMotion({
 }
 
 const fieldInputClasses =
-  "w-full rounded-xl border border-primary/15 bg-white px-4 py-3 text-sm text-text-primary transition-colors duration-200 placeholder:text-text-muted hover:border-primary/25 focus:border-interactive focus:outline-none focus:ring-2 focus:ring-interactive/25";
+  "w-full rounded-xl border border-neutral-600 bg-white px-4 py-3 text-sm text-text-primary transition-colors duration-200 placeholder:text-text-secondary hover:border-primary focus:border-interactive focus:outline-none focus:ring-2 focus:ring-interactive/25";
 
 const fieldErrorClasses =
-  "w-full rounded-xl border border-danger bg-white px-4 py-3 text-sm text-text-primary placeholder:text-text-muted focus:border-danger focus:outline-none focus:ring-2 focus:ring-danger/25";
+  "w-full rounded-xl border border-danger bg-white px-4 py-3 text-sm text-text-primary placeholder:text-text-secondary focus:border-danger focus:outline-none focus:ring-2 focus:ring-danger/25";
 
 /* ------------------------------------------------------------------ */
 /* Modal                                                               */
@@ -312,6 +321,7 @@ export function PikuModal() {
   const [submitStatus, setSubmitStatus] = useState<SubmitStatus>("idle");
   const scrollRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
   const advanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const reduceMotion = useReducedMotion();
 
@@ -348,15 +358,45 @@ export function PikuModal() {
     clearPendingStep();
   }, [isOpen, pendingStep, clearPendingStep]);
 
-  /* Scroll-lock + Esc + initial focus while open */
+  /* Scroll-lock + Esc + initial focus + focus trap while open */
   useEffect(() => {
     if (!isOpen) return;
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     closeRef.current?.focus();
+
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") closeConcierge();
+      if (event.key === "Escape") {
+        closeConcierge();
+        return;
+      }
+      if (event.key !== "Tab") return;
+
+      /*
+       * Trap Tab inside the panel. `aria-modal` tells assistive tech to
+       * ignore the page behind, but it does nothing for keyboard focus —
+       * without this, tabbing past the last control walked into the header
+       * and nav underneath the open dialog.
+       */
+      const panel = panelRef.current;
+      if (!panel) return;
+      const focusable = panel.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+      );
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      const active = document.activeElement;
+
+      if (event.shiftKey && (active === first || !panel.contains(active))) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && active === last) {
+        event.preventDefault();
+        first.focus();
+      }
     };
+
     window.addEventListener("keydown", onKeyDown);
     return () => {
       document.body.style.overflow = previousOverflow;
@@ -504,8 +544,12 @@ export function PikuModal() {
             animate={{ opacity: 1, y: 0, x: 0, scale: 1 }}
             exit={{ opacity: 0, y: 48, x: 24, scale: 0.96 }}
             transition={reduceMotion ? { duration: 0 } : SPRING_EMERGE}
+            ref={panelRef}
             onClick={(event) => event.stopPropagation()}
-            className="flex h-[100dvh] w-full flex-col overflow-hidden bg-white sm:h-auto sm:max-h-[88vh] sm:max-w-lg sm:origin-bottom-right sm:rounded-2xl sm:shadow-lift"
+            /* min-h keeps short states (intro, done) from rendering as a
+               512px-wide, ~180px-tall sliver, and stops the card resizing
+               dramatically between steps while it is centred. */
+            className="flex h-[100dvh] w-full flex-col overflow-hidden bg-white sm:h-auto sm:max-h-[88vh] sm:min-h-[420px] sm:max-w-lg sm:origin-bottom-right sm:rounded-2xl sm:shadow-lift"
           >
             {/* Top — identity + support + close */}
             <div className="flex items-center gap-3 border-b border-divider bg-white px-4 py-3 sm:px-5">
@@ -519,7 +563,7 @@ export function PikuModal() {
                 </span>
               </span>
               <span className="min-w-0 flex-1">
-                <span className="block font-display text-lg font-semibold leading-tight tracking-[-0.01em]">
+                <span className="block font-display text-base font-semibold leading-tight tracking-[-0.01em]">
                   Piku
                 </span>
                 <span className="block truncate text-xs text-text-secondary">
@@ -531,7 +575,7 @@ export function PikuModal() {
                 onClick={openWhatsApp}
                 title="Talk to our gifting team on WhatsApp — your brief so far comes along"
                 aria-label="Support — talk to our gifting team on WhatsApp with your brief so far"
-                className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-interactive/30 bg-interactive/[0.06] px-3.5 py-2 text-xs font-semibold text-interactive transition-colors duration-200 hover:bg-interactive hover:text-white motion-reduce:transition-none"
+                className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-interactive-hover px-3.5 py-2 text-xs font-semibold text-interactive-hover transition-colors duration-200 hover:bg-interactive-hover hover:text-white motion-reduce:transition-none"
               >
                 <Headset aria-hidden="true" className="size-4" />
                 Support
@@ -572,9 +616,9 @@ export function PikuModal() {
                     />
                   ))}
                 </div>
-                <p className="mt-2 text-[11px] font-medium leading-relaxed text-text-secondary">
+                <p className="mt-2 text-xs font-medium leading-normal text-text-secondary">
                   {conciergeStages[stage].label}
-                  <span className="text-text-muted">
+                  <span className="text-text-secondary">
                     {" · "}
                     {stagesLeft > 0 ? `${stagesLeft} to go` : "last step"}
                   </span>
@@ -586,7 +630,7 @@ export function PikuModal() {
             <div
               ref={scrollRef}
               id="piku-scroll-region"
-              className="piku-scroll piku-thread min-h-0 flex-1 overflow-y-auto px-4 pb-5 pt-3 sm:px-5"
+              className="piku-scroll piku-thread flex min-h-0 flex-1 flex-col overflow-y-auto px-4 pb-5 pt-3 sm:px-5"
             >
               <Conversation
                 step={step}
@@ -617,7 +661,7 @@ export function PikuModal() {
                   <ArrowLeft aria-hidden="true" className="size-3.5" />
                   Back
                 </button>
-                <p className="text-[11px] text-text-muted">
+                <p className="text-xs text-text-secondary">
                   Takes about two minutes
                 </p>
               </div>
@@ -739,17 +783,26 @@ function Conversation(props: ConversationProps) {
   const reached = (target: ConciergeStep) =>
     order.indexOf(step) >= order.indexOf(target);
 
+  /*
+   * Which block is being asked right now. Stated explicitly rather than
+   * inferred from DOM position: the intro renders two blocks (greeting +
+   * start button), so a `:last-child` rule styled the greeting as answered
+   * history — the bug that made the opening screen unreadable.
+   */
+  const stateFor = (blockStep: ConciergeStep): "live" | "done" =>
+    step === blockStep ? "live" : "done";
+
   return (
-    <div className="flex flex-col gap-3">
+    <div className="mt-auto flex flex-col">
       {/* State 01 — intro */}
-      <StepMotion stepKey="intro" instant>
+      <StepMotion stepKey="intro" instant state={stateFor("intro")}>
         <PikuBubble>
           Hi, I’m Piku. I help teams find gifts people actually keep. Two
           minutes, a few quick questions — shall we start?
         </PikuBubble>
       </StepMotion>
       {step === "intro" ? (
-        <StepMotion stepKey="intro-action" instant>
+        <StepMotion stepKey="intro-action" instant state="live">
           <PrimaryAction onClick={() => props.goTo("occasion")}>
             Let’s start
           </PrimaryAction>
@@ -758,7 +811,8 @@ function Conversation(props: ConversationProps) {
 
       {/* State 02 — occasion */}
       {reached("occasion") ? (
-        <StepMotion stepKey="occasion">
+        <StepMotion stepKey="occasion" state={stateFor("occasion")}>
+          <PikuBubble>First — what’s the occasion?</PikuBubble>
           {reached("feeling") && answers.occasion ? (
             <>
               <UserBubble>
@@ -771,7 +825,6 @@ function Conversation(props: ConversationProps) {
           ) : null}
           {!reached("feeling") ? (
             <>
-              <PikuBubble>First — what’s the occasion?</PikuBubble>
               <SingleSelectChips
                 options={occasionOptions}
                 value={answers.occasion}
@@ -816,7 +869,8 @@ function Conversation(props: ConversationProps) {
 
       {/* State 03 — feeling */}
       {reached("feeling") ? (
-        <StepMotion stepKey="feeling">
+        <StepMotion stepKey="feeling" state={stateFor("feeling")}>
+          <PikuBubble>And how should it make them feel?</PikuBubble>
           {reached("gift-style") && answers.feeling ? (
             <>
               <UserBubble>
@@ -827,7 +881,6 @@ function Conversation(props: ConversationProps) {
           ) : null}
           {!reached("gift-style") ? (
             <>
-              <PikuBubble>And how should it make them feel?</PikuBubble>
               <SingleSelectChips
                 options={feelingOptions}
                 value={answers.feeling}
@@ -842,7 +895,11 @@ function Conversation(props: ConversationProps) {
 
       {/* State 04 — gift style (multi-select) */}
       {reached("gift-style") ? (
-        <StepMotion stepKey="gift-style">
+        <StepMotion stepKey="gift-style" state={stateFor("gift-style")}>
+          <PikuBubble>
+            What kind of gifts are you leaning towards? Pick as many as
+            you like.
+          </PikuBubble>
           {reached("details-quantity") ? (
             <>
               <UserBubble>
@@ -857,10 +914,6 @@ function Conversation(props: ConversationProps) {
           ) : null}
           {!reached("details-quantity") ? (
             <>
-              <PikuBubble>
-                What kind of gifts are you leaning towards? Pick as many as
-                you like.
-              </PikuBubble>
               <div className="flex flex-wrap gap-2">
                 {giftStyleOptions.map((option, index) => {
                   const selected = answers.styles.includes(option.value);
@@ -892,15 +945,15 @@ function Conversation(props: ConversationProps) {
 
       {/* State 05 — quantity */}
       {reached("details-quantity") ? (
-        <StepMotion stepKey="details-quantity">
+        <StepMotion stepKey="details-quantity" state={stateFor("details-quantity")}>
+          <PikuBubble>
+            Now the practical bits. Roughly how many gifts are we talking?
+          </PikuBubble>
           {reached("details-date") && answers.quantity.trim() ? (
             <UserBubble>{answers.quantity.trim()}</UserBubble>
           ) : null}
           {!reached("details-date") ? (
             <>
-              <PikuBubble>
-                Now the practical bits. Roughly how many gifts are we talking?
-              </PikuBubble>
               <input
                 type="text"
                 inputMode="numeric"
@@ -926,17 +979,17 @@ function Conversation(props: ConversationProps) {
 
       {/* State 06 — delivery date */}
       {reached("details-date") ? (
-        <StepMotion stepKey="details-date">
+        <StepMotion stepKey="details-date" state={stateFor("details-date")}>
+          <PikuBubble>
+            {answers.quantity.trim()
+              ? `Noted — ${answers.quantity.trim()} gifts. When do they need to arrive?`
+              : "When do they need to arrive?"}
+          </PikuBubble>
           {reached("details-location") && answers.deliveryDate.trim() ? (
             <UserBubble>{answers.deliveryDate.trim()}</UserBubble>
           ) : null}
           {!reached("details-location") ? (
             <>
-              <PikuBubble>
-                {answers.quantity.trim()
-                  ? `Noted — ${answers.quantity.trim()} gifts. When do they need to arrive?`
-                  : "When do they need to arrive?"}
-              </PikuBubble>
               <input
                 type="text"
                 value={answers.deliveryDate}
@@ -963,15 +1016,15 @@ function Conversation(props: ConversationProps) {
 
       {/* State 07 — location */}
       {reached("details-location") ? (
-        <StepMotion stepKey="details-location">
+        <StepMotion stepKey="details-location" state={stateFor("details-location")}>
+          <PikuBubble>
+            Where should they be delivered? A city — or several.
+          </PikuBubble>
           {reached("details-budget") && answers.location.trim() ? (
             <UserBubble>{answers.location.trim()}</UserBubble>
           ) : null}
           {!reached("details-budget") ? (
             <>
-              <PikuBubble>
-                Where should they be delivered? A city — or several.
-              </PikuBubble>
               <input
                 type="text"
                 value={answers.location}
@@ -996,7 +1049,8 @@ function Conversation(props: ConversationProps) {
 
       {/* State 08 — budget */}
       {reached("details-budget") ? (
-        <StepMotion stepKey="details-budget">
+        <StepMotion stepKey="details-budget" state={stateFor("details-budget")}>
+          <PikuBubble>Last practical one — what budget per gift feels right?</PikuBubble>
           {reached("details-notes") && answers.budget ? (
             <>
               <UserBubble>
@@ -1007,7 +1061,6 @@ function Conversation(props: ConversationProps) {
           ) : null}
           {!reached("details-notes") ? (
             <>
-              <PikuBubble>Last practical one — what budget per gift feels right?</PikuBubble>
               <SingleSelectChips
                 options={conciergeBudgetOptions}
                 value={answers.budget}
@@ -1022,16 +1075,16 @@ function Conversation(props: ConversationProps) {
 
       {/* State 09 — optional requirement */}
       {reached("details-notes") ? (
-        <StepMotion stepKey="details-notes">
+        <StepMotion stepKey="details-notes" state={stateFor("details-notes")}>
+          <PikuBubble>
+            Anything else I should pass on? Brand colours, must-haves,
+            things to avoid — or skip ahead.
+          </PikuBubble>
           {reached("confirm") && answers.requirement.trim() ? (
             <UserBubble>{answers.requirement.trim()}</UserBubble>
           ) : null}
           {!reached("confirm") ? (
             <>
-              <PikuBubble>
-                Anything else I should pass on? Brand colours, must-haves,
-                things to avoid — or skip ahead.
-              </PikuBubble>
               <textarea
                 value={answers.requirement}
                 onChange={(event) =>
@@ -1055,7 +1108,7 @@ function Conversation(props: ConversationProps) {
 
       {/* State 10 — confirmation */}
       {reached("confirm") ? (
-        <StepMotion stepKey="confirm">
+        <StepMotion stepKey="confirm" state={stateFor("confirm")}>
           <PikuBubble>
             Perfect — I’ve got everything the team needs to start. Just your
             details, and I’ll hand this over.
@@ -1070,7 +1123,7 @@ function Conversation(props: ConversationProps) {
 
       {/* State 11 — basic details */}
       {reached("contact") ? (
-        <StepMotion stepKey="contact">
+        <StepMotion stepKey="contact" state={stateFor("contact")}>
           {!reached("brief") ? (
             <>
               <PikuBubble>Where should the team reach you?</PikuBubble>
@@ -1174,7 +1227,7 @@ function Conversation(props: ConversationProps) {
 
       {/* State 12 — gifting brief summary */}
       {reached("brief") ? (
-        <StepMotion stepKey="brief">
+        <StepMotion stepKey="brief" state={stateFor("brief")}>
           {!reached("done") ? (
             <>
               <PikuBubble>
@@ -1327,7 +1380,7 @@ function Conversation(props: ConversationProps) {
                   <button
                     type="button"
                     onClick={props.openWhatsApp}
-                    className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-full border border-primary/15 px-6 text-sm font-medium text-text-primary transition-colors duration-200 hover:border-primary/30 hover:bg-primary/[0.04] motion-reduce:transition-none"
+                    className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-full border border-neutral-600 px-6 text-sm font-medium text-text-primary transition-colors duration-200 hover:border-primary hover:bg-primary/[0.04] motion-reduce:transition-none"
                   >
                     Continue on WhatsApp
                     <ArrowRight aria-hidden="true" className="size-4" />
@@ -1341,7 +1394,7 @@ function Conversation(props: ConversationProps) {
 
       {/* State 13 — done */}
       {step === "done" ? (
-        <StepMotion stepKey="done">
+        <StepMotion stepKey="done" state={stateFor("done")}>
           <div className="relative">
             <Celebration />
             <PikuBubble>
@@ -1481,7 +1534,7 @@ function BriefMiniButton({
         "inline-flex min-h-9 items-center rounded-full px-4 py-1.5 text-xs font-semibold transition-colors disabled:pointer-events-none disabled:opacity-50 motion-reduce:transition-none",
         primary
           ? "bg-interactive text-white hover:bg-interactive-hover"
-          : "border border-primary/15 text-text-primary hover:border-primary/35",
+          : "border border-neutral-600 text-text-primary hover:border-primary",
       )}
     >
       {children}

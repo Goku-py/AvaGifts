@@ -32,13 +32,19 @@ export const occasionOptions: ConciergeOption[] = [
 ];
 
 /* Q2 — feeling (single-select) */
+/*
+ * Past participles, not verbs. The question is "how should it make them
+ * feel?" and the acknowledgement reads "let's make them feel X" — with verb
+ * labels that produced "let's make them feel celebrate". Values are
+ * unchanged, so saved answers and the WhatsApp summary still line up.
+ */
 export const feelingOptions: ConciergeOption[] = [
-  { value: "celebrate", label: "Celebrate" },
-  { value: "appreciate", label: "Appreciate" },
-  { value: "inspire", label: "Inspire" },
-  { value: "impress", label: "Impress" },
-  { value: "welcome", label: "Welcome" },
-  { value: "recharge", label: "Recharge" },
+  { value: "celebrate", label: "Celebrated" },
+  { value: "appreciate", label: "Appreciated" },
+  { value: "inspire", label: "Inspired" },
+  { value: "impress", label: "Impressed" },
+  { value: "welcome", label: "Welcomed" },
+  { value: "recharge", label: "Recharged" },
 ];
 
 /* Q3 — gift style (multi-select) */
@@ -47,7 +53,8 @@ export const giftStyleOptions: ConciergeOption[] = [
   { value: "personalised", label: "Personalised" },
   { value: "premium", label: "Premium" },
   { value: "sustainable", label: "Sustainable" },
-  { value: "useful", label: "Useful" },
+  /* "Useful" was dropped from ProductTag, so offering it here would let
+     someone pick a style nothing in the catalogue is tagged with. */
   { value: "experience", label: "Experience" },
   { value: "tech", label: "Tech" },
   { value: "open-to-suggestions", label: "Open to Suggestions" },
