@@ -26,7 +26,9 @@ export function MakerCta() {
             </h2>
           </Reveal>
           <Reveal delay={0.08}>
-            <p className="text-body mt-3 max-w-xl text-primary/80">
+            {/* Full-strength navy, not /80: against the orange end of the
+                gradient the faded version drops to ~3.6:1, under AA. */}
+            <p className="text-body mt-3 max-w-xl text-primary">
               {makerCta.body}
             </p>
           </Reveal>

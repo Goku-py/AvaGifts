@@ -97,7 +97,16 @@ export interface Stat {
 }
 
 /* ------------------------------------------------------------------ */
-/* Placeholder photography — draft stock, replace with brand assets.   */
+/* Photography — draft stock, replace with brand assets.               */
+/*                                                                     */
+/* Every image below has been visually checked against the product it  */
+/* sits with, and each `photoAlt` describes what the photograph        */
+/* actually shows. If you swap an image, re-check the alt text with it */
+/* — alt that describes an aspiration rather than the picture is worse */
+/* than no alt at all for anyone using a screen reader.                */
+/*                                                                     */
+/* Art direction: warm neutrals, craft materials, daylight. Avoid      */
+/* saturated party colours — they fight the navy/blue palette.         */
 /* ------------------------------------------------------------------ */
 
 const UNSPLASH = (id: string) =>
@@ -128,18 +137,18 @@ export const hero = {
   primaryCta: "Get a Custom Quote",
   visualCards: [
     {
-      src: UNSPLASH("photo-1549465220-1a8b9238cd48"),
-      alt: "A gift wrapped in craft paper with a golden ribbon",
+      src: UNSPLASH("photo-1632924192284-9163f3d88a16"),
+      alt: "Kraft-paper parcels tied with twine and dried sprigs",
       caption: "Curated & gift-ready",
     },
     {
-      src: UNSPLASH("photo-1513201099705-a9746e1e201f"),
-      alt: "Hand-wrapped presents stacked with linen ribbon",
+      src: UNSPLASH("photo-1543874911-320748e4c335"),
+      alt: "A carved wooden block pressing gold ink onto cloth",
       caption: "Hand-finished, piece by piece",
     },
     {
-      src: UNSPLASH("photo-1512909006721-3d6018887383"),
-      alt: "A white gift box tied with twine and a dried flower",
+      src: UNSPLASH("photo-1764764138654-9f29a11eed95"),
+      alt: "A kraft parcel tied with white string and sealed with red wax",
       caption: "From 60+ artisan studios",
     },
   ] as HeroVisualCard[],
@@ -239,8 +248,8 @@ export const featuredProducts: Product[] = [
     tags: ["Premium", "Local"],
     blurb: "Hand-glazed Jaipur blue pottery — pen stand, coaster pair and card holder.",
     priceBand: "₹1,800–₹2,600",
-    photo: UNSPLASH("photo-1586075010923-2dd4570fb338"),
-    photoAlt: "Hand-glazed blue pottery pieces on a studio table",
+    photo: UNSPLASH("photo-1760124056943-eb64936d3d2a"),
+    photoAlt: "Bowls hand-painted in cobalt blue and white, stacked in a row",
   },
   {
     id: "soy-wax-candle-trio",
@@ -250,7 +259,7 @@ export const featuredProducts: Product[] = [
     blurb: "Three hand-poured candles — sandalwood, oud and neroli — in reusable tins.",
     priceBand: "₹1,200–₹1,800",
     photo: UNSPLASH("photo-1603006905003-be475563bc59"),
-    photoAlt: "Hand-poured candles in amber tins",
+    photoAlt: "A lit candle burning in a frosted glass tumbler",
   },
   {
     id: "artisanal-leather-journal",
@@ -259,8 +268,8 @@ export const featuredProducts: Product[] = [
     tags: ["Personalised", "Premium"],
     blurb: "Full-grain leather, hand-stitched in Rajasthan and foil-monogrammed with your mark.",
     priceBand: "₹1,500–₹2,200",
-    photo: UNSPLASH("photo-1544816155-12df9643f363"),
-    photoAlt: "A hand-stitched leather journal with a monogram",
+    photo: UNSPLASH("photo-1639371040157-55b642d03f4f"),
+    photoAlt: "A leather-bound journal closed with a wrap-around tie",
   },
   {
     id: "brass-planter-duo",
@@ -269,8 +278,8 @@ export const featuredProducts: Product[] = [
     tags: ["Useful", "Local"],
     blurb: "Hand-cast brass planters with a live jade and snake-plant pairing.",
     priceBand: "₹1,200–₹1,800",
-    photo: UNSPLASH("photo-1485955900006-10f4d324d411"),
-    photoAlt: "Small potted plants in metal planters on a desk",
+    photo: UNSPLASH("photo-1502920873987-ac48e660a95d"),
+    photoAlt: "A leafy plant in a brass planter on a white desk",
   },
   {
     id: "cashmere-travel-wrap",
@@ -279,8 +288,8 @@ export const featuredProducts: Product[] = [
     tags: ["Premium"],
     blurb: "Featherweight cashmere blend, rolled into a ribbon-tied gift tube.",
     priceBand: "₹4,500–₹6,000",
-    photo: UNSPLASH("photo-1520903920243-00d872a2d1c9"),
-    photoAlt: "A soft folded travel wrap tied with a ribbon",
+    photo: UNSPLASH("photo-1734553529922-bc020a21643b"),
+    photoAlt: "Woven throws folded and stacked in mustard and cream",
   },
   {
     id: "tea-connoisseur-chest",
@@ -289,8 +298,8 @@ export const featuredProducts: Product[] = [
     tags: ["Premium", "Useful"],
     blurb: "Eight single-estate teas with a double-walled glass brewer.",
     priceBand: "₹2,000–₹3,000",
-    photo: UNSPLASH("photo-1544787219-7f47ccb76574"),
-    photoAlt: "Loose-leaf tea being steeped in a glass cup",
+    photo: UNSPLASH("photo-1610112278819-069287c86d03"),
+    photoAlt: "A tea caddy with a painted floral lid",
   },
   {
     id: "recycled-cork-desk-mat",
@@ -299,8 +308,8 @@ export const featuredProducts: Product[] = [
     tags: ["Sustainable", "Useful"],
     blurb: "Cork-and-rubber desk mat, laser-etched with your logo or their initials.",
     priceBand: "₹800–₹1,200",
-    photo: UNSPLASH("photo-1497215728101-856f4ea42174"),
-    photoAlt: "A tidy desk set-up with a natural cork mat",
+    photo: UNSPLASH("photo-1641247565151-fe622e1067d0"),
+    photoAlt: "A tidy desk with a natural-finish desk mat, phone and glasses",
   },
   {
     id: "mysore-silk-stole",
@@ -309,8 +318,8 @@ export const featuredProducts: Product[] = [
     tags: ["Local", "Premium"],
     blurb: "Handloom silk stoles, gift-ready in a screen-printed cotton sleeve.",
     priceBand: "₹1,800–₹2,800",
-    photo: UNSPLASH("photo-1610030469983-98e550d6193c"),
-    photoAlt: "Folded handloom silk stoles in rich colours",
+    photo: UNSPLASH("photo-1676696706907-0e04665b80bd"),
+    photoAlt: "Teal silk falling in soft, lustrous folds",
   },
 ];
 
@@ -441,8 +450,8 @@ export const makerStory: MakerStory = {
     "Every AvaGifts textile in her collection is printed to order — which is why no two gift runs are ever quite identical. \"A gift should feel chosen, not ordered,\" she says. We agree.",
   ],
   quote: "A gift should feel chosen, not ordered.",
-  photo: UNSPLASH("photo-1459908676235-d5f02a50184b"),
-  photoAlt: "An artisan's hands printing fabric with carved wooden blocks",
+  photo: UNSPLASH("photo-1748327219221-8c56726d6f75"),
+  photoAlt: "An artisan pressing a carved block onto patterned cloth",
 };
 
 /* ------------------------------------------------------------------ */
@@ -473,8 +482,8 @@ export const journalArticles: JournalArticle[] = [
     category: "Guides",
     readTime: "6 min read",
     href: "#",
-    photo: UNSPLASH("photo-1513201099705-a9746e1e201f"),
-    photoAlt: "Wrapped gifts stacked and tied with linen ribbon",
+    photo: UNSPLASH("photo-1672256019300-9589d730bedd"),
+    photoAlt: "A leather journal fastened with a metal clasp",
   },
   {
     title: "Beyond the dry-fruit box: festive gifting, rethought",
@@ -483,8 +492,8 @@ export const journalArticles: JournalArticle[] = [
     category: "Inspiration",
     readTime: "4 min read",
     href: "#",
-    photo: UNSPLASH("photo-1603006905003-be475563bc59"),
-    photoAlt: "Hand-poured candles in amber tins",
+    photo: UNSPLASH("photo-1551975173-0493fae765d2"),
+    photoAlt: "Stacked glazed clay pots in blue and terracotta",
   },
   {
     title: "How we choose our makers",
@@ -493,8 +502,8 @@ export const journalArticles: JournalArticle[] = [
     category: "Behind the Scenes",
     readTime: "5 min read",
     href: "#",
-    photo: UNSPLASH("photo-1459908676235-d5f02a50184b"),
-    photoAlt: "An artisan's hands printing fabric with carved wooden blocks",
+    photo: UNSPLASH("photo-1544031089-3ebe8bf549b0"),
+    photoAlt: "An artisan stamping a repeating pattern onto white cloth",
   },
 ];
 

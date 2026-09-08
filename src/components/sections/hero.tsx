@@ -13,14 +13,21 @@ import { usePikuConcierge } from "@/components/piku-concierge/piku-concierge-con
 import { glanceHandlers } from "@/lib/piku-glance";
 import { cn } from "@/lib/utils";
 
+/*
+ * Overlapping cascade. Captions sit as chips at the TOP of each image and the
+ * stacking order runs bottom-card-highest, so no card can cover the caption of
+ * the one behind it — putting captions under the images meant the lower card
+ * hid them.
+ */
 const cardLayouts = [
-  { position: "absolute right-0 top-0 w-[62%] rotate-2", aspect: "aspect-[4/5]" },
-  { position: "absolute left-0 top-[16%] w-[56%] -rotate-3", aspect: "aspect-square" },
-  { position: "absolute bottom-0 right-[6%] w-[46%] rotate-1", aspect: "aspect-[5/4]" },
+  { position: "absolute right-0 top-0 z-10 w-[58%] rotate-2", aspect: "aspect-[4/5]" },
+  { position: "absolute left-0 top-[22%] z-20 w-[50%] -rotate-3", aspect: "aspect-square" },
+  { position: "absolute bottom-0 right-[8%] z-30 w-[46%] rotate-1", aspect: "aspect-[5/4]" },
 ] as const;
 
 export function Hero() {
   const { openConcierge } = usePikuConcierge();
+  const [lead] = hero.visualCards;
 
   return (
     <Section
@@ -66,47 +73,74 @@ export function Hero() {
           </Reveal>
         </div>
 
-        {/* Composition — real product photography */}
-        <div
-          aria-hidden="true"
-          className="relative mx-auto h-[400px] w-full max-w-[500px] sm:h-[460px] lg:h-[540px]"
-        >
-          <div className="absolute left-1/2 top-1/2 -z-10 size-[115%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-surface blur-3xl" />
-
-          {hero.visualCards.map((card, index) => (
-            <Reveal
-              key={card.src}
-              delay={0.15 + index * 0.1}
-              className={cn(cardLayouts[index].position)}
-            >
-              <Card hoverable className="overflow-hidden p-2.5 shadow-lift">
-                <div
-                  className={cn(
-                    "relative overflow-hidden rounded-lg",
-                    cardLayouts[index].aspect,
-                  )}
-                >
-                  <Image
-                    src={card.src}
-                    alt=""
-                    fill
-                    priority={index === 0}
-                    sizes="(min-width: 1024px) 340px, 62vw"
-                    className="object-cover"
-                  />
-                </div>
-                <p className="px-1.5 pb-1 pt-2 text-xs font-medium text-text-secondary">
-                  {card.caption}
+        {/* Composition — real product photography. Not aria-hidden: the cards
+            carry real alt text and their captions state facts ("From 60+
+            artisan studios") that would otherwise be lost to screen readers. */}
+        <div className="relative">
+          {/*
+            Below lg the overlapping cascade has nowhere to go — three rotated
+            cards inside ~350px collide with each other and with the mascot. So
+            small screens get the lead image on its own, at a calmer aspect.
+          */}
+          <Reveal className="lg:hidden">
+            <Card hoverable className="overflow-hidden p-2.5 shadow-lift">
+              <div className="relative aspect-[4/3] overflow-hidden rounded-lg sm:aspect-[16/10]">
+                <Image
+                  src={lead.src}
+                  alt={lead.alt}
+                  fill
+                  priority
+                  sizes="(min-width: 640px) 640px, 100vw"
+                  className="object-cover"
+                />
+                <p className="absolute left-3 top-3 rounded-full bg-white/92 px-3 py-1 text-[11px] font-medium text-text-primary shadow-card backdrop-blur-sm">
+                  {lead.caption}
                 </p>
-              </Card>
-            </Reveal>
-          ))}
+                <span className="absolute bottom-3 right-3 inline-flex items-center gap-1.5 rounded-full border border-divider bg-white/95 px-3 py-1.5 text-xs font-medium text-text-primary shadow-lift">
+                  <MapPin aria-hidden="true" className="size-3.5 text-interactive" />
+                  {hero.floatingTag}
+                </span>
+              </div>
+            </Card>
+          </Reveal>
 
-          <div className="absolute right-[2%] top-[40%] z-10">
-            <span className="animate-drift inline-flex items-center gap-1.5 rounded-full border border-divider bg-white/95 px-3.5 py-2 text-xs font-medium text-text-primary shadow-lift">
-              <MapPin aria-hidden="true" className="size-3.5 text-interactive" />
-              {hero.floatingTag}
-            </span>
+          <div className="relative mx-auto hidden h-[540px] w-full max-w-[500px] lg:block">
+            <div className="absolute left-1/2 top-1/2 -z-10 size-[115%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-surface blur-3xl" />
+
+            {hero.visualCards.map((card, index) => (
+              <Reveal
+                key={card.src}
+                delay={0.15 + index * 0.1}
+                className={cn(cardLayouts[index].position)}
+              >
+                <Card hoverable className="overflow-hidden p-2.5 shadow-lift">
+                  <div
+                    className={cn(
+                      "relative overflow-hidden rounded-lg",
+                      cardLayouts[index].aspect,
+                    )}
+                  >
+                    <Image
+                      src={card.src}
+                      alt={card.alt}
+                      fill
+                      sizes="300px"
+                      className="object-cover"
+                    />
+                    <p className="absolute left-2 top-2 rounded-full bg-white/92 px-2.5 py-1 text-[11px] font-medium text-text-primary shadow-card backdrop-blur-sm">
+                      {card.caption}
+                    </p>
+                  </div>
+                </Card>
+              </Reveal>
+            ))}
+
+            <div className="absolute right-[2%] top-[42%] z-40">
+              <span className="animate-drift inline-flex items-center gap-1.5 rounded-full border border-divider bg-white/95 px-3.5 py-2 text-xs font-medium text-text-primary shadow-lift">
+                <MapPin aria-hidden="true" className="size-3.5 text-interactive" />
+                {hero.floatingTag}
+              </span>
+            </div>
           </div>
         </div>
       </div>
