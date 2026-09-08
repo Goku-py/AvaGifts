@@ -26,7 +26,9 @@ const FOOT = "#FF9A4D";
 const GLASS = "#1B1E25";
 const BLUSH = "#d4a5a5";
 const EXCITED_STAR = "#FFDE59";
-const NERVOUS_TEAL = "#7ec8c8";
+/* Sweat lines. Was a stray #7ec8c8 from the previous brand; the mint from
+   Gradient 3 is the palette's own cool accent and reads the same. */
+const NERVOUS_MINT = "#51F8B0";
 
 function DepthLayer({
   z,
@@ -236,7 +238,7 @@ export function PikuSprite({ emotion }: { emotion: PikuEmotion }) {
 
             {/* Nervous — outline ring */}
             {isNervous && (
-              <g fill="none" stroke={NERVOUS_TEAL} strokeWidth={0.9} opacity={0.5}>
+              <g fill="none" stroke={NERVOUS_MINT} strokeWidth={0.9} opacity={0.5}>
                 <ellipse cx={44} cy={50} rx={10.5} ry={9.5} />
                 <ellipse cx={76} cy={50} rx={10.5} ry={9.5} />
               </g>

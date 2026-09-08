@@ -1,5 +1,6 @@
 /** Custom DOM events shared across AvaGifts components. */
 export const CLOSE_CATALOG_EVENT = "avagifts:close-catalog";
+export const OPEN_CATALOG_EVENT = "avagifts:open-catalog";
 
 /* Piku ↔ concierge shared emotions + the glance. Dispatched with
    CustomEvent where a payload is needed (glance carries gaze bias). */

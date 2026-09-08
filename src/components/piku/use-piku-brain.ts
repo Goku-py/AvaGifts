@@ -5,6 +5,7 @@ import {
   PIKU_CELEBRATE_EVENT,
   PIKU_CONCIERGE_CLOSED_EVENT,
   PIKU_ENQUIRY_SENT_EVENT,
+  OPEN_CATALOG_EVENT,
   PIKU_GLANCE_EVENT,
 } from "@/lib/events";
 import { OPEN_PIKU_EVENT } from "@/lib/piku-concierge";
@@ -496,7 +497,7 @@ export function usePikuBrain() {
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("mousemove", onMouseMove, { passive: true });
     document.addEventListener("focusin", onFocusIn);
-    window.addEventListener("avagifts:open-catalog", onCatalogOpen as EventListener);
+    window.addEventListener(OPEN_CATALOG_EVENT, onCatalogOpen as EventListener);
     window.addEventListener(OPEN_PIKU_EVENT, onConciergeOpen);
     window.addEventListener(PIKU_GLANCE_EVENT, onGlance);
     window.addEventListener(PIKU_ENQUIRY_SENT_EVENT, onEnquirySent);
@@ -514,7 +515,7 @@ export function usePikuBrain() {
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("mousemove", onMouseMove);
       document.removeEventListener("focusin", onFocusIn);
-      window.removeEventListener("avagifts:open-catalog", onCatalogOpen as EventListener);
+      window.removeEventListener(OPEN_CATALOG_EVENT, onCatalogOpen as EventListener);
       window.removeEventListener(OPEN_PIKU_EVENT, onConciergeOpen);
       window.removeEventListener(PIKU_GLANCE_EVENT, onGlance);
       window.removeEventListener(PIKU_ENQUIRY_SENT_EVENT, onEnquirySent);

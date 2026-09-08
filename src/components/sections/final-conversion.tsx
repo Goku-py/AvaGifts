@@ -14,6 +14,7 @@ import {
   type EnquiryField,
 } from "@/lib/enquiry";
 import { usePikuConcierge } from "@/components/piku-concierge/piku-concierge-context";
+import { glanceHandlers } from "@/lib/piku-glance";
 import { cn } from "@/lib/utils";
 
 /* ------------------------------------------------------------------ */
@@ -146,6 +147,7 @@ export function FinalConversion() {
                 variant="gradient"
                 size="lg"
                 onClick={() => openConcierge()}
+                {...glanceHandlers}
               >
                 {finalConversion.quoteCta}
               </Button>

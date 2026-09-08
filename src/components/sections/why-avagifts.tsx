@@ -23,7 +23,13 @@ export function WhyAvaGifts() {
         divider-coloured background draws the rules — no per-cell borders to
         double up at the seams.
       */}
-      <div className="mt-14 grid gap-px overflow-hidden border-y border-divider bg-divider sm:grid-cols-2 lg:grid-cols-3">
+      {/* data-piku marks a landmark the mascot can offer a contextual hint on.
+          It sits on the grid rather than the <Section> because the observer
+          uses a 0.2 threshold, which a full-height band may never reach. */}
+      <div
+        data-piku="why"
+        className="mt-14 grid gap-px overflow-hidden border-y border-divider bg-divider sm:grid-cols-2 lg:grid-cols-3"
+      >
         {whyPoints.map((point, index) => {
           const Icon = getIcon(point.icon);
           return (

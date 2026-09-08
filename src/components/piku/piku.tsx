@@ -36,10 +36,8 @@ function useReducedMotion(): boolean {
       mql.addEventListener("change", update);
       return () => mql.removeEventListener("change", update);
     } else {
-      // @ts-ignore legacy
       mql.addListener(update);
       return () => {
-        // @ts-ignore legacy
         mql.removeListener(update);
       };
     }
@@ -57,10 +55,8 @@ function useIsCoarsePointer(): boolean {
       mql.addEventListener("change", update);
       return () => mql.removeEventListener("change", update);
     } else {
-      // @ts-ignore legacy
       mql.addListener(update);
       return () => {
-        // @ts-ignore legacy
         mql.removeListener(update);
       };
     }
@@ -361,7 +357,7 @@ export function Piku(_props: PikuProps = {}) {
         btnEl.classList.remove("piku-blinking");
       }
 
-      let headLerp = isMobile ? 0.065 : 0.095;
+      const headLerp = isMobile ? 0.065 : 0.095;
       let pupilLerp = isMobile ? 0.12 : 0.18;
       if (isWalking) {
         pupilLerp *= 0.7;

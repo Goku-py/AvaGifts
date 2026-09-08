@@ -351,22 +351,23 @@ export default function CatalogViewer() {
       role="dialog"
       aria-modal="true"
       aria-label="AvaGifts product catalog"
-      className="fixed inset-0 z-[90] flex flex-col bg-ink/92 backdrop-blur-md"
+      data-tone="dark"
+      className="fixed inset-0 z-[90] flex flex-col bg-primary/92 backdrop-blur-md"
     >
       {/* Top bar */}
-      <div className="flex items-center justify-between gap-3 px-4 py-3 text-paper sm:px-6">
+      <div className="flex items-center justify-between gap-3 px-4 py-3 text-white sm:px-6">
         <p className="font-display text-sm tracking-wide sm:text-base">
-          AvaGifts <span className="hidden text-paper/60 sm:inline">· Catalog 2026</span>
+          AvaGifts <span className="hidden text-white/60 sm:inline">· Catalog 2026</span>
         </p>
 
         <div className="flex items-center gap-1.5">
-          <span className="mr-2 hidden rounded-full bg-paper/10 px-3 py-1 text-xs tabular-nums text-paper/80 min-[420px]:inline-block">
+          <span className="mr-2 hidden rounded-full bg-white/10 px-3 py-1 text-xs tabular-nums text-white/80 min-[420px]:inline-block">
             {label}
           </span>
           <IconButton label="Zoom out" onClick={zoomOut} disabled={zoomIndex === 0}>
             <ZoomOut className="size-4" />
           </IconButton>
-          <span className="w-10 text-center text-xs tabular-nums text-paper/70">
+          <span className="w-10 text-center text-xs tabular-nums text-white/70">
             {Math.round(zoom * 100)}%
           </span>
           <IconButton
@@ -376,7 +377,7 @@ export default function CatalogViewer() {
           >
             <ZoomIn className="size-4" />
           </IconButton>
-          <span className="mx-1 h-5 w-px bg-paper/15" aria-hidden="true" />
+          <span className="mx-1 h-5 w-px bg-white/15" aria-hidden="true" />
           <IconButton label={isFullscreen ? "Exit fullscreen" : "Fullscreen"} onClick={toggleFullscreen}>
             {isFullscreen ? (
               <Minimize2 className="size-4" />
@@ -388,7 +389,7 @@ export default function CatalogViewer() {
             href={CATALOG_URL}
             download="avagifts-catalog.pdf"
             aria-label="Download catalog PDF"
-            className="grid size-9 place-items-center rounded-full text-paper/85 transition hover:bg-paper/10 hover:text-paper focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold"
+            className="grid size-9 place-items-center rounded-full text-white/85 transition hover:bg-white/10 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
           >
             <Download className="size-4" />
           </a>
@@ -410,13 +411,13 @@ export default function CatalogViewer() {
       >
         {status === "loading" && (
           <div
-            className="absolute inset-0 z-10 grid place-items-center bg-ink/80"
+            className="absolute inset-0 z-10 grid place-items-center bg-primary/80"
             role="status"
             aria-live="polite"
           >
             <div className="flex flex-col items-center gap-4 text-center">
-              <Loader2 className="size-8 animate-spin text-gold" aria-hidden="true" />
-              <p className="text-sm text-paper/75">
+              <Loader2 className="size-8 animate-spin text-accent" aria-hidden="true" />
+              <p className="text-sm text-white/75">
                 {progress.total > 0
                   ? `Preparing your catalog… ${progress.done}/${progress.total}`
                   : "Preparing your catalog…"}
@@ -426,24 +427,24 @@ export default function CatalogViewer() {
         )}
 
         {status === "error" && (
-          <div className="absolute inset-0 z-10 grid place-items-center bg-ink/80">
+          <div className="absolute inset-0 z-10 grid place-items-center bg-primary/80">
             <div className="max-w-sm px-6 text-center">
-              <p className="font-display text-xl text-paper">The catalog could not be opened.</p>
-              <p className="mt-2 text-sm text-paper/65">
+              <p className="font-display text-xl text-white">The catalog could not be opened.</p>
+              <p className="mt-2 text-sm text-white/65">
                 Check your connection and try again, or download the PDF directly.
               </p>
               <div className="mt-6 flex justify-center gap-3">
                 <button
                   type="button"
                   onClick={() => window.location.reload()}
-                  className="inline-flex items-center gap-2 rounded-full bg-paper px-5 py-2.5 text-sm font-medium text-ink transition hover:bg-white"
+                  className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-2.5 text-sm font-medium text-text-primary transition hover:bg-white"
                 >
                   <RefreshCw className="size-4" /> Retry
                 </button>
                 <a
                   href={CATALOG_URL}
                   download="avagifts-catalog.pdf"
-                  className="inline-flex items-center gap-2 rounded-full border border-paper/30 px-5 py-2.5 text-sm font-medium text-paper transition hover:bg-paper/10"
+                  className="inline-flex items-center gap-2 rounded-full border border-white/30 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-white/10"
                 >
                   <Download className="size-4" /> Download PDF
                 </a>
@@ -460,7 +461,7 @@ export default function CatalogViewer() {
               aria-label="Previous page"
               onClick={goPrev}
               disabled={pageIndex === 0}
-              className="absolute left-2 top-1/2 z-20 hidden -translate-y-1/2 rounded-full p-3 text-paper/70 transition hover:bg-paper/10 hover:text-paper disabled:pointer-events-none disabled:opacity-25 md:block"
+              className="absolute left-2 top-1/2 z-20 hidden -translate-y-1/2 rounded-full p-3 text-white/70 transition hover:bg-white/10 hover:text-white disabled:pointer-events-none disabled:opacity-25 md:block"
             >
               <ChevronLeft className="size-7" />
             </button>
@@ -469,7 +470,7 @@ export default function CatalogViewer() {
               aria-label="Next page"
               onClick={goNext}
               disabled={pageIndex >= pageCount - 1}
-              className="absolute right-2 top-1/2 z-20 hidden -translate-y-1/2 rounded-full p-3 text-paper/70 transition hover:bg-paper/10 hover:text-paper disabled:pointer-events-none disabled:opacity-25 md:block"
+              className="absolute right-2 top-1/2 z-20 hidden -translate-y-1/2 rounded-full p-3 text-white/70 transition hover:bg-white/10 hover:text-white disabled:pointer-events-none disabled:opacity-25 md:block"
             >
               <ChevronRight className="size-7" />
             </button>
@@ -486,14 +487,14 @@ export default function CatalogViewer() {
 
         {/* Mobile page indicator + hint */}
         {status === "ready" && (
-          <p className="pointer-events-none absolute bottom-1 left-1/2 -translate-x-1/2 rounded-full bg-paper/10 px-3 py-1 text-xs tabular-nums text-paper/80 min-[420px]:hidden">
+          <p className="pointer-events-none absolute bottom-1 left-1/2 -translate-x-1/2 rounded-full bg-white/10 px-3 py-1 text-xs tabular-nums text-white/80 min-[420px]:hidden">
             {label}
           </p>
         )}
       </div>
 
       {/* Bottom hint */}
-      <p className="pb-3 text-center text-xs text-paper/45">
+      <p className="pb-3 text-center text-xs text-white/45">
         Swipe or use arrow keys to turn pages · Esc to close
       </p>
 
@@ -518,7 +519,7 @@ const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
         aria-label={label}
         title={label}
         className={cn(
-          "grid size-9 place-items-center rounded-full text-paper/85 transition hover:bg-paper/10 hover:text-paper focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold disabled:pointer-events-none disabled:opacity-40",
+          "grid size-9 place-items-center rounded-full text-white/85 transition hover:bg-white/10 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent disabled:pointer-events-none disabled:opacity-40",
           className,
         )}
         {...rest}

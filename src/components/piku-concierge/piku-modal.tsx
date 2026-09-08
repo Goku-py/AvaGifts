@@ -47,7 +47,7 @@ function PikuBubble({ children }: { children: ReactNode }) {
       initial={{ opacity: 0, y: 10, scale: 0.97 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={reduceMotion ? { duration: 0 } : SPRING_BOUNCY}
-      className="max-w-[85%] rounded-2xl rounded-tl-md border border-line bg-card px-4 py-3 text-sm leading-relaxed text-ink shadow-card"
+      className="max-w-[85%] rounded-2xl rounded-tl-md border border-divider bg-white px-4 py-3 text-sm leading-relaxed text-text-primary shadow-card"
     >
       {children}
     </motion.div>
@@ -61,7 +61,7 @@ function UserBubble({ children }: { children: ReactNode }) {
       initial={{ opacity: 0, y: 8, scale: 0.98 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={reduceMotion ? { duration: 0 } : SPRING_FIRM}
-      className="ml-auto max-w-[85%] rounded-2xl rounded-tr-md bg-accent px-4 py-2.5 text-sm leading-relaxed text-paper"
+      className="ml-auto max-w-[85%] rounded-2xl rounded-tr-md bg-interactive px-4 py-2.5 text-sm leading-relaxed text-white"
     >
       {children}
     </motion.div>
@@ -74,12 +74,12 @@ function TypingBubble() {
   return (
     <div
       aria-hidden="true"
-      className="flex w-fit items-center gap-1.5 rounded-2xl rounded-tl-md border border-line bg-card px-4 py-3.5 shadow-card"
+      className="flex w-fit items-center gap-1.5 rounded-2xl rounded-tl-md border border-divider bg-white px-4 py-3.5 shadow-card"
     >
       {[0, 1, 2].map((dot) => (
         <span
           key={dot}
-          className="size-1.5 rounded-full bg-ink-soft animate-piku-typing"
+          className="size-1.5 rounded-full bg-text-secondary animate-piku-typing"
           style={{ animationDelay: `${dot * 0.18}s` }}
         />
       ))}
@@ -92,7 +92,7 @@ function TypingBubble() {
    done step. Not rendered under reduced motion (the CSS guard would leave
    static dots behind). Decorative — hidden from assistive tech. */
 const CONFETTI_COUNT = 12;
-const CONFETTI_COLORS = ["#b9975b", "#1e4034", "#b9975b", "#f3f0e9"];
+const CONFETTI_COLORS = ["#1273EB", "#FFDE59", "#0B2A4D", "#51F8B0"];
 
 function Celebration() {
   const reduceMotion = useReducedMotion();
@@ -162,8 +162,8 @@ function Chip({
         "inline-flex min-h-10 items-center gap-1.5 rounded-full border px-4 py-2 text-sm font-medium",
         "transition-[background-color,border-color,color] duration-200 ease-out motion-reduce:transition-none",
         selected
-          ? "border-accent bg-accent text-paper"
-          : "border-ink/15 bg-card text-ink hover:border-ink/35",
+          ? "border-interactive bg-interactive text-white"
+          : "border-primary/15 bg-white text-text-primary hover:border-primary/35",
       )}
     >
       <AnimatePresence initial={false}>
@@ -243,10 +243,10 @@ function StepMotion({
 }
 
 const fieldInputClasses =
-  "w-full rounded-xl border border-ink/15 bg-card px-4 py-3 text-sm text-ink transition-colors duration-200 placeholder:text-ink-soft/60 hover:border-ink/25 focus:border-gold focus:outline-none focus:ring-2 focus:ring-gold/40";
+  "w-full rounded-xl border border-primary/15 bg-white px-4 py-3 text-sm text-text-primary transition-colors duration-200 placeholder:text-text-muted hover:border-primary/25 focus:border-interactive focus:outline-none focus:ring-2 focus:ring-interactive/25";
 
 const fieldErrorClasses =
-  "w-full rounded-xl border border-[#B42318] bg-card px-4 py-3 text-sm text-ink placeholder:text-ink-soft/60 focus:border-[#B42318] focus:outline-none focus:ring-2 focus:ring-[#B42318]/25";
+  "w-full rounded-xl border border-danger bg-white px-4 py-3 text-sm text-text-primary placeholder:text-text-muted focus:border-danger focus:outline-none focus:ring-2 focus:ring-danger/25";
 
 /* ------------------------------------------------------------------ */
 /* Modal                                                               */
@@ -459,7 +459,7 @@ export function PikuModal() {
           transition={
             reduceMotion ? { duration: 0 } : { duration: 0.3, ease: EASE }
           }
-          className="fixed inset-0 z-[95] flex items-end justify-center bg-ink/60 sm:items-center sm:p-6"
+          className="fixed inset-0 z-[95] flex items-end justify-center bg-primary/60 sm:items-center sm:p-6"
           onClick={closeConcierge}
         >
           <motion.div
@@ -472,14 +472,14 @@ export function PikuModal() {
             exit={{ opacity: 0, y: 48, x: 24, scale: 0.96 }}
             transition={reduceMotion ? { duration: 0 } : SPRING_EMERGE}
             onClick={(event) => event.stopPropagation()}
-            className="flex h-[100dvh] w-full flex-col overflow-hidden bg-paper sm:h-auto sm:max-h-[88vh] sm:max-w-lg sm:origin-bottom-right sm:rounded-2xl sm:shadow-lift"
+            className="flex h-[100dvh] w-full flex-col overflow-hidden bg-white sm:h-auto sm:max-h-[88vh] sm:max-w-lg sm:origin-bottom-right sm:rounded-2xl sm:shadow-lift"
           >
             {/* Top — identity + support + close */}
-            <div className="flex items-center gap-3 border-b border-line bg-paper px-4 py-3 sm:px-5">
+            <div className="flex items-center gap-3 border-b border-divider bg-white px-4 py-3 sm:px-5">
               {/* Header avatar: calm and still, periodic blink only */}
               <span
                 aria-hidden="true"
-                className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-cream [&_svg]:size-8"
+                className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-surface [&_svg]:size-8"
               >
                 <span className="flex animate-piku-blink">
                   <PikuSprite emotion="happy" />
@@ -489,7 +489,7 @@ export function PikuModal() {
                 <span className="block font-display text-lg font-semibold leading-tight tracking-[-0.01em]">
                   Piku
                 </span>
-                <span className="block truncate text-xs text-ink-soft">
+                <span className="block truncate text-xs text-text-secondary">
                   Your gifting concierge
                 </span>
               </span>
@@ -498,7 +498,7 @@ export function PikuModal() {
                 onClick={openWhatsApp}
                 title="Talk to our gifting team on WhatsApp — your brief so far comes along"
                 aria-label="Support — talk to our gifting team on WhatsApp with your brief so far"
-                className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-accent/30 bg-accent/[0.06] px-3.5 py-2 text-xs font-semibold text-accent transition-colors duration-200 hover:bg-accent hover:text-paper motion-reduce:transition-none"
+                className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-interactive/30 bg-interactive/[0.06] px-3.5 py-2 text-xs font-semibold text-interactive transition-colors duration-200 hover:bg-interactive hover:text-white motion-reduce:transition-none"
               >
                 <Headset aria-hidden="true" className="size-4" />
                 Support
@@ -508,7 +508,7 @@ export function PikuModal() {
                 type="button"
                 onClick={closeConcierge}
                 aria-label="Close chat with Piku"
-                className="flex size-9 shrink-0 items-center justify-center rounded-full text-ink-soft transition-colors hover:bg-ink/[0.06] hover:text-ink"
+                className="flex size-9 shrink-0 items-center justify-center rounded-full text-text-secondary transition-colors hover:bg-hover-surface hover:text-text-primary"
               >
                 <X aria-hidden="true" className="size-4.5" />
               </button>
@@ -516,7 +516,7 @@ export function PikuModal() {
 
             {/* Progress — three numbered stages with a remaining count */}
             {showProgress ? (
-              <div className="border-b border-line bg-paper px-4 pb-3 pt-2.5 sm:px-5">
+              <div className="border-b border-divider bg-white px-4 pb-3 pt-2.5 sm:px-5">
                 <div
                   role="progressbar"
                   aria-valuemin={1}
@@ -534,10 +534,10 @@ export function PikuModal() {
                           className={cn(
                             "flex size-7 items-center justify-center rounded-full text-xs font-semibold transition-colors duration-200",
                             completed
-                              ? "bg-[#0B2A4D] text-white"
+                              ? "bg-primary text-white"
                               : current
                                 ? "bg-[#1273EB] text-white"
-                                : "border border-line bg-card text-ink-soft",
+                                : "border border-divider bg-white text-text-secondary",
                           )}
                         >
                           {completed ? (
@@ -550,10 +550,10 @@ export function PikuModal() {
                           className={cn(
                             "text-xs",
                             current
-                              ? "font-semibold text-ink"
+                              ? "font-semibold text-text-primary"
                               : completed
-                                ? "font-medium text-ink"
-                                : "font-medium text-ink-soft",
+                                ? "font-medium text-text-primary"
+                                : "font-medium text-text-secondary",
                           )}
                         >
                           {item.label}
@@ -563,7 +563,7 @@ export function PikuModal() {
                             aria-hidden="true"
                             className={cn(
                               "h-px w-6 transition-colors duration-200 sm:w-10",
-                              index < stage ? "bg-[#0B2A4D]" : "bg-line",
+                              index < stage ? "bg-primary" : "bg-divider",
                             )}
                           />
                         ) : null}
@@ -571,7 +571,7 @@ export function PikuModal() {
                     );
                   })}
                 </div>
-                <p className="mt-1.5 text-[11px] leading-relaxed text-ink-soft">
+                <p className="mt-1.5 text-[11px] leading-relaxed text-text-secondary">
                   {stagesLeft > 0
                     ? `Step ${stage + 1} of ${conciergeStages.length} · ${stagesLeft} to go`
                     : `Step ${stage + 1} of ${conciergeStages.length} · last step`}
@@ -589,7 +589,7 @@ export function PikuModal() {
                 <button
                   type="button"
                   onClick={goBack}
-                  className="mb-4 inline-flex items-center gap-1.5 text-xs font-medium text-ink-soft transition-colors hover:text-ink"
+                  className="mb-4 inline-flex items-center gap-1.5 text-xs font-medium text-text-secondary transition-colors hover:text-text-primary"
                 >
                   <ArrowLeft aria-hidden="true" className="size-3.5" />
                   Back
@@ -682,7 +682,7 @@ function PrimaryAction({
         type="button"
         onClick={onClick}
         disabled={disabled}
-        className="group inline-flex h-11 items-center gap-2 rounded-full bg-accent px-6 text-sm font-medium text-paper transition-[background-color,transform] duration-200 ease-out hover:bg-accent-ink active:translate-y-px disabled:pointer-events-none disabled:opacity-50 motion-reduce:transition-none"
+        className="group inline-flex h-11 items-center gap-2 rounded-full bg-interactive px-6 text-sm font-medium text-white transition-[background-color,transform] duration-200 ease-out hover:bg-interactive-hover active:translate-y-px disabled:pointer-events-none disabled:opacity-50 motion-reduce:transition-none"
       >
         {children}
         <ArrowRight
@@ -700,7 +700,7 @@ function SkipButton({ onClick }: { onClick: () => void }) {
       <button
         type="button"
         onClick={onClick}
-        className="text-sm font-medium text-ink-soft underline decoration-ink/25 underline-offset-4 transition-colors hover:text-ink"
+        className="text-sm font-medium text-text-secondary underline decoration-primary/25 underline-offset-4 transition-colors hover:text-text-primary"
       >
         Skip
       </button>
@@ -1063,7 +1063,7 @@ function Conversation(props: ConversationProps) {
           {!reached("brief") ? (
             <>
               <PikuBubble>Where should the team reach you?</PikuBubble>
-              <div className="flex flex-col gap-3.5 rounded-2xl border border-line bg-card p-4 shadow-card">
+              <div className="flex flex-col gap-3.5 rounded-2xl border border-divider bg-white p-4 shadow-card">
                 <ContactField
                   label="Name"
                   value={answers.name}
@@ -1130,10 +1130,10 @@ function Conversation(props: ConversationProps) {
                 <div>
                   <label
                     htmlFor="piku-notes"
-                    className="block text-sm font-medium text-ink"
+                    className="block text-sm font-medium text-text-primary"
                   >
                     Notes{" "}
-                    <span className="font-normal text-ink-soft">(optional)</span>
+                    <span className="font-normal text-text-secondary">(optional)</span>
                   </label>
                   <textarea
                     id="piku-notes"
@@ -1169,11 +1169,11 @@ function Conversation(props: ConversationProps) {
               <PikuBubble>
                 Here’s your brief. Anything look off? Tap edit to fix it.
               </PikuBubble>
-              <div className="overflow-hidden rounded-2xl border border-line bg-card shadow-card">
-                <p className="border-b border-line bg-cream/60 px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.12em] text-ink-soft">
+              <div className="overflow-hidden rounded-2xl border border-divider bg-white shadow-card">
+                <p className="border-b border-divider bg-surface/60 px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.12em] text-text-secondary">
                   Your gifting brief
                 </p>
-                <dl className="divide-y divide-line px-4">
+                <dl className="divide-y divide-divider px-4">
                   <BriefSingleRow
                     label="Occasion"
                     display={
@@ -1280,7 +1280,7 @@ function Conversation(props: ConversationProps) {
                 {props.submitStatus === "error" ? (
                   <p
                     role="alert"
-                    className="rounded-xl border border-[#B42318]/25 bg-[#B42318]/5 px-4 py-2.5 text-sm text-[#B42318]"
+                    className="rounded-xl border border-danger/25 bg-danger-surface px-4 py-2.5 text-sm text-danger"
                   >
                     Something went wrong sending your brief. Please try again —
                     or continue on WhatsApp instead.
@@ -1291,7 +1291,7 @@ function Conversation(props: ConversationProps) {
                     type="button"
                     onClick={props.submitEnquiry}
                     disabled={props.submitStatus === "submitting"}
-                    className="group inline-flex h-11 w-full items-center justify-center gap-2 rounded-full bg-accent px-6 text-sm font-medium text-paper transition-[background-color,transform] duration-200 ease-out hover:bg-accent-ink active:translate-y-px disabled:pointer-events-none disabled:opacity-70 motion-reduce:transition-none"
+                    className="group inline-flex h-11 w-full items-center justify-center gap-2 rounded-full bg-interactive px-6 text-sm font-medium text-white transition-[background-color,transform] duration-200 ease-out hover:bg-interactive-hover active:translate-y-px disabled:pointer-events-none disabled:opacity-70 motion-reduce:transition-none"
                   >
                     {props.submitStatus === "submitting" ? (
                       <>
@@ -1316,7 +1316,7 @@ function Conversation(props: ConversationProps) {
                   <button
                     type="button"
                     onClick={props.openWhatsApp}
-                    className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-full border border-ink/15 px-6 text-sm font-medium text-ink transition-colors duration-200 hover:border-ink/30 hover:bg-ink/[0.04] motion-reduce:transition-none"
+                    className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-full border border-primary/15 px-6 text-sm font-medium text-text-primary transition-colors duration-200 hover:border-primary/30 hover:bg-primary/[0.04] motion-reduce:transition-none"
                   >
                     Continue on WhatsApp
                     <ArrowRight aria-hidden="true" className="size-4" />
@@ -1342,7 +1342,7 @@ function Conversation(props: ConversationProps) {
             <button
               type="button"
               onClick={props.openWhatsApp}
-              className="group inline-flex h-11 items-center gap-2 rounded-full bg-accent px-6 text-sm font-medium text-paper transition-[background-color,transform] duration-200 ease-out hover:bg-accent-ink active:translate-y-px motion-reduce:transition-none"
+              className="group inline-flex h-11 items-center gap-2 rounded-full bg-interactive px-6 text-sm font-medium text-white transition-[background-color,transform] duration-200 ease-out hover:bg-interactive-hover active:translate-y-px motion-reduce:transition-none"
             >
               Continue on WhatsApp
               <ArrowRight
@@ -1381,9 +1381,9 @@ function ContactField({
   const id = `piku-${label.toLowerCase()}`;
   return (
     <div>
-      <label htmlFor={id} className="block text-sm font-medium text-ink">
+      <label htmlFor={id} className="block text-sm font-medium text-text-primary">
         {label}{" "}
-        <span aria-hidden="true" className="text-gold">
+        <span aria-hidden="true" className="text-danger">
           *
         </span>
       </label>
@@ -1399,7 +1399,7 @@ function ContactField({
         className={cn("mt-1.5", error ? fieldErrorClasses : fieldInputClasses)}
       />
       {error ? (
-        <p id={`${id}-error`} className="mt-1.5 text-xs text-[#B42318]">
+        <p id={`${id}-error`} className="mt-1.5 text-xs text-danger">
           {error}
         </p>
       ) : null}
@@ -1427,10 +1427,10 @@ function BriefRowShell({
   return (
     <div className="py-2.5">
       <div className="flex items-start justify-between gap-3">
-        <dt className="shrink-0 text-xs font-medium uppercase tracking-[0.08em] text-ink-soft">
+        <dt className="shrink-0 text-xs font-medium uppercase tracking-[0.08em] text-text-secondary">
           {label}
         </dt>
-        <dd className="min-w-0 flex-1 text-right text-sm leading-relaxed text-ink">
+        <dd className="min-w-0 flex-1 text-right text-sm leading-relaxed text-text-primary">
           {!editing ? display : null}{" "}
           <button
             type="button"
@@ -1439,7 +1439,7 @@ function BriefRowShell({
             aria-label={
               editing ? `Close ${label.toLowerCase()} editor` : `Edit ${label.toLowerCase()}`
             }
-            className="ml-1 font-medium text-accent underline decoration-accent/30 underline-offset-2 transition-colors hover:text-accent-ink"
+            className="ml-1 font-medium text-interactive underline decoration-interactive/30 underline-offset-2 transition-colors hover:text-interactive-hover"
           >
             {editing ? "Done" : "Edit"}
           </button>
@@ -1469,8 +1469,8 @@ function BriefMiniButton({
       className={cn(
         "inline-flex min-h-9 items-center rounded-full px-4 py-1.5 text-xs font-semibold transition-colors disabled:pointer-events-none disabled:opacity-50 motion-reduce:transition-none",
         primary
-          ? "bg-accent text-paper hover:bg-accent-ink"
-          : "border border-ink/15 text-ink hover:border-ink/35",
+          ? "bg-interactive text-white hover:bg-interactive-hover"
+          : "border border-primary/15 text-text-primary hover:border-primary/35",
       )}
     >
       {children}

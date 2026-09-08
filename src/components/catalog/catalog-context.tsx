@@ -10,7 +10,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { CLOSE_CATALOG_EVENT } from "@/lib/events";
+import { CLOSE_CATALOG_EVENT, OPEN_CATALOG_EVENT } from "@/lib/events";
 
 /* ------------------------------------------------------------------ */
 /* Catalog context — mounts the flipbook viewer on demand              */
@@ -34,7 +34,12 @@ const CatalogContext = createContext<CatalogContextValue | null>(null);
 export function CatalogProvider({ children }: { children: ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
 
-  const openCatalog = useCallback(() => setIsOpen(true), []);
+  const openCatalog = useCallback(() => {
+    setIsOpen(true);
+    // The mascot listens for this to react when the catalog opens. Without the
+    // dispatch its listener was unreachable.
+    window.dispatchEvent(new Event(OPEN_CATALOG_EVENT));
+  }, []);
   const closeCatalog = useCallback(() => setIsOpen(false), []);
 
   // The viewer dispatches CLOSE_CATALOG_EVENT (Esc / close button)

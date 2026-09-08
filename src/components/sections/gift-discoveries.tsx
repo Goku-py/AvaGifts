@@ -30,7 +30,10 @@ export function GiftDiscoveries() {
 
   return (
     <Section id="gifts" labelledBy="gifts-heading" tone="white">
-      <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
+      <div
+        data-piku="featured"
+        className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between"
+      >
         <SectionHeading
           id="gifts-heading"
           eyebrow={discoveries.eyebrow}
@@ -167,7 +170,10 @@ export function GiftDiscoveries() {
 
       {/* Full catalog */}
       <Reveal delay={0.1}>
-        <div className="mt-12 flex flex-col items-center justify-center gap-4 sm:flex-row">
+        <div
+          data-piku="catalog"
+          className="mt-12 flex flex-col items-center justify-center gap-4 sm:flex-row"
+        >
           <CatalogButton variant="gradient" size="lg" arrow={false}>
             View Full Catalog
           </CatalogButton>

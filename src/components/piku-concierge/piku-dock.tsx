@@ -30,13 +30,13 @@ export function PikuDock() {
             onClick={() => openConcierge()}
             className={cn(
               "group pointer-events-auto inline-flex h-12 items-center gap-2.5 rounded-full",
-              "bg-ink px-6 text-sm font-medium text-paper shadow-lift",
+              "bg-primary px-6 text-sm font-medium text-white shadow-lift",
               "transition-[background-color,transform] duration-200 ease-out",
-              "hover:bg-accent-ink active:translate-y-px",
+              "hover:bg-interactive-hover active:translate-y-px",
               "motion-reduce:transition-none",
             )}
           >
-            <MessageCircle aria-hidden="true" className="size-4 text-gold" />
+            <MessageCircle aria-hidden="true" className="size-4 text-accent" />
             Chat with Piku
             <span
               aria-hidden="true"

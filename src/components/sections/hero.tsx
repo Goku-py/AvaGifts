@@ -10,6 +10,7 @@ import { Reveal } from "@/components/ui/reveal";
 import { Section } from "@/components/ui/section";
 import { hero, stats } from "@/lib/data";
 import { usePikuConcierge } from "@/components/piku-concierge/piku-concierge-context";
+import { glanceHandlers } from "@/lib/piku-glance";
 import { cn } from "@/lib/utils";
 
 const cardLayouts = [
@@ -56,6 +57,7 @@ export function Hero() {
                 variant="gradient"
                 size="lg"
                 onClick={() => openConcierge()}
+                {...glanceHandlers}
               >
                 {hero.primaryCta}
               </Button>
