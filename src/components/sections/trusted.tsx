@@ -1,44 +1,83 @@
 import { Reveal } from "@/components/ui/reveal";
 import { Section } from "@/components/ui/section";
-import { SectionHeading } from "@/components/ui/section-heading";
+import { Eyebrow } from "@/components/ui/eyebrow";
 import { trusted } from "@/lib/data";
-import { cn } from "@/lib/utils";
+import { STAGGER } from "@/lib/motion";
 
 /**
- * Wordmark treatments — plain-text logotypes (no fabricated brand assets),
- * each with a distinct type treatment so the row reads like a logo wall.
+ * Derives a monogram from a company name — "Northwind Technologies" → "NT".
+ * Keeps the tiles honest: a lettermark is clearly our own treatment, where a
+ * fabricated logo would imply a brand asset we don't have.
  */
-const wordmarkClasses = [
-  "font-sans text-xl font-medium tracking-[-0.02em]",
-  "font-sans text-xl font-semibold tracking-tight",
-  "font-sans text-lg font-semibold uppercase tracking-[0.18em]",
-  "font-serif text-xl font-semibold italic",
-] as const;
+function monogram(name: string) {
+  return name
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((word) => word[0])
+    .join("")
+    .toUpperCase();
+}
 
 export function TrustedCustomers() {
   return (
-    <Section id="trusted" labelledBy="trusted-heading" tone="surface" className="py-14 sm:py-16 lg:py-20">
-      <SectionHeading
-        id="trusted-heading"
-        eyebrow={trusted.eyebrow}
-        title={trusted.title}
-        lede={trusted.lede}
-      />
-
-      <ul className="mt-12 grid grid-cols-2 gap-4 lg:grid-cols-4">
-        {trusted.customers.map((customer, index) => (
-          <Reveal key={customer.name} delay={index * 0.06} className="h-full">
-            <li className="flex h-full flex-col justify-between gap-6 rounded-2xl border border-divider bg-white p-6 shadow-card transition-[transform,box-shadow] duration-300 ease-out hover:-translate-y-1 hover:shadow-lift motion-reduce:transition-none motion-reduce:hover:translate-y-0 sm:p-7">
-              <span className={cn("text-text-primary", wordmarkClasses[index])}>
-                {customer.name}
-              </span>
-              <p className="text-caption text-muted">
-                Repeat customer since {customer.since}
-              </p>
-            </li>
+    <Section
+      id="trusted"
+      labelledBy="trusted-heading"
+      tone="surface"
+      density="compact"
+    >
+      {/* Asymmetric: the claim sits left, the proof runs right. Deliberately
+          not another centred eyebrow/title/lede stack. */}
+      <div className="grid gap-10 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] lg:items-center lg:gap-16">
+        <div>
+          <Reveal>
+            <Eyebrow>{trusted.eyebrow}</Eyebrow>
           </Reveal>
-        ))}
-      </ul>
+          <Reveal delay={0.08}>
+            <h2
+              id="trusted-heading"
+              className="text-h3 mt-4 font-sans text-text-primary"
+            >
+              {trusted.title}
+            </h2>
+          </Reveal>
+          <Reveal delay={0.14}>
+            <p className="text-body mt-4 max-w-md text-text-secondary">
+              {trusted.lede}
+            </p>
+          </Reveal>
+        </div>
+
+        <ul className="grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-divider bg-divider sm:grid-cols-4">
+          {trusted.customers.map((customer, index) => (
+            <Reveal
+              key={customer.name}
+              delay={index * STAGGER}
+              className="h-full"
+            >
+              <li className="flex h-full flex-col justify-between gap-6 bg-white p-5 sm:p-6">
+                <span
+                  aria-hidden="true"
+                  className="inline-flex size-11 items-center justify-center rounded-full bg-surface font-sans text-sm font-bold tracking-[0.02em] text-interactive"
+                >
+                  {monogram(customer.name)}
+                </span>
+                <div>
+                  <p className="font-sans text-sm font-semibold leading-snug text-text-primary">
+                    {customer.name}
+                  </p>
+                  <p className="text-caption mt-1 text-text-muted">
+                    {customer.sector}
+                  </p>
+                  <p className="text-caption mt-3 text-interactive">
+                    Since {customer.since}
+                  </p>
+                </div>
+              </li>
+            </Reveal>
+          ))}
+        </ul>
+      </div>
     </Section>
   );
 }

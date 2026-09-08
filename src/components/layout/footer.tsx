@@ -10,13 +10,15 @@ const SOCIALS = [
 
 export function Footer() {
   return (
-    <footer className="bg-primary text-white">
+    /* data-tone="dark" switches the focus ring to the accent — interactive
+       blue is close to invisible against the navy band. */
+    <footer data-tone="dark" className="bg-primary text-white">
       <div className="mx-auto w-full max-w-[1200px] px-6 py-16 lg:py-20">
         <div className="grid gap-12 lg:grid-cols-[1.15fr_2fr] lg:gap-16">
           <div>
             <Logo mono className="text-white" />
-            <p className="text-small mt-4 max-w-xs leading-relaxed text-white/60">
-              {company.tagline} Curated, customised and delivered from India's finest
+            <p className="text-small mt-4 max-w-xs leading-relaxed text-white/70">
+              {company.tagline} Curated, customised and delivered from India’s finest
               makers.
             </p>
           </div>
@@ -27,7 +29,7 @@ export function Footer() {
           >
             {footerColumns.map((column) => (
               <div key={column.title}>
-                <h3 className="text-caption uppercase tracking-[0.14em] text-white/50">
+                <h3 className="text-caption uppercase tracking-[0.14em] text-white/60">
                   {column.title}
                 </h3>
                 <ul className="mt-4 space-y-2.5">
@@ -48,15 +50,15 @@ export function Footer() {
         </div>
 
         <div className="mt-14 flex flex-col items-start justify-between gap-6 border-t border-white/10 pt-8 sm:flex-row sm:items-center">
-          <p className="text-caption text-white/50">
-            © 2026 AvaGifts · Crafted with care in India
+          <p className="text-caption text-white/60">
+            © {new Date().getFullYear()} {company.name} · Crafted with care in India
           </p>
           <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
             {legalLinks.map((link) => (
               <a
                 key={link.label}
                 href={link.href}
-                className="text-caption text-white/50 transition-colors duration-200 hover:text-white"
+                className="text-caption text-white/60 transition-colors duration-200 hover:text-white"
               >
                 {link.label}
               </a>

@@ -1,6 +1,7 @@
 "use client";
 
 import { Gift, MessageCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/ui/reveal";
 import { Section } from "@/components/ui/section";
 import { helpChoosing } from "@/lib/data";
@@ -8,8 +9,8 @@ import { usePikuConcierge } from "./piku-concierge-context";
 
 /**
  * "Need Help Choosing?" — guided assistance for undecided visitors.
- * Both actions open the Piku concierge flow; "Send a Gifting Brief"
- * deep-links straight to the details step.
+ * All three actions open the Piku concierge; which step they land on comes
+ * from `helpChoosing` in data.ts so the copy and the destination stay together.
  */
 export function NeedHelpChoosing() {
   const { openConcierge } = usePikuConcierge();
@@ -28,39 +29,40 @@ export function NeedHelpChoosing() {
                 {helpChoosing.body}
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
-                <button
-                  type="button"
-                  onClick={() => openConcierge()}
-                  className="inline-flex h-12 shrink-0 items-center justify-center gap-2 rounded-full bg-gradient-primary px-7 text-button text-white transition-opacity duration-200 hover:opacity-90 active:translate-y-px motion-reduce:transition-none"
+                <Button
+                  variant="gradient"
+                  size="lg"
+                  onClick={() => openConcierge(helpChoosing.primaryStep)}
                 >
                   <MessageCircle aria-hidden="true" className="size-4" />
                   {helpChoosing.primaryCta}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => openConcierge()}
-                  className="inline-flex h-12 shrink-0 items-center justify-center gap-2 rounded-full border border-neutral-300 bg-white px-7 text-button text-text-primary transition-colors duration-200 hover:border-neutral-400 hover:bg-hover-surface active:translate-y-px motion-reduce:transition-none"
+                </Button>
+                <Button
+                  variant="secondary"
+                  size="lg"
+                  onClick={() => openConcierge(helpChoosing.secondaryStep)}
                 >
                   <Gift aria-hidden="true" className="size-4" />
                   {helpChoosing.secondaryCta}
-                </button>
+                </Button>
               </div>
             </div>
 
             {/* Right — brief card */}
             <div className="rounded-xl bg-surface p-6 sm:p-8">
-              <h3 className="text-h6 font-sans text-text-primary">Send a Gifting Brief</h3>
+              <h3 className="text-h6 font-sans text-text-primary">
+                {helpChoosing.briefCardTitle}
+              </h3>
               <p className="text-small mt-2 leading-relaxed text-text-secondary">
-                Know exactly what you need? Skip the chat and send your requirements
-                straight to our gifting team.
+                {helpChoosing.briefCardBody}
               </p>
-              <button
-                type="button"
-                onClick={() => openConcierge("contact")}
-                className="mt-6 inline-flex h-11 w-full items-center justify-center rounded-full bg-interactive px-7 text-sm font-semibold text-white transition-colors duration-200 hover:bg-interactive-hover active:bg-interactive-active active:translate-y-px motion-reduce:transition-none"
+              <Button
+                variant="primary"
+                onClick={() => openConcierge(helpChoosing.briefCardStep)}
+                className="mt-6 w-full"
               >
-                Submit Brief
-              </button>
+                {helpChoosing.briefCardCta}
+              </Button>
             </div>
           </div>
         </div>

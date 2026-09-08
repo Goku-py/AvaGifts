@@ -46,6 +46,10 @@
   --color-interactive-hover: #0e63cc;
   --color-interactive-active: #0b54ad;
 
+  /* Feedback — form validation. 4.6:1 on white. */
+  --color-danger: #b42318;
+  --color-danger-surface: #fef3f2;
+
   /* ---------------------------------------------------------------- */
   /* Semantic aliases — legacy names mapped to system values          */
   /* ---------------------------------------------------------------- */
@@ -95,11 +99,17 @@
     color: #ffffff;
   }
 
-  /* Focus ring — interactive blue; components on dark/gradient surfaces
-     override to white contextually. */
+  /* Focus ring — interactive blue on light surfaces. */
   :focus-visible {
     outline: 2px solid var(--color-interactive);
     outline-offset: 3px;
+  }
+
+  /* On navy/gradient bands the interactive blue all but vanishes against the
+     background, so the accent carries the ring there. `Section` sets
+     `data-tone` for its dark tones, so this applies automatically. */
+  [data-tone="dark"] :focus-visible {
+    outline-color: var(--color-accent);
   }
 
   h1,

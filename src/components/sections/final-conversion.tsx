@@ -2,7 +2,7 @@
 
 import { useRef, useState, type ChangeEvent, type FormEvent, type ReactNode } from "react";
 import { CheckCircle2, Loader2, Mail, MapPin, Phone } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button, ButtonLink } from "@/components/ui/button";
 import { Eyebrow } from "@/components/ui/eyebrow";
 import { Reveal } from "@/components/ui/reveal";
 import { Section } from "@/components/ui/section";
@@ -40,7 +40,7 @@ const inputClasses = (invalid: boolean) =>
   cn(
     "w-full rounded-lg border bg-white px-3.5 py-2.5 text-sm text-text-primary transition-colors duration-200 placeholder:text-text-muted",
     invalid
-      ? "border-[#B42318] focus:border-[#B42318] focus:outline-none focus:ring-2 focus:ring-[#B42318]/25"
+      ? "border-danger focus:border-danger focus:outline-none focus:ring-2 focus:ring-danger/25"
       : "border-neutral-300 hover:border-neutral-400 focus:border-interactive focus:outline-none focus:ring-2 focus:ring-interactive/25",
   );
 
@@ -142,19 +142,20 @@ export function FinalConversion() {
 
           <Reveal delay={0.22}>
             <div className="mt-8 flex flex-wrap items-center gap-3">
-              <button
-                type="button"
+              <Button
+                variant="gradient"
+                size="lg"
                 onClick={() => openConcierge()}
-                className="inline-flex h-12 shrink-0 items-center justify-center rounded-full bg-gradient-primary px-7 text-button text-white transition-opacity duration-200 hover:opacity-90 active:translate-y-px motion-reduce:transition-none"
               >
                 {finalConversion.quoteCta}
-              </button>
-              <a
+              </Button>
+              <ButtonLink
+                variant="secondary"
+                size="lg"
                 href={`mailto:${company.email}`}
-                className="inline-flex h-12 shrink-0 items-center justify-center rounded-full border border-neutral-300 bg-white px-7 text-button text-text-primary transition-colors duration-200 hover:border-neutral-400 hover:bg-hover-surface active:translate-y-px motion-reduce:transition-none"
               >
                 {finalConversion.expertCta}
-              </a>
+              </ButtonLink>
             </div>
           </Reveal>
 
@@ -211,7 +212,7 @@ export function FinalConversion() {
                   Enquiry received.
                 </h3>
                 <p className="text-small mt-2 max-w-xs leading-relaxed text-text-secondary">
-                  We'll be in touch within 48 hours.
+                  We’ll be in touch within 48 hours.
                 </p>
                 <Button variant="secondary" size="sm" className="mt-6" onClick={reset}>
                   Send another enquiry
@@ -222,7 +223,7 @@ export function FinalConversion() {
                 {status === "error" ? (
                   <p
                     role="alert"
-                    className="mb-5 rounded-lg border border-[#B42318]/25 bg-[#B42318]/5 px-3.5 py-2.5 text-sm text-[#B42318]"
+                    className="mb-5 rounded-lg border border-danger/25 bg-danger-surface px-3.5 py-2.5 text-sm text-danger"
                   >
                     Something went wrong sending your enquiry. Please try again, or email us
                     directly at {company.email}.
@@ -375,7 +376,7 @@ function Field({ label, name, required = false, error, children }: FieldProps) {
       </label>
       <div className="mt-1.5">{children}</div>
       {error ? (
-        <p id={errorId} className="mt-1.5 text-xs text-[#B42318]">
+        <p id={errorId} className="mt-1.5 text-xs text-danger">
           {error}
         </p>
       ) : null}

@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { MapPin } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { CatalogButton } from "@/components/catalog/catalog-button";
 import { Card } from "@/components/ui/card";
 import { Eyebrow } from "@/components/ui/eyebrow";
@@ -25,17 +26,23 @@ export function Hero() {
       id="top"
       labelledBy="hero-heading"
       tone="white"
-      className="overflow-hidden py-14 sm:py-16 lg:py-24"
+      density="compact"
+      className="overflow-hidden"
       aria-label="Introduction"
     >
-      <div className="grid items-center gap-14 lg:grid-cols-[1.05fr_0.95fr] lg:gap-12">
+      <div className="grid items-center gap-14 lg:grid-cols-[1.12fr_0.88fr] lg:gap-14">
         {/* Copy */}
         <div>
           <Reveal>
             <Eyebrow>{hero.eyebrow}</Eyebrow>
           </Reveal>
           <Reveal delay={0.08}>
-            <h1 id="hero-heading" className="text-h1 mt-5 font-sans text-text-primary">
+            {/* The page's typographic peak — nothing below the hero competes
+                with this size, which is what gives the page a hierarchy. */}
+            <h1
+              id="hero-heading"
+              className="text-display mt-5 font-sans text-text-primary"
+            >
               Corporate gifting, without the{" "}
               <em className="font-serif italic text-interactive">boring</em> part.
             </h1>
@@ -45,13 +52,13 @@ export function Hero() {
           </Reveal>
           <Reveal delay={0.24}>
             <div className="mt-9 flex flex-wrap items-center gap-3">
-              <button
-                type="button"
+              <Button
+                variant="gradient"
+                size="lg"
                 onClick={() => openConcierge()}
-                className="inline-flex h-12 shrink-0 items-center justify-center rounded-full bg-gradient-primary px-7 text-button text-white transition-opacity duration-200 hover:opacity-90 active:translate-y-px motion-reduce:transition-none"
               >
                 {hero.primaryCta}
-              </button>
+              </Button>
               <CatalogButton variant="secondary" size="lg" arrow />
             </div>
           </Reveal>

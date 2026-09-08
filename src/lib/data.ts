@@ -1,4 +1,5 @@
 import type { IconName } from "@/lib/icons";
+import type { ConciergeStep } from "@/lib/piku-concierge";
 
 /* ------------------------------------------------------------------ */
 /* Types                                                               */
@@ -25,6 +26,7 @@ export interface HeroVisualCard {
 export interface TrustedCustomer {
   name: string;
   since: string;
+  sector: string;
 }
 
 export interface Category {
@@ -80,6 +82,8 @@ export interface JournalArticle {
   category: string;
   readTime: string;
   href: string;
+  photo: string;
+  photoAlt: string;
 }
 
 export interface FooterColumn {
@@ -146,16 +150,23 @@ export const hero = {
 /* Trusted customers                                                   */
 /* ------------------------------------------------------------------ */
 
-/* Draft facts — confirm customer names and years before final publish. */
+/*
+ * DRAFT — placeholder client names.
+ *
+ * These are deliberately generic stand-ins. Do NOT substitute real company
+ * names or logos until the client relationship is confirmed and permission to
+ * use the mark is on file. Replace `name`/`since`/`sector` here only; the
+ * section derives its monogram from the name automatically.
+ */
 export const trusted = {
   eyebrow: "Trusted by teams like yours",
   title: "The clients who gift with us keep coming back.",
   lede: "Repeat customers across tech, consumer and consulting — year after year, brief after brief.",
   customers: [
-    { name: "Google", since: "2022" },
-    { name: "Apple", since: "2023" },
-    { name: "Stark Tech", since: "2021" },
-    { name: "AvadheshCo", since: "2024" },
+    { name: "Northwind Technologies", since: "2021", sector: "Enterprise software" },
+    { name: "Meridian Consulting", since: "2022", sector: "Management consulting" },
+    { name: "Lumen Health", since: "2023", sector: "Healthcare" },
+    { name: "Kestrel Retail Group", since: "2024", sector: "Consumer retail" },
   ] as TrustedCustomer[],
 };
 
@@ -462,6 +473,8 @@ export const journalArticles: JournalArticle[] = [
     category: "Guides",
     readTime: "6 min read",
     href: "#",
+    photo: UNSPLASH("photo-1513201099705-a9746e1e201f"),
+    photoAlt: "Wrapped gifts stacked and tied with linen ribbon",
   },
   {
     title: "Beyond the dry-fruit box: festive gifting, rethought",
@@ -470,6 +483,8 @@ export const journalArticles: JournalArticle[] = [
     category: "Inspiration",
     readTime: "4 min read",
     href: "#",
+    photo: UNSPLASH("photo-1603006905003-be475563bc59"),
+    photoAlt: "Hand-poured candles in amber tins",
   },
   {
     title: "How we choose our makers",
@@ -478,6 +493,8 @@ export const journalArticles: JournalArticle[] = [
     category: "Behind the Scenes",
     readTime: "5 min read",
     href: "#",
+    photo: UNSPLASH("photo-1459908676235-d5f02a50184b"),
+    photoAlt: "An artisan's hands printing fabric with carved wooden blocks",
   },
 ];
 
@@ -489,9 +506,27 @@ export const helpChoosing = {
   title: "Need help choosing?",
   body: "Tell Piku what you're looking for — occasion, audience, budget — and we'll curate the options for you. Prefer to write it out? Send a brief straight to the team.",
   primaryCta: "Help Me Choose",
-  primaryAction: "chat",
+  /** undefined = open the concierge at the start of the conversation. */
+  primaryStep: undefined,
   secondaryCta: "Send a Gifting Brief",
-  secondaryAction: "brief",
+  /** Deep-links past the guided questions to the written-brief step. */
+  secondaryStep: "brief",
+  briefCardTitle: "Send a Gifting Brief",
+  briefCardBody:
+    "Know exactly what you need? Skip the chat and send your requirements straight to our gifting team.",
+  briefCardCta: "Submit Brief",
+  briefCardStep: "contact",
+} satisfies {
+  title: string;
+  body: string;
+  primaryCta: string;
+  primaryStep: ConciergeStep | undefined;
+  secondaryCta: string;
+  secondaryStep: ConciergeStep;
+  briefCardTitle: string;
+  briefCardBody: string;
+  briefCardCta: string;
+  briefCardStep: ConciergeStep;
 };
 
 /* ------------------------------------------------------------------ */

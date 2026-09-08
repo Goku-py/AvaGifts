@@ -33,7 +33,13 @@ export function SectionHeading({
         </Eyebrow>
       </Reveal>
       <Reveal delay={0.08}>
-        <h2 id={id} className="text-h2 mt-4 font-sans text-text-primary">
+        <h2
+          id={id}
+          className={cn(
+            "text-h2 mt-4 font-sans",
+            tone === "dark" ? "text-white" : "text-text-primary",
+          )}
+        >
           {title}
         </h2>
       </Reveal>

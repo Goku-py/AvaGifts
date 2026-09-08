@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { Menu, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { CatalogButton } from "@/components/catalog/catalog-button";
 import { useCatalog } from "@/components/catalog/catalog-context";
 import { Logo } from "@/components/ui/logo";
@@ -72,7 +73,7 @@ export function Header() {
       className={cn(
         "sticky top-0 z-50 transition-[background-color,border-color,box-shadow] duration-300 ease-out",
         scrolled
-          ? "border-b border-divider bg-white/90 shadow-[0_1px_16px_rgb(11_42_77/0.06)] backdrop-blur-md"
+          ? "border-b border-divider bg-white/90 shadow-card backdrop-blur-md"
           : "border-b border-transparent bg-white/70 backdrop-blur-sm",
       )}
     >
@@ -101,13 +102,14 @@ export function Header() {
 
         <div className="flex items-center gap-2">
           <CatalogButton variant="secondary" size="sm" className="hidden sm:inline-flex" />
-          <button
-            type="button"
+          <Button
+            variant="primary"
+            size="sm"
             onClick={() => openConcierge()}
-            className="hidden h-9 shrink-0 items-center justify-center gap-2 rounded-full bg-interactive px-4 text-sm font-semibold text-white transition-colors duration-200 hover:bg-interactive-hover active:bg-interactive-active active:translate-y-px motion-reduce:transition-none sm:inline-flex"
+            className="hidden sm:inline-flex"
           >
             {headerCta}
-          </button>
+          </Button>
           <button
             type="button"
             onClick={() => setMenuOpen(true)}
@@ -204,13 +206,9 @@ function MobileMenu({ onClose, onOpenCatalog, onOpenConcierge, closeRef }: Mobil
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.35, duration: 0.45, ease: EASE }}
       >
-        <button
-          type="button"
-          onClick={onOpenConcierge}
-          className="inline-flex h-12 items-center justify-center rounded-full bg-interactive px-7 text-button text-white transition-colors duration-200 hover:bg-interactive-hover active:bg-interactive-active active:translate-y-px motion-reduce:transition-none"
-        >
+        <Button variant="primary" size="lg" onClick={onOpenConcierge}>
           {headerCta}
-        </button>
+        </Button>
         <CatalogButton variant="secondary" size="lg" onClick={onOpenCatalog} />
       </motion.div>
     </motion.div>

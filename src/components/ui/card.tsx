@@ -12,7 +12,7 @@ export function Card({ hoverable = false, className, children, ...rest }: CardPr
   return (
     <div
       className={cn(
-        "rounded-2xl border border-divider bg-card shadow-card",
+        "rounded-2xl border border-divider bg-white shadow-card",
         hoverable &&
           "transition-[transform,box-shadow] duration-300 ease-out hover:-translate-y-1 hover:shadow-lift motion-reduce:transition-none motion-reduce:hover:translate-y-0",
         className,

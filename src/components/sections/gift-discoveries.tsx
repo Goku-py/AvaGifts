@@ -26,6 +26,8 @@ export function GiftDiscoveries() {
     [filter],
   );
 
+  const [feature, ...rest] = visible;
+
   return (
     <Section id="gifts" labelledBy="gifts-heading" tone="white">
       <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
@@ -67,8 +69,62 @@ export function GiftDiscoveries() {
         </Reveal>
       </div>
 
-      <div className="mt-12 grid grid-cols-2 gap-4 sm:gap-5 lg:grid-cols-4">
-        {visible.map((product, index) => (
+      {/*
+        One piece is featured at a wider scale and the rest run as a grid.
+        A single uniform tile grid is the flattest way to show a range; giving
+        the lead item its own proportions makes the section read as curated.
+        The feature follows the active filter, so it always shows a match.
+      */}
+      {feature ? (
+        <Reveal delay={0.08}>
+          <Card
+            hoverable
+            className="group mt-12 grid overflow-hidden md:grid-cols-2"
+          >
+            <div className="relative aspect-[4/3] overflow-hidden md:aspect-auto md:min-h-[340px]">
+              <Image
+                src={feature.photo}
+                alt={feature.photoAlt}
+                fill
+                sizes="(min-width: 768px) 560px, 100vw"
+                className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+              />
+            </div>
+            <div className="flex flex-col justify-center p-6 sm:p-9 lg:p-12">
+              <p className="text-caption uppercase tracking-[0.12em] text-text-muted">
+                {feature.category}
+              </p>
+              <h3 className="text-h3 mt-2 font-sans leading-tight text-text-primary">
+                {feature.name}
+              </h3>
+              <p className="text-body-lg mt-4 text-text-secondary">
+                {feature.blurb}
+              </p>
+              <div className="mt-6 flex flex-wrap items-center gap-2">
+                {feature.tags.map((tag) => (
+                  <span
+                    key={tag}
+                    className="rounded-full border border-divider px-2.5 py-1 text-[11px] text-text-secondary"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+              <p className="mt-6 font-sans text-lg font-semibold text-interactive">
+                {feature.priceBand}
+              </p>
+            </div>
+          </Card>
+        </Reveal>
+      ) : (
+        <p className="text-body mt-12 text-text-secondary">
+          No gifts match that filter yet — try another, or browse the full
+          catalog below.
+        </p>
+      )}
+
+      <div className="mt-5 grid grid-cols-2 gap-4 sm:gap-5 lg:grid-cols-4">
+        {rest.map((product, index) => (
           <Reveal key={product.id} delay={(index % 4) * STAGGER} className="h-full">
             <Card hoverable className="group h-full overflow-hidden">
               <div className="relative aspect-[4/5] overflow-hidden">
@@ -81,7 +137,7 @@ export function GiftDiscoveries() {
                 />
               </div>
               <div className="p-4 sm:p-5">
-                <p className="text-caption uppercase tracking-[0.12em] text-muted">
+                <p className="text-caption uppercase tracking-[0.12em] text-text-muted">
                   {product.category}
                 </p>
                 <h3 className="text-h6 mt-1.5 font-sans leading-snug text-text-primary">

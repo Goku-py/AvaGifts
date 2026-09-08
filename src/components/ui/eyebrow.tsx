@@ -14,11 +14,18 @@ export function Eyebrow({ children, tone = "light", className }: EyebrowProps) {
     <p
       className={cn(
         "flex items-center gap-3 text-caption uppercase tracking-[0.14em]",
-        tone === "dark" ? "text-white/60" : "text-muted",
+        tone === "dark" ? "text-white/70" : "text-text-muted",
         className,
       )}
     >
-      <span aria-hidden="true" className="h-px w-6 shrink-0 bg-interactive" />
+      <span
+        aria-hidden="true"
+        className={cn(
+          "h-px w-6 shrink-0",
+          /* Interactive blue disappears on navy — the accent carries it there. */
+          tone === "dark" ? "bg-accent" : "bg-interactive",
+        )}
+      />
       {children}
     </p>
   );
