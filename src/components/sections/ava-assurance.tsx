@@ -47,9 +47,12 @@ export function AvaAssurance() {
         smaller screens where a horizontal flow would break down.
       */}
       <ol className="relative mt-16 grid gap-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
+        {/* Spans icon-centre to icon-centre — with four columns those sit at
+            1/8 and 7/8, so the rule stops at the stages instead of bleeding
+            past them to the container edges. */}
         <div
           aria-hidden="true"
-          className="absolute left-0 right-0 top-6 hidden h-px bg-white/15 lg:block"
+          className="absolute left-[12.5%] right-[12.5%] top-6 hidden h-px bg-white/15 lg:block"
         />
         {assurance.stages.map((stage, index) => {
           const Icon = getIcon(stage.icon);

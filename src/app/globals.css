@@ -107,9 +107,14 @@
 
   /* On navy/gradient bands the interactive blue all but vanishes against the
      background, so the accent carries the ring there. `Section` sets
-     `data-tone` for its dark tones, so this applies automatically. */
+     `data-tone` per tone, so this applies automatically. */
   [data-tone="dark"] :focus-visible {
     outline-color: var(--color-accent);
+  }
+
+  /* Orange→gold band: blue on orange is muddy, navy is unmistakable. */
+  [data-tone="warm"] :focus-visible {
+    outline-color: var(--color-primary);
   }
 
   h1,

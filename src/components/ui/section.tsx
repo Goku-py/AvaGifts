@@ -11,8 +11,18 @@ const toneClasses: Record<SectionTone, string> = {
   warm: "bg-gradient-warm text-primary",
 };
 
-/** Tones whose background is dark enough to need the accent focus ring. */
-const darkTones = new Set<SectionTone>(["navy", "gradient"]);
+/**
+ * Focus-ring context per tone. The default interactive blue only reads on
+ * light, low-chroma backgrounds:
+ *  - "dark"  (navy/gradient) → accent gold
+ *  - "warm"  (orange→gold)   → navy, since blue on orange is muddy
+ * Everything else keeps the global blue ring.
+ */
+const toneFocusContext: Partial<Record<SectionTone, string>> = {
+  navy: "dark",
+  gradient: "dark",
+  warm: "warm",
+};
 
 type SectionWidth = "standard" | "narrow" | "wide";
 
@@ -64,7 +74,7 @@ export function Section({
   return (
     <section
       aria-labelledby={labelledBy}
-      data-tone={darkTones.has(tone) ? "dark" : undefined}
+      data-tone={toneFocusContext[tone]}
       className={cn(
         "relative scroll-mt-24",
         densityClasses[density],
