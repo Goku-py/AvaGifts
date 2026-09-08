@@ -1,6 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  PIKU_CELEBRATE_EVENT,
+  PIKU_CONCIERGE_CLOSED_EVENT,
+  PIKU_ENQUIRY_SENT_EVENT,
+  PIKU_GLANCE_EVENT,
+} from "@/lib/events";
+import { OPEN_PIKU_EVENT } from "@/lib/piku-concierge";
 
 /* ------------------------------------------------------------------ *
  * Piku Brain — autonomous life + personality reactions
@@ -145,6 +152,8 @@ export function usePikuBrain() {
   const seenHints = useRef(new Set<string>());
   const scrollPos = useRef({ y: 0, t: 0 });
   const isSleepy = useRef(false);
+  /* Armed when an enquiry is sent — fires the celebration on flow close. */
+  const celebrateOnClose = useRef(false);
   const isRoamingRef = useRef(false);
   const clickTimestamps = useRef<number[]>([]);
 
@@ -463,12 +472,35 @@ export function usePikuBrain() {
       say("Our corporate catalog — let's browse premium picks together!");
     };
 
+    /* ---- Concierge shared emotions: no bubbles, the modal covers them — */
+    const onConciergeOpen = () => {
+      flash("happy", 1_700);
+    };
+    /* The glance: hovering the entry CTA — curious, gaze handled in piku. */
+    const onGlance = () => {
+      flash("curious", 2_500);
+    };
+    const onEnquirySent = () => {
+      celebrateOnClose.current = true;
+    };
+    const onConciergeClosed = () => {
+      if (!celebrateOnClose.current) return;
+      celebrateOnClose.current = false;
+      flash("excited", 2_200);
+      say("Your brief is in — let's celebrate!");
+      window.dispatchEvent(new CustomEvent(PIKU_CELEBRATE_EVENT));
+    };
+
     window.addEventListener("pointerdown", onPointerDownWake, { passive: true });
     window.addEventListener("keydown", onKeyDownWake);
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("mousemove", onMouseMove, { passive: true });
     document.addEventListener("focusin", onFocusIn);
     window.addEventListener("avagifts:open-catalog", onCatalogOpen as EventListener);
+    window.addEventListener(OPEN_PIKU_EVENT, onConciergeOpen);
+    window.addEventListener(PIKU_GLANCE_EVENT, onGlance);
+    window.addEventListener(PIKU_ENQUIRY_SENT_EVENT, onEnquirySent);
+    window.addEventListener(PIKU_CONCIERGE_CLOSED_EVENT, onConciergeClosed);
 
     const pikuBtn = document.querySelector(".piku-btn");
     if (pikuBtn) {
@@ -483,6 +515,10 @@ export function usePikuBrain() {
       window.removeEventListener("mousemove", onMouseMove);
       document.removeEventListener("focusin", onFocusIn);
       window.removeEventListener("avagifts:open-catalog", onCatalogOpen as EventListener);
+      window.removeEventListener(OPEN_PIKU_EVENT, onConciergeOpen);
+      window.removeEventListener(PIKU_GLANCE_EVENT, onGlance);
+      window.removeEventListener(PIKU_ENQUIRY_SENT_EVENT, onEnquirySent);
+      window.removeEventListener(PIKU_CONCIERGE_CLOSED_EVENT, onConciergeClosed);
       if (pikuBtn) {
         pikuBtn.removeEventListener("mouseenter", onPikuMouseEnter);
         pikuBtn.removeEventListener("mouseleave", onPikuMouseLeave);

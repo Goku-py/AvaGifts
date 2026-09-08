@@ -145,6 +145,48 @@ export function stepIndex(step: ConciergeStep): number {
 }
 
 /* ------------------------------------------------------------------ */
+/* Progress stages — the 10 internal steps are grouped into 3 numbered */
+/* stages so the header reads "Step 1 of 3" instead of a 10-tick bar.  */
+/* ------------------------------------------------------------------ */
+
+export interface ConciergeStage {
+  id: string;
+  /** Short label shown beside the stage number. */
+  label: string;
+  steps: ConciergeStep[];
+}
+
+export const conciergeStages: ConciergeStage[] = [
+  {
+    id: "vibe",
+    label: "Your vibe",
+    steps: ["occasion", "feeling", "gift-style"],
+  },
+  {
+    id: "details",
+    label: "The details",
+    steps: [
+      "details-quantity",
+      "details-date",
+      "details-location",
+      "details-budget",
+      "details-notes",
+      "confirm",
+    ],
+  },
+  {
+    id: "connect",
+    label: "Connect",
+    steps: ["contact", "brief"],
+  },
+];
+
+/** 0-based stage containing the step, or -1 for intro/done. */
+export function stageIndex(step: ConciergeStep): number {
+  return conciergeStages.findIndex((stage) => stage.steps.includes(step));
+}
+
+/* ------------------------------------------------------------------ */
 /* Acknowledgements — short, human, one question at a time             */
 /* ------------------------------------------------------------------ */
 

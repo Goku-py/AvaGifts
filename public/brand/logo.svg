@@ -1,10 +1,14 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="132" height="32" viewBox="0 0 132 32" role="img" aria-label="AvaGifts">
-  <g fill="none" stroke="#1E4034" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <rect x="4.5" y="12" width="23" height="15.5" rx="2.5"/>
-    <rect x="3" y="6.5" width="26" height="5.5" rx="1.75"/>
-    <path d="M16 12v15.5"/>
-    <path d="M16 6.5C14.2 3.6 9.6 4 10.5 6.5c.5 1.4 3.2 1.5 5.5 0Z"/>
-    <path d="M16 6.5c1.8-2.9 6.4-2.5 5.5 0-.5 1.4-3.2 1.5-5.5 0Z"/>
-  </g>
-  <text x="40" y="22" font-family="'Avenir Next', 'Century Gothic', Futura, 'Segoe UI', ui-sans-serif, system-ui, sans-serif" font-size="17" font-weight="600" letter-spacing="-0.2" fill="#17191E">AvaGifts</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0B2A4D"/>
+      <stop offset="1" stop-color="#1273EB"/>
+    </linearGradient>
+  </defs>
+  <rect width="32" height="32" rx="8" fill="url(#g)"/>
+  <rect x="9" y="15" width="14" height="8.5" rx="1.6" stroke="#FFFFFF" stroke-width="1.9" stroke-linejoin="round"/>
+  <rect x="7.5" y="11.5" width="17" height="3.2" rx="1.2" stroke="#FFFFFF" stroke-width="1.9" stroke-linejoin="round"/>
+  <path d="M16 11.5V23.5" stroke="#FFDE59" stroke-width="1.9" stroke-linecap="round"/>
+  <path d="M16 10.6c-1.5-2.4-5-2-4.2.4.4 1.1 2.6 1.2 4.2-.4Z" stroke="#FFDE59" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M16 10.6c1.5-2.4 5-2 4.2.4-.4 1.1-2.6 1.2-4.2-.4Z" stroke="#FFDE59" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>

@@ -5,18 +5,11 @@ import { AnimatePresence, motion } from "motion/react";
 import { Menu, X } from "lucide-react";
 import { CatalogButton } from "@/components/catalog/catalog-button";
 import { useCatalog } from "@/components/catalog/catalog-context";
-import { ButtonLink } from "@/components/ui/button";
 import { Logo } from "@/components/ui/logo";
 import { EASE } from "@/lib/motion";
+import { headerCta, navLinks } from "@/lib/data";
+import { usePikuConcierge } from "@/components/piku-concierge/piku-concierge-context";
 import { cn } from "@/lib/utils";
-
-const NAV_LINKS = [
-  { label: "Catalog", href: "#catalog" },
-  { label: "Collections", href: "#collections" },
-  { label: "Why AvaGifts", href: "#why" },
-  { label: "Services", href: "#services" },
-  { label: "About", href: "#about" },
-] as const;
 
 const menuItemVariants = {
   hidden: { opacity: 0, y: 16 },
@@ -25,6 +18,7 @@ const menuItemVariants = {
 
 export function Header() {
   const { openCatalog } = useCatalog();
+  const { openConcierge } = usePikuConcierge();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [active, setActive] = useState<string | null>(null);
@@ -40,9 +34,9 @@ export function Header() {
 
   /* Active-section highlight */
   useEffect(() => {
-    const sections = NAV_LINKS.map((link) => document.getElementById(link.href.slice(1))).filter(
-      (element): element is HTMLElement => element !== null,
-    );
+    const sections = navLinks
+      .map((link) => document.getElementById(link.href.slice(1)))
+      .filter((element): element is HTMLElement => element !== null);
     if (sections.length === 0) return;
 
     const observer = new IntersectionObserver(
@@ -78,26 +72,26 @@ export function Header() {
       className={cn(
         "sticky top-0 z-50 transition-[background-color,border-color,box-shadow] duration-300 ease-out",
         scrolled
-          ? "border-b border-line bg-paper/85 shadow-[0_1px_16px_rgb(23_25_30/0.04)] backdrop-blur-md"
-          : "border-b border-transparent bg-paper/60 backdrop-blur-sm",
+          ? "border-b border-divider bg-white/90 shadow-[0_1px_16px_rgb(11_42_77/0.06)] backdrop-blur-md"
+          : "border-b border-transparent bg-white/70 backdrop-blur-sm",
       )}
     >
-      <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between gap-4 px-5 sm:px-8 md:h-[72px]">
+      <div className="mx-auto flex h-16 w-full max-w-[1200px] items-center justify-between gap-4 px-6 md:h-[72px]">
         <a href="#top" aria-label="AvaGifts — back to top" className="shrink-0">
           <Logo />
         </a>
 
         <nav aria-label="Primary" className="hidden items-center gap-7 lg:flex">
-          {NAV_LINKS.map((link) => (
+          {navLinks.map((link) => (
             <a
               key={link.href}
               href={link.href}
               aria-current={active === link.href ? "true" : undefined}
               className={cn(
-                "text-sm transition-colors duration-200 hover:text-ink",
+                "text-sm transition-colors duration-200 hover:text-text-primary",
                 active === link.href
-                  ? "text-ink underline decoration-gold decoration-[1.5px] underline-offset-8"
-                  : "text-ink-soft",
+                  ? "text-text-primary underline decoration-interactive decoration-[1.5px] underline-offset-8"
+                  : "text-text-secondary",
               )}
             >
               {link.label}
@@ -106,22 +100,21 @@ export function Header() {
         </nav>
 
         <div className="flex items-center gap-2">
-          <ButtonLink
-            variant="ghost"
-            size="sm"
-            href="#contact"
-            className="hidden md:inline-flex"
+          <CatalogButton variant="secondary" size="sm" className="hidden sm:inline-flex" />
+          <button
+            type="button"
+            onClick={() => openConcierge()}
+            className="hidden h-9 shrink-0 items-center justify-center gap-2 rounded-full bg-interactive px-4 text-sm font-semibold text-white transition-colors duration-200 hover:bg-interactive-hover active:bg-interactive-active active:translate-y-px motion-reduce:transition-none sm:inline-flex"
           >
-            Enquire
-          </ButtonLink>
-          <CatalogButton size="sm" className="hidden sm:inline-flex" />
+            {headerCta}
+          </button>
           <button
             type="button"
             onClick={() => setMenuOpen(true)}
             aria-expanded={menuOpen}
             aria-controls="mobile-menu"
             aria-label="Open menu"
-            className="inline-flex size-10 items-center justify-center rounded-full text-ink transition-colors hover:bg-ink/[0.06] lg:hidden"
+            className="inline-flex size-10 items-center justify-center rounded-full text-text-primary transition-colors hover:bg-hover-surface lg:hidden"
           >
             <Menu aria-hidden="true" className="size-5" />
           </button>
@@ -137,6 +130,10 @@ export function Header() {
               setMenuOpen(false);
               openCatalog();
             }}
+            onOpenConcierge={() => {
+              setMenuOpen(false);
+              openConcierge();
+            }}
           />
         ) : null}
       </AnimatePresence>
@@ -151,30 +148,31 @@ export function Header() {
 interface MobileMenuProps {
   onClose: () => void;
   onOpenCatalog: () => void;
+  onOpenConcierge: () => void;
   closeRef: React.RefObject<HTMLButtonElement | null>;
 }
 
-function MobileMenu({ onClose, onOpenCatalog, closeRef }: MobileMenuProps) {
+function MobileMenu({ onClose, onOpenCatalog, onOpenConcierge, closeRef }: MobileMenuProps) {
   return (
     <motion.div
       id="mobile-menu"
       role="dialog"
       aria-modal="true"
       aria-label="Menu"
-      className="fixed inset-0 z-[70] flex flex-col bg-paper lg:hidden"
+      className="fixed inset-0 z-[70] flex flex-col bg-white lg:hidden"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.25, ease: EASE }}
     >
-      <div className="flex h-16 items-center justify-between px-5 sm:px-8 md:h-[72px]">
+      <div className="flex h-16 items-center justify-between px-6 md:h-[72px]">
         <Logo />
         <button
           ref={closeRef}
           type="button"
           onClick={onClose}
           aria-label="Close menu"
-          className="inline-flex size-10 items-center justify-center rounded-full text-ink transition-colors hover:bg-ink/[0.06]"
+          className="inline-flex size-10 items-center justify-center rounded-full text-text-primary transition-colors hover:bg-hover-surface"
         >
           <X aria-hidden="true" className="size-5" />
         </button>
@@ -182,18 +180,18 @@ function MobileMenu({ onClose, onOpenCatalog, closeRef }: MobileMenuProps) {
 
       <motion.nav
         aria-label="Mobile"
-        className="flex flex-1 flex-col justify-center px-8"
+        className="flex flex-1 flex-col justify-center px-6"
         initial="hidden"
         animate="show"
         variants={{ show: { transition: { staggerChildren: 0.06, delayChildren: 0.08 } } }}
       >
-        {NAV_LINKS.map((link) => (
+        {navLinks.map((link) => (
           <motion.a
             key={link.href}
             href={link.href}
             onClick={onClose}
             variants={menuItemVariants}
-            className="border-b border-line py-4 font-display text-3xl font-semibold tracking-[-0.02em] text-ink transition-colors hover:text-accent"
+            className="border-b border-divider py-4 font-sans text-2xl font-semibold tracking-[-0.02em] text-text-primary transition-colors hover:text-interactive"
           >
             {link.label}
           </motion.a>
@@ -201,15 +199,19 @@ function MobileMenu({ onClose, onOpenCatalog, closeRef }: MobileMenuProps) {
       </motion.nav>
 
       <motion.div
-        className="flex flex-col gap-3 px-8 pb-12"
+        className="flex flex-col gap-3 px-6 pb-12"
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.35, duration: 0.45, ease: EASE }}
       >
-        <ButtonLink variant="secondary" size="lg" href="#contact" onClick={onClose} arrow>
-          Enquire
-        </ButtonLink>
-        <CatalogButton size="lg" onClick={onOpenCatalog} />
+        <button
+          type="button"
+          onClick={onOpenConcierge}
+          className="inline-flex h-12 items-center justify-center rounded-full bg-interactive px-7 text-button text-white transition-colors duration-200 hover:bg-interactive-hover active:bg-interactive-active active:translate-y-px motion-reduce:transition-none"
+        >
+          {headerCta}
+        </button>
+        <CatalogButton variant="secondary" size="lg" onClick={onOpenCatalog} />
       </motion.div>
     </motion.div>
   );

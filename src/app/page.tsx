@@ -1,25 +1,29 @@
-import { About } from "@/components/sections/about";
-import { CatalogCta } from "@/components/sections/catalog-cta";
-import { Categories } from "@/components/sections/categories";
-import { Contact } from "@/components/sections/contact";
-import { FeaturedProducts } from "@/components/sections/featured-products";
-import { PikuEntrySection } from "@/components/piku-concierge";
+import { AvaAssurance } from "@/components/sections/ava-assurance";
+import { FinalConversion } from "@/components/sections/final-conversion";
+import { GiftingJournal } from "@/components/sections/gifting-journal";
+import { GiftDiscoveries } from "@/components/sections/gift-discoveries";
 import { Hero } from "@/components/sections/hero";
-import { Services } from "@/components/sections/services";
+import { HowWeExecute } from "@/components/sections/how-we-execute";
+import { MakerCta } from "@/components/sections/maker-cta";
+import { MadeSomewhere } from "@/components/sections/made-somewhere";
+import { NeedHelpChoosing } from "@/components/piku-concierge";
+import { TrustedCustomers } from "@/components/sections/trusted";
 import { WhyAvaGifts } from "@/components/sections/why-avagifts";
 
 export default function Home() {
   return (
     <>
       <Hero />
-      <Categories />
-      <FeaturedProducts />
-      <CatalogCta />
-      <PikuEntrySection />
+      <TrustedCustomers />
+      <GiftDiscoveries />
       <WhyAvaGifts />
-      <Services />
-      <About />
-      <Contact />
+      <HowWeExecute />
+      <AvaAssurance />
+      <MadeSomewhere />
+      <MakerCta />
+      <GiftingJournal />
+      <NeedHelpChoosing />
+      <FinalConversion />
     </>
   );
 }

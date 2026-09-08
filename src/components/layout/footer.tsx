@@ -1,42 +1,6 @@
 import { Logo } from "@/components/ui/logo";
 import { InstagramIcon, LinkedinIcon, TwitterIcon } from "@/components/ui/social-icons";
-import { company } from "@/lib/data";
-
-const LINK_COLUMNS = [
-  {
-    title: "Explore",
-    links: [
-      { label: "Collections", href: "#collections" },
-      { label: "Featured", href: "#featured" },
-      { label: "Catalog", href: "#catalog" },
-      { label: "Why AvaGifts", href: "#why" },
-    ],
-  },
-  {
-    title: "Services",
-    links: [
-      { label: "Bulk Gifting", href: "#services" },
-      { label: "Custom Branding", href: "#services" },
-      { label: "Corporate Events", href: "#services" },
-      { label: "Enquire", href: "#contact" },
-    ],
-  },
-  {
-    title: "Company",
-    links: [
-      { label: "About", href: "#about" },
-      { label: "Journal", href: "#" },
-      { label: "Contact", href: "#contact" },
-    ],
-  },
-  {
-    title: "Legal",
-    links: [
-      { label: "Privacy", href: "#" },
-      { label: "Terms", href: "#" },
-    ],
-  },
-] as const;
+import { company, footerColumns, legalLinks } from "@/lib/data";
 
 const SOCIALS = [
   { label: "AvaGifts on LinkedIn", href: "#", Icon: LinkedinIcon },
@@ -46,20 +10,24 @@ const SOCIALS = [
 
 export function Footer() {
   return (
-    <footer className="bg-ink text-paper">
-      <div className="mx-auto w-full max-w-6xl px-5 py-16 sm:px-8 lg:py-20">
+    <footer className="bg-primary text-white">
+      <div className="mx-auto w-full max-w-[1200px] px-6 py-16 lg:py-20">
         <div className="grid gap-12 lg:grid-cols-[1.15fr_2fr] lg:gap-16">
           <div>
-            <Logo mono className="text-paper" />
-            <p className="mt-4 max-w-xs text-sm leading-relaxed text-paper/60">
-              {company.tagline} Curated, customised and delivered from India’s finest makers.
+            <Logo mono className="text-white" />
+            <p className="text-small mt-4 max-w-xs leading-relaxed text-white/60">
+              {company.tagline} Curated, customised and delivered from India's finest
+              makers.
             </p>
           </div>
 
-          <nav aria-label="Footer" className="grid grid-cols-2 gap-x-8 gap-y-10 sm:grid-cols-4">
-            {LINK_COLUMNS.map((column) => (
+          <nav
+            aria-label="Footer"
+            className="grid grid-cols-2 gap-x-8 gap-y-10 sm:grid-cols-4"
+          >
+            {footerColumns.map((column) => (
               <div key={column.title}>
-                <h3 className="text-xs font-medium uppercase tracking-[0.14em] text-paper/50">
+                <h3 className="text-caption uppercase tracking-[0.14em] text-white/50">
                   {column.title}
                 </h3>
                 <ul className="mt-4 space-y-2.5">
@@ -67,7 +35,7 @@ export function Footer() {
                     <li key={link.label}>
                       <a
                         href={link.href}
-                        className="text-sm text-paper/75 transition-colors duration-200 hover:text-paper"
+                        className="text-sm text-white/75 transition-colors duration-200 hover:text-white"
                       >
                         {link.label}
                       </a>
@@ -79,17 +47,28 @@ export function Footer() {
           </nav>
         </div>
 
-        <div className="mt-14 flex flex-col items-start justify-between gap-6 border-t border-paper/10 pt-8 sm:flex-row sm:items-center">
-          <p className="text-xs text-paper/50">
+        <div className="mt-14 flex flex-col items-start justify-between gap-6 border-t border-white/10 pt-8 sm:flex-row sm:items-center">
+          <p className="text-caption text-white/50">
             © 2026 AvaGifts · Crafted with care in India
           </p>
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
+            {legalLinks.map((link) => (
+              <a
+                key={link.label}
+                href={link.href}
+                className="text-caption text-white/50 transition-colors duration-200 hover:text-white"
+              >
+                {link.label}
+              </a>
+            ))}
+          </div>
           <div className="flex items-center gap-2">
             {SOCIALS.map(({ label, href, Icon }) => (
               <a
                 key={label}
                 href={href}
                 aria-label={label}
-                className="inline-flex size-9 items-center justify-center rounded-full text-paper/70 transition-colors duration-200 hover:bg-paper/10 hover:text-paper"
+                className="inline-flex size-9 items-center justify-center rounded-full text-white/70 transition-colors duration-200 hover:bg-white/10 hover:text-white"
               >
                 <Icon aria-hidden="true" className="size-4" />
               </a>

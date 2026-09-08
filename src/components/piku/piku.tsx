@@ -11,6 +11,12 @@
 import "./piku.css";
 import { usePikuBrain } from "./use-piku-brain";
 import { PikuSprite } from "./piku-sprite";
+import {
+  PIKU_CELEBRATE_EVENT,
+  PIKU_GLANCE_END_EVENT,
+  PIKU_GLANCE_EVENT,
+  type PikuGlanceDetail,
+} from "@/lib/events";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 function clamp(v: number, lo: number, hi: number) {
@@ -94,6 +100,9 @@ export function Piku(_props: PikuProps = {}) {
 
   const clickTimestamps = useRef<number[]>([]);
   const burstKind = useRef<"heart" | "star">("heart");
+  /* The glance: external gaze-bias target (entry CTA hover) + blend weight. */
+  const glanceTarget = useRef<{ x: number; y: number } | null>(null);
+  const glanceWeight = useRef(0);
 
   const nextBlinkAt = useRef(performance.now() + 2500 + Math.random() * 2000);
   const blinkUntil = useRef(0);
@@ -220,14 +229,16 @@ export function Piku(_props: PikuProps = {}) {
       const sleepMul = curEmotion === "sleepy" ? 0.62 : 1;
       breathPhase.current += dt * breathSpeed * sleepMul;
 
+      /* Idle breathing + hip sway removed: Piku stays visually stable.
+         Phases keep advancing (timing intact); amplitudes are zeroed. */
       const breathSin = Math.sin(breathPhase.current);
-      const breathRx = breathSin * (isMobile ? 0.18 : 0.34);
-      const breathRz = Math.sin(breathPhase.current * 0.55) * 0.18;
+      const breathRx = breathSin * 0;
+      const breathRz = Math.sin(breathPhase.current * 0.55) * 0;
 
       swayPhase.current += dt * (isMobile ? 0.62 : 0.84);
-      const hipSwayRz = Math.sin(swayPhase.current) * (isMobile ? 0.35 : 0.58);
-      const hipSwayRy = Math.cos(swayPhase.current * 0.72) * (isMobile ? 0.32 : 0.52);
-      const hipSwayRx = Math.sin(swayPhase.current * 0.52) * 0.22;
+      const hipSwayRz = Math.sin(swayPhase.current) * 0;
+      const hipSwayRy = Math.cos(swayPhase.current * 0.72) * 0;
+      const hipSwayRx = Math.sin(swayPhase.current * 0.52) * 0;
 
       const isBlinkingNow = now < blinkUntil.current;
       const isSleepy = curEmotion === "sleepy";
@@ -398,6 +409,17 @@ export function Piku(_props: PikuProps = {}) {
         gazeY += -0.18;
       }
 
+      // The glance: ease a bias toward the entry CTA while it is hovered.
+      glanceWeight.current = lerp(
+        glanceWeight.current,
+        glanceTarget.current ? 1 : 0,
+        0.08,
+      );
+      if (glanceTarget.current && glanceWeight.current > 0.01) {
+        gazeX += glanceTarget.current.x * glanceWeight.current;
+        gazeY += glanceTarget.current.y * glanceWeight.current;
+      }
+
       const compX = clamp(gazeX - finalRy * 0.18, -2.6, 2.6);
       const compY = clamp(gazeY - finalRx * 0.11, -2.45, 2.45);
 
@@ -427,7 +449,7 @@ export function Piku(_props: PikuProps = {}) {
 
       scrollVel.current *= 0.92;
 
-      const liftProxy = breathSin * 0.6 + hoverFactor * -0.9;
+      const liftProxy = hoverFactor * -0.9;
       const shadowScale = 1 - Math.abs(liftProxy) * 0.012;
       const shadowOpacity = 0.17 + liftProxy * -0.006;
 
@@ -548,17 +570,9 @@ export function Piku(_props: PikuProps = {}) {
     cursorVel.current = { x: 0, y: 0 };
   }, []);
 
-  const handleClick = useCallback(async () => {
-    const now = Date.now();
-    clickTimestamps.current.push(now);
-    clickTimestamps.current = clickTimestamps.current.filter((t) => now - t < 1500);
-    const isRapid = clickTimestamps.current.length >= 4;
-
-    if (isRapid) clickTimestamps.current = [];
-
-    interact();
-
-    burstKind.current = isRapid ? "star" : "heart";
+  /* Shared burst sequence: click feedback + the enquiry celebration. */
+  const playBurst = useCallback(async (kind: "heart" | "star", count: number) => {
+    burstKind.current = kind;
 
     setClickPhase("squash");
     await new Promise<void>((r) => window.setTimeout(r, 80));
@@ -566,11 +580,12 @@ export function Piku(_props: PikuProps = {}) {
     await new Promise<void>((r) => window.setTimeout(r, 700));
     setClickPhase("burst");
 
-    const count = isRapid ? 8 : 5;
+    const spread = kind === "star" ? 22 : 28;
+    const range = kind === "star" ? 22 : 18;
     const bursts: Array<{ x: number; y: number; r: number }> = [];
     for (let i = 0; i < count; i++) {
       const angle = (Math.PI * 2 / count) * i + Math.random() * 0.28;
-      const dist = isRapid ? 22 + Math.random() * 22 : 28 + Math.random() * 18;
+      const dist = spread + Math.random() * range;
       bursts.push({
         x: Math.cos(angle) * dist,
         y: -Math.abs(Math.sin(angle)) * dist - 10,
@@ -581,8 +596,49 @@ export function Piku(_props: PikuProps = {}) {
     await new Promise<void>((r) => window.setTimeout(r, 900));
     setClickPhase("idle");
     setBurstPositions([]);
-    if (isRapid) burstKind.current = "heart";
-  }, [interact]);
+    burstKind.current = "heart";
+  }, []);
+
+  const handleClick = useCallback(async () => {
+    const now = Date.now();
+    clickTimestamps.current.push(now);
+    clickTimestamps.current = clickTimestamps.current.filter((t) => now - t < 1500);
+    const isRapid = clickTimestamps.current.length >= 4;
+
+    if (isRapid) clickTimestamps.current = [];
+
+    interact();
+
+    await playBurst(isRapid ? "star" : "heart", isRapid ? 8 : 5);
+  }, [interact, playBurst]);
+
+  /* External glance target + celebration trigger (concierge flow). */
+  useEffect(() => {
+    const onGlance = (event: Event) => {
+      if (prefersReducedRef.current || isCoarseRef.current) return;
+      if (typeof window !== "undefined" && window.innerWidth < 768) return;
+      const detail = (event as CustomEvent<PikuGlanceDetail>).detail;
+      if (!detail || typeof detail.x !== "number" || typeof detail.y !== "number") return;
+      glanceTarget.current = {
+        x: clamp(detail.x, -2.2, 2.2),
+        y: clamp(detail.y, -2.2, 2.2),
+      };
+    };
+    const onGlanceEnd = () => {
+      glanceTarget.current = null;
+    };
+    const onCelebrate = () => {
+      void playBurst("heart", 7);
+    };
+    window.addEventListener(PIKU_GLANCE_EVENT, onGlance);
+    window.addEventListener(PIKU_GLANCE_END_EVENT, onGlanceEnd);
+    window.addEventListener(PIKU_CELEBRATE_EVENT, onCelebrate);
+    return () => {
+      window.removeEventListener(PIKU_GLANCE_EVENT, onGlance);
+      window.removeEventListener(PIKU_GLANCE_END_EVENT, onGlanceEnd);
+      window.removeEventListener(PIKU_CELEBRATE_EVENT, onCelebrate);
+    };
+  }, [playBurst]);
 
   useEffect(() => {
     const onScroll = () => {

@@ -1,20 +1,30 @@
+"use client";
+
+import Image from "next/image";
 import { MapPin } from "lucide-react";
 import { CatalogButton } from "@/components/catalog/catalog-button";
-import { ButtonLink } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Eyebrow } from "@/components/ui/eyebrow";
-import { ProductArt } from "@/components/ui/product-art";
 import { Reveal } from "@/components/ui/reveal";
 import { Section } from "@/components/ui/section";
-import { stats } from "@/lib/data";
+import { hero, stats } from "@/lib/data";
+import { usePikuConcierge } from "@/components/piku-concierge/piku-concierge-context";
 import { cn } from "@/lib/utils";
 
+const cardLayouts = [
+  { position: "absolute right-0 top-0 w-[62%] rotate-2", aspect: "aspect-[4/5]" },
+  { position: "absolute left-0 top-[16%] w-[56%] -rotate-3", aspect: "aspect-square" },
+  { position: "absolute bottom-0 right-[6%] w-[46%] rotate-1", aspect: "aspect-[5/4]" },
+] as const;
+
 export function Hero() {
+  const { openConcierge } = usePikuConcierge();
+
   return (
     <Section
       id="top"
       labelledBy="hero-heading"
-      tone="paper"
+      tone="white"
       className="overflow-hidden py-14 sm:py-16 lg:py-24"
       aria-label="Introduction"
     >
@@ -22,61 +32,71 @@ export function Hero() {
         {/* Copy */}
         <div>
           <Reveal>
-            <Eyebrow>Corporate gifting, curated</Eyebrow>
+            <Eyebrow>{hero.eyebrow}</Eyebrow>
           </Reveal>
           <Reveal delay={0.08}>
-            <h1
-              id="hero-heading"
-              className="mt-5 font-display text-[2.75rem] font-semibold leading-[1.04] tracking-[-0.02em] sm:text-6xl lg:text-[4.25rem]"
-            >
-              Gifts that say the <em className="italic text-accent">right</em> thing.
+            <h1 id="hero-heading" className="text-h1 mt-5 font-sans text-text-primary">
+              Corporate gifting, without the{" "}
+              <em className="font-serif italic text-interactive">boring</em> part.
             </h1>
           </Reveal>
           <Reveal delay={0.16}>
-            <p className="mt-6 max-w-xl text-base leading-relaxed text-ink-soft sm:text-lg">
-              AvaGifts curates, customises and delivers premium gifts from India’s finest
-              makers — for teams, clients and the moments that matter.
-            </p>
+            <p className="text-body-lg mt-6 max-w-xl text-text-secondary">{hero.subtext}</p>
           </Reveal>
           <Reveal delay={0.24}>
             <div className="mt-9 flex flex-wrap items-center gap-3">
-              <CatalogButton size="lg" />
-              <ButtonLink variant="secondary" size="lg" href="#contact" arrow>
-                Talk to us
-              </ButtonLink>
+              <button
+                type="button"
+                onClick={() => openConcierge()}
+                className="inline-flex h-12 shrink-0 items-center justify-center rounded-full bg-gradient-primary px-7 text-button text-white transition-opacity duration-200 hover:opacity-90 active:translate-y-px motion-reduce:transition-none"
+              >
+                {hero.primaryCta}
+              </button>
+              <CatalogButton variant="secondary" size="lg" arrow />
             </div>
           </Reveal>
         </div>
 
-        {/* Composition */}
+        {/* Composition — real product photography */}
         <div
           aria-hidden="true"
           className="relative mx-auto h-[400px] w-full max-w-[500px] sm:h-[460px] lg:h-[540px]"
         >
-          <div className="absolute left-1/2 top-1/2 -z-10 size-[115%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-cream blur-3xl" />
+          <div className="absolute left-1/2 top-1/2 -z-10 size-[115%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-surface blur-3xl" />
 
-          <Reveal delay={0.15} className="absolute right-0 top-0 w-[62%] rotate-2">
-            <Card hoverable className="p-2.5 shadow-lift">
-              <ProductArt seed="hero-jaipur-pottery" icon="Flower2" aspect="aspect-[4/5]" className="rounded-lg" />
-            </Card>
-          </Reveal>
-
-          <Reveal delay={0.25} className="absolute left-0 top-[16%] w-[56%] -rotate-3">
-            <Card hoverable className="p-2.5 shadow-lift">
-              <ProductArt seed="hero-chai-studio" icon="Coffee" aspect="aspect-square" className="rounded-lg" />
-            </Card>
-          </Reveal>
-
-          <Reveal delay={0.35} className="absolute bottom-0 right-[6%] w-[46%] rotate-1">
-            <Card hoverable className="p-2.5 shadow-lift">
-              <ProductArt seed="hero-signature-box" icon="Gift" aspect="aspect-[5/4]" className="rounded-lg" />
-            </Card>
-          </Reveal>
+          {hero.visualCards.map((card, index) => (
+            <Reveal
+              key={card.src}
+              delay={0.15 + index * 0.1}
+              className={cn(cardLayouts[index].position)}
+            >
+              <Card hoverable className="overflow-hidden p-2.5 shadow-lift">
+                <div
+                  className={cn(
+                    "relative overflow-hidden rounded-lg",
+                    cardLayouts[index].aspect,
+                  )}
+                >
+                  <Image
+                    src={card.src}
+                    alt=""
+                    fill
+                    priority={index === 0}
+                    sizes="(min-width: 1024px) 340px, 62vw"
+                    className="object-cover"
+                  />
+                </div>
+                <p className="px-1.5 pb-1 pt-2 text-xs font-medium text-text-secondary">
+                  {card.caption}
+                </p>
+              </Card>
+            </Reveal>
+          ))}
 
           <div className="absolute right-[2%] top-[40%] z-10">
-            <span className="animate-drift inline-flex items-center gap-1.5 rounded-full border border-line bg-card/95 px-3.5 py-2 text-xs font-medium text-ink shadow-lift">
-              <MapPin aria-hidden="true" className="size-3.5 text-gold" />
-              Handcrafted in Jaipur
+            <span className="animate-drift inline-flex items-center gap-1.5 rounded-full border border-divider bg-white/95 px-3.5 py-2 text-xs font-medium text-text-primary shadow-lift">
+              <MapPin aria-hidden="true" className="size-3.5 text-interactive" />
+              {hero.floatingTag}
             </span>
           </div>
         </div>
@@ -84,7 +104,7 @@ export function Hero() {
 
       {/* Stats strip */}
       <Reveal delay={0.35} className="mt-16 lg:mt-20">
-        <dl className="grid grid-cols-2 gap-y-10 border-t border-line pt-10 md:grid-cols-4 md:divide-x md:divide-line">
+        <dl className="grid grid-cols-2 gap-y-10 border-t border-divider pt-10 md:grid-cols-4 md:divide-x md:divide-divider">
           {stats.map((stat, index) => (
             <div
               key={stat.label}
@@ -94,10 +114,10 @@ export function Hero() {
                 index === stats.length - 1 && "md:pr-0",
               )}
             >
-              <dd className="order-1 font-display text-3xl font-semibold tracking-[-0.02em] md:text-4xl">
+              <dd className="order-1 font-sans text-3xl font-bold tracking-[-0.02em] text-text-primary md:text-4xl">
                 {stat.value}
               </dd>
-              <dt className="order-2 mt-1.5 text-sm text-ink-soft">{stat.label}</dt>
+              <dt className="order-2 mt-1.5 text-sm text-text-secondary">{stat.label}</dt>
             </div>
           ))}
         </dl>

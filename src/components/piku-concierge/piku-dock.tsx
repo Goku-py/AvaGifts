@@ -27,7 +27,7 @@ export function PikuDock() {
         >
           <button
             type="button"
-            onClick={openConcierge}
+            onClick={() => openConcierge()}
             className={cn(
               "group pointer-events-auto inline-flex h-12 items-center gap-2.5 rounded-full",
               "bg-ink px-6 text-sm font-medium text-paper shadow-lift",

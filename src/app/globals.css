@@ -1,29 +1,74 @@
 @import "tailwindcss";
 
 /* ------------------------------------------------------------------ */
-/* AvaGifts design tokens                                              */
+/* AvadheshCo design system — tokens                                   */
+/* Source of truth: AvadheshCo Digital Experience Foundation.          */
+/* Semantic aliases (paper/ink/accent/gold/…) map onto these values    */
+/* so existing components inherit the system without parallel styles.  */
 /* ------------------------------------------------------------------ */
 
 @theme inline {
-  /* Palette — warm-corporate, premium, quiet */
-  --color-paper: #faf9f6;
-  --color-ink: #17191e;
-  --color-ink-soft: #5a5e66;
-  --color-line: rgb(23 25 30 / 0.1);
-  --color-accent: #1e4034;
-  --color-accent-ink: #16332a;
-  --color-gold: #b9975b;
-  --color-cream: #f3f0e9;
-  --color-card: #ffffff;
+  /* Primary brand — headlines, primary text, high-emphasis elements */
+  --color-primary: #0b2a4d;
+  /* Secondary brand — interactive elements, links, primary actions */
+  --color-interactive: #1273eb;
+  /* Accent — highlights and key moments only, never dominant */
+  --color-accent: #ffde59;
+  /* Neutral brand — backgrounds, surfaces, section dividers */
+  --color-surface: #f1f6fc;
+
+  /* Neutral scale */
+  --color-neutral-50: #f8f9fa;
+  --color-neutral-100: #f1f3f5;
+  --color-neutral-200: #e9ecef;
+  --color-neutral-300: #dee2e6;
+  --color-neutral-400: #ced4da;
+  --color-neutral-500: #adb5bd;
+  --color-neutral-600: #868e96;
+  --color-neutral-700: #495057;
+  --color-neutral-800: #343a40;
+  --color-neutral-900: #212529;
+  --color-neutral-950: #121417;
+
+  /* Surfaces */
+  --color-border: #e3e9f0;
+  --color-divider: #e3e9f0;
+  --color-hover-surface: #e7ecf3;
+
+  /* Text roles */
+  --color-text-primary: #0b2a4d;
+  --color-text-secondary: #495057;
+  --color-text-muted: #868e96;
+  --color-text-inverse: #ffffff;
+  --color-text-disabled: #adb5bd;
+
+  /* Interactive shades (hover/active of the secondary brand colour) */
+  --color-interactive-hover: #0e63cc;
+  --color-interactive-active: #0b54ad;
+
+  /* ---------------------------------------------------------------- */
+  /* Semantic aliases — legacy names mapped to system values          */
+  /* ---------------------------------------------------------------- */
+  --color-paper: #ffffff; /* primary background */
+  --color-ink: #0b2a4d; /* primary text */
+  --color-ink-soft: #495057; /* secondary text */
+  --color-muted: #868e96; /* muted text */
+  --color-line: #e3e9f0; /* border + divider */
+  --color-cream: #f1f6fc; /* secondary background */
+  --color-card: #ffffff; /* card surface */
+  --color-gold: #ffde59; /* accent */
+  --color-brand-hover: #0e63cc; /* alias of interactive-hover */
+  --color-accent-ink: #0e63cc; /* legacy hover alias of interactive */
 
   /* Type */
-  --font-display: var(--font-fraunces), "Iowan Old Style", Georgia, serif;
-  --font-sans: var(--font-instrument-sans), ui-sans-serif, system-ui, -apple-system,
+  --font-sans: var(--font-plex-sans), ui-sans-serif, system-ui, -apple-system,
     "Segoe UI", sans-serif;
+  --font-serif: var(--font-plex-serif), Iowan Old Style, Georgia, serif;
+  --font-display: var(--font-plex-sans), ui-sans-serif, system-ui, sans-serif;
 
-  /* Elevation */
-  --shadow-card: 0 1px 2px rgb(23 25 30 / 0.05);
-  --shadow-lift: 0 18px 40px -16px rgb(23 25 30 / 0.18);
+  /* Elevation — quiet, cool-tinted */
+  --shadow-card: 0 1px 2px rgb(11 42 77 / 0.06);
+  --shadow-lift: 0 16px 40px -18px rgb(11 42 77 / 0.25);
 }
 
 /* ------------------------------------------------------------------ */
@@ -37,7 +82,7 @@
 
   body {
     background-color: var(--color-paper);
-    color: var(--color-ink);
+    color: var(--color-text-primary);
     font-family: var(--font-sans);
     font-size: 1rem;
     line-height: 1.6;
@@ -46,13 +91,14 @@
   }
 
   ::selection {
-    background-color: var(--color-accent);
-    color: var(--color-paper);
+    background-color: var(--color-interactive);
+    color: #ffffff;
   }
 
-  /* Gold focus ring, site-wide */
+  /* Focus ring — interactive blue; components on dark/gradient surfaces
+     override to white contextually. */
   :focus-visible {
-    outline: 2px solid var(--color-gold);
+    outline: 2px solid var(--color-interactive);
     outline-offset: 3px;
   }
 
@@ -70,10 +116,148 @@
 }
 
 /* ------------------------------------------------------------------ */
+/* Typography scale — responsive clamps on the fixed desktop sizes     */
+/* ------------------------------------------------------------------ */
+
+@layer components {
+  /* Display 80 → 40 */
+  .text-display {
+    font-size: clamp(2.5rem, 1.2rem + 4.6vw, 5rem);
+    line-height: 1.02;
+    letter-spacing: -0.025em;
+    font-weight: 700;
+  }
+
+  /* H1 56 → 36 */
+  .text-h1 {
+    font-size: clamp(2.25rem, 1.5rem + 2.6vw, 3.5rem);
+    line-height: 1.06;
+    letter-spacing: -0.022em;
+    font-weight: 700;
+  }
+
+  /* H2 44 → 30 */
+  .text-h2 {
+    font-size: clamp(1.875rem, 1.35rem + 1.9vw, 2.75rem);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    font-weight: 700;
+  }
+
+  /* H3 36 → 26 */
+  .text-h3 {
+    font-size: clamp(1.625rem, 1.28rem + 1.3vw, 2.25rem);
+    line-height: 1.14;
+    letter-spacing: -0.017em;
+    font-weight: 600;
+  }
+
+  /* H4 28 → 22 */
+  .text-h4 {
+    font-size: clamp(1.375rem, 1.18rem + 0.75vw, 1.75rem);
+    line-height: 1.2;
+    letter-spacing: -0.014em;
+    font-weight: 600;
+  }
+
+  /* H5 22 → 19 */
+  .text-h5 {
+    font-size: clamp(1.1875rem, 1.1rem + 0.35vw, 1.375rem);
+    line-height: 1.28;
+    letter-spacing: -0.01em;
+    font-weight: 600;
+  }
+
+  /* H6 18 */
+  .text-h6 {
+    font-size: 1.125rem;
+    line-height: 1.35;
+    font-weight: 600;
+  }
+
+  /* Body large 18 — serif, lead paragraphs */
+  .text-body-lg {
+    font-family: var(--font-serif);
+    font-size: 1.125rem;
+    line-height: 1.7;
+    font-weight: 400;
+  }
+
+  /* Body 16 — serif, standard copy */
+  .text-body {
+    font-family: var(--font-serif);
+    font-size: 1rem;
+    line-height: 1.65;
+    font-weight: 400;
+  }
+
+  /* Small 14 — sans metadata */
+  .text-small {
+    font-size: 0.875rem;
+    line-height: 1.5;
+  }
+
+  /* Caption 12 — sans metadata */
+  .text-caption {
+    font-size: 0.75rem;
+    line-height: 1.45;
+    font-weight: 500;
+  }
+
+  /* Button 16 — sans, medium emphasis */
+  .text-button {
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: -0.005em;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Gradients — hero sections, CTAs, highlight panels only              */
+/* ------------------------------------------------------------------ */
+
+/* Primary brand gradient */
+.bg-gradient-primary {
+  background-image: linear-gradient(135deg, #0b2a4d 0%, #1273eb 100%);
+}
+
+/* Gradient 2 — gold → blue, CTA/highlight use */
+.bg-gradient-gold {
+  background-image: linear-gradient(
+    135deg,
+    #ffde59 0%,
+    #ffde59 56%,
+    #166cbe 77%,
+    #0062dc 100%
+  );
+}
+
+/* Gradient 3 — deep blue → mint → gold → peach, feature panels */
+.bg-gradient-spectrum {
+  background-image: linear-gradient(
+    135deg,
+    #003474 0%,
+    #51f8b0 38%,
+    #ffde59 68%,
+    #ffaa71 100%
+  );
+}
+
+/* Gradient 4 — orange → gold, warm highlight moments */
+.bg-gradient-warm {
+  background-image: linear-gradient(135deg, #ff701d 0%, #fad000 100%);
+}
+
+/* Gradient 5 — indigo → deep indigo, dark feature panels */
+.bg-gradient-deep {
+  background-image: linear-gradient(135deg, #412de5 0%, #1d1276 100%);
+}
+
+/* ------------------------------------------------------------------ */
 /* Utilities                                                           */
 /* ------------------------------------------------------------------ */
 
-/* Subtle paper grain for ProductArt surfaces (pure CSS, no raster assets). */
+/* Subtle paper grain for art surfaces (pure CSS, no raster assets). */
 .art-grain {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23g)' opacity='0.38'/%3E%3C/svg%3E");
   background-size: 160px 160px;
@@ -96,6 +280,86 @@
 
 @media (prefers-reduced-motion: reduce) {
   .animate-drift {
+    animation: none;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Piku ambient life — compositor-only loops (transform/opacity).      */
+/* Durations/phases are overridden per-use via inline animationDelay   */
+/* or [animation-duration:...]. All go static under reduced motion.    */
+/* ------------------------------------------------------------------ */
+
+/* Periodic blink (long idle, quick close) for the header avatar. */
+@keyframes piku-blink {
+  0%,
+  91%,
+  100% {
+    transform: scaleY(1);
+  }
+  94% {
+    transform: scaleY(0.08);
+  }
+}
+
+.animate-piku-blink {
+  animation: piku-blink 4.8s ease-in-out infinite;
+  transform-origin: center;
+  will-change: transform;
+}
+
+/* Typing-presence dots: 1-2-3 cascade via per-dot animation-delay. */
+@keyframes piku-typing {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.45;
+  }
+  30% {
+    transform: translateY(-4px);
+    opacity: 1;
+  }
+}
+
+.animate-piku-typing {
+  animation: piku-typing 1.1s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
+/* Done-state celebration particles. Per-particle trajectory comes from
+   --confetti-x / --confetti-y / --confetti-r custom properties. */
+@keyframes piku-confetti {
+  0% {
+    transform: translate(0, 0) rotate(0deg) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--confetti-x, 0px), var(--confetti-y, 40px))
+      rotate(var(--confetti-r, 90deg)) scale(0.6);
+    opacity: 0;
+  }
+}
+
+.animate-piku-confetti {
+  animation: piku-confetti 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  will-change: transform, opacity;
+}
+
+/* Concierge scroll region: keeps native scrolling, hides the scrollbar. */
+.piku-scroll {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.piku-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-piku-blink,
+  .animate-piku-typing,
+  .animate-piku-confetti {
     animation: none;
   }
 }

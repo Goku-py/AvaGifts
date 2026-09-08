@@ -1,20 +1,23 @@
 "use client";
 
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { ArrowLeft, ArrowRight, Check, Headset, Loader2, X } from "lucide-react";
 import {
   useCallback,
   useEffect,
   useRef,
   useState,
+  type CSSProperties,
   type ReactNode,
 } from "react";
 import { PikuSprite } from "@/components/piku/piku-sprite";
-import { EASE } from "@/lib/motion";
+import { PIKU_ENQUIRY_SENT_EVENT } from "@/lib/events";
+import { EASE, SPRING_BOUNCY, SPRING_EMERGE, SPRING_FIRM, SPRING_SNAPPY, SPRING_SOFT } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import {
   buildWhatsAppUrl,
   conciergeBudgetOptions,
+  conciergeStages,
   emptyConciergeAnswers,
   feelingAck,
   feelingOptions,
@@ -22,8 +25,7 @@ import {
   occasionAck,
   occasionOptions,
   optionLabel,
-  progressSteps,
-  stepIndex,
+  stageIndex,
   stylesAck,
   type ConciergeAnswers,
   type ConciergeOption,
@@ -35,18 +37,90 @@ import { usePikuConcierge } from "./piku-concierge-context";
 /* Small building blocks                                               */
 /* ------------------------------------------------------------------ */
 
+/* Mass contrast: Piku's bubbles arrive light and bouncy; the user's own
+   replies land on a heavier, more deliberate spring. The overshoot doubles
+   as the "ack beat" after each answer. */
 function PikuBubble({ children }: { children: ReactNode }) {
+  const reduceMotion = useReducedMotion();
   return (
-    <div className="max-w-[85%] rounded-2xl rounded-tl-md border border-line bg-card px-4 py-3 text-sm leading-relaxed text-ink shadow-card">
+    <motion.div
+      initial={{ opacity: 0, y: 10, scale: 0.97 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={reduceMotion ? { duration: 0 } : SPRING_BOUNCY}
+      className="max-w-[85%] rounded-2xl rounded-tl-md border border-line bg-card px-4 py-3 text-sm leading-relaxed text-ink shadow-card"
+    >
       {children}
-    </div>
+    </motion.div>
   );
 }
 
 function UserBubble({ children }: { children: ReactNode }) {
+  const reduceMotion = useReducedMotion();
   return (
-    <div className="ml-auto max-w-[85%] rounded-2xl rounded-tr-md bg-accent px-4 py-2.5 text-sm leading-relaxed text-paper">
+    <motion.div
+      initial={{ opacity: 0, y: 8, scale: 0.98 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={reduceMotion ? { duration: 0 } : SPRING_FIRM}
+      className="ml-auto max-w-[85%] rounded-2xl rounded-tr-md bg-accent px-4 py-2.5 text-sm leading-relaxed text-paper"
+    >
       {children}
+    </motion.div>
+  );
+}
+
+/* Typing presence: three dots, 1-2-3 cascade, shown briefly before each
+   new Piku question lands. Decorative — hidden from assistive tech. */
+function TypingBubble() {
+  return (
+    <div
+      aria-hidden="true"
+      className="flex w-fit items-center gap-1.5 rounded-2xl rounded-tl-md border border-line bg-card px-4 py-3.5 shadow-card"
+    >
+      {[0, 1, 2].map((dot) => (
+        <span
+          key={dot}
+          className="size-1.5 rounded-full bg-ink-soft animate-piku-typing"
+          style={{ animationDelay: `${dot * 0.18}s` }}
+        />
+      ))}
+    </div>
+  );
+}
+
+/* Done-state celebration: a dozen gold/accent/cream dots burst from the
+   thank-you bubble and fade within ~900ms. Fires once — it mounts with the
+   done step. Not rendered under reduced motion (the CSS guard would leave
+   static dots behind). Decorative — hidden from assistive tech. */
+const CONFETTI_COUNT = 12;
+const CONFETTI_COLORS = ["#b9975b", "#1e4034", "#b9975b", "#f3f0e9"];
+
+function Celebration() {
+  const reduceMotion = useReducedMotion();
+  if (reduceMotion) return null;
+  return (
+    <div
+      aria-hidden="true"
+      className="pointer-events-none absolute inset-0 overflow-visible"
+    >
+      {Array.from({ length: CONFETTI_COUNT }, (_, index) => {
+        const angle = (index / CONFETTI_COUNT) * Math.PI * 2 + 0.4;
+        const distance = 44 + (index % 4) * 12;
+        return (
+          <span
+            key={index}
+            className="absolute left-8 top-6 size-1.5 rounded-full animate-piku-confetti"
+            style={
+              {
+                backgroundColor: CONFETTI_COLORS[index % CONFETTI_COLORS.length],
+                animationDelay: `${index * 0.025}s`,
+                "--confetti-x": `${Math.round(Math.cos(angle) * distance)}px`,
+                "--confetti-y": `${Math.round(Math.sin(angle) * distance - 24)}px`,
+                "--confetti-r": `${((index * 47) % 360) - 180}deg`,
+              } as CSSProperties
+            }
+          />
+        );
+      })}
     </div>
   );
 }
@@ -54,17 +128,36 @@ function UserBubble({ children }: { children: ReactNode }) {
 function Chip({
   selected,
   onClick,
+  index = 0,
   children,
 }: {
   selected: boolean;
   onClick: () => void;
+  /** Position in its row — drives the 35ms stagger pop-in. */
+  index?: number;
   children: ReactNode;
 }) {
+  const reduceMotion = useReducedMotion();
   return (
-    <button
+    <motion.button
       type="button"
       onClick={onClick}
       aria-pressed={selected}
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={
+        reduceMotion ? { duration: 0 } : { ...SPRING_SNAPPY, delay: index * 0.035 }
+      }
+      whileTap={
+        reduceMotion
+          ? undefined
+          : {
+              /* Keyframe bounce needs its own tween: springs only support
+                 two keyframes and would throw at runtime. */
+              scale: [0.94, 1.04, 1],
+              transition: { duration: 0.28, ease: EASE },
+            }
+      }
       className={cn(
         "inline-flex min-h-10 items-center gap-1.5 rounded-full border px-4 py-2 text-sm font-medium",
         "transition-[background-color,border-color,color] duration-200 ease-out motion-reduce:transition-none",
@@ -73,25 +166,75 @@ function Chip({
           : "border-ink/15 bg-card text-ink hover:border-ink/35",
       )}
     >
-      {selected ? <Check aria-hidden="true" className="size-3.5" /> : null}
+      <AnimatePresence initial={false}>
+        {selected ? (
+          <motion.span
+            key="chip-check"
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            exit={{ scale: 0 }}
+            transition={reduceMotion ? { duration: 0 } : SPRING_SNAPPY}
+            className="flex"
+          >
+            <Check aria-hidden="true" className="size-3.5" />
+          </motion.span>
+        ) : null}
+      </AnimatePresence>
       {children}
-    </button>
+    </motion.button>
   );
 }
 
+/** How long Piku "types" before a new question lands (ms). */
+const TYPING_MS = 650;
+
 function StepMotion({
   stepKey,
+  instant,
   children,
 }: {
   stepKey: string;
+  /**
+   * Skip the typing beat — for blocks already on screen when the modal
+   * opens (intro). Every other block mounts exactly when its step is
+   * reached, so the typing presence plays automatically, zero call-site
+   * choreography needed.
+   */
+  instant?: boolean;
   children: ReactNode;
 }) {
+  const reduceMotion = useReducedMotion();
+  const skipTyping = instant || reduceMotion;
+  const [typed, setTyped] = useState(skipTyping);
+  useEffect(() => {
+    if (skipTyping) return;
+    const timer = setTimeout(() => setTyped(true), TYPING_MS);
+    return () => clearTimeout(timer);
+  }, [skipTyping]);
+
+  /* When the block reveals, bring it into view inside the scroll region. */
+  useEffect(() => {
+    if (!typed || reduceMotion) return;
+    document
+      .getElementById("piku-scroll-region")
+      ?.querySelector(`[data-step-block="${stepKey}"]`)
+      ?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }, [typed, stepKey, reduceMotion]);
+
+  if (!typed) {
+    return (
+      <div key={stepKey} className="flex flex-col gap-3">
+        <TypingBubble />
+      </div>
+    );
+  }
   return (
     <motion.div
       key={stepKey}
+      data-step-block={stepKey}
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, ease: EASE }}
+      transition={reduceMotion ? { duration: 0 } : { duration: 0.4, ease: EASE }}
       className="flex flex-col gap-3"
     >
       {children}
@@ -113,8 +256,23 @@ type SubmitStatus = "idle" | "submitting" | "error";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+/** Contact rules, shared by the details form and the brief inline editor. */
+function contactErrorsFor(values: ConciergeAnswers): Record<string, string> {
+  const errors: Record<string, string> = {};
+  if (values.name.trim().length < 2) errors.name = "Please share your name.";
+  if (!values.designation.trim())
+    errors.designation = "Please share your designation.";
+  if (!values.company.trim()) errors.company = "Please share your company.";
+  if (values.phone.trim().length < 7)
+    errors.phone = "Please enter a valid phone number.";
+  if (!EMAIL_PATTERN.test(values.email.trim()))
+    errors.email = "Please enter a valid email address.";
+  return errors;
+}
+
 export function PikuModal() {
-  const { isOpen, closeConcierge } = usePikuConcierge();
+  const { isOpen, closeConcierge, pendingStep, clearPendingStep } =
+    usePikuConcierge();
   const [step, setStep] = useState<ConciergeStep>("intro");
   const [answers, setAnswers] = useState<ConciergeAnswers>(emptyConciergeAnswers);
   const [contactErrors, setContactErrors] = useState<Record<string, string>>({});
@@ -122,6 +280,7 @@ export function PikuModal() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const advanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const reduceMotion = useReducedMotion();
 
   const patch = useCallback((update: Partial<ConciergeAnswers>) => {
     setAnswers((previous) => ({ ...previous, ...update }));
@@ -148,6 +307,14 @@ export function PikuModal() {
     [],
   );
 
+  /* Jump to a requested step on open (e.g. "Send a Gifting Brief" opens
+     the contact step directly). Plain opens resume untouched. */
+  useEffect(() => {
+    if (!isOpen || !pendingStep) return;
+    setStep(pendingStep);
+    clearPendingStep();
+  }, [isOpen, pendingStep, clearPendingStep]);
+
   /* Scroll-lock + Esc + initial focus while open */
   useEffect(() => {
     if (!isOpen) return;
@@ -164,12 +331,26 @@ export function PikuModal() {
     };
   }, [isOpen, closeConcierge]);
 
-  /* Keep the latest message in view */
+  /* Smooth-scroll the latest message into view. Skipped while the user is
+     typing in a field (scrolling would yank the caret out of sight), and
+     instant under reduced motion. */
   useEffect(() => {
     if (!isOpen) return;
     const node = scrollRef.current;
-    if (node) node.scrollTop = node.scrollHeight;
-  }, [isOpen, step, answers]);
+    if (!node) return;
+    const active = document.activeElement;
+    if (
+      active instanceof HTMLInputElement ||
+      active instanceof HTMLTextAreaElement
+    ) {
+      return;
+    }
+    if (reduceMotion) {
+      node.scrollTop = node.scrollHeight;
+      return;
+    }
+    node.scrollTo({ top: node.scrollHeight, behavior: "smooth" });
+  }, [isOpen, step, answers, reduceMotion]);
 
   const goBack = useCallback(() => {
     const order: ConciergeStep[] = [
@@ -196,18 +377,16 @@ export function PikuModal() {
   }, [answers]);
 
   const validateContact = useCallback((): boolean => {
-    const errors: Record<string, string> = {};
-    if (answers.name.trim().length < 2) errors.name = "Please share your name.";
-    if (!answers.designation.trim())
-      errors.designation = "Please share your designation.";
-    if (!answers.company.trim()) errors.company = "Please share your company.";
-    if (answers.phone.trim().length < 7)
-      errors.phone = "Please enter a valid phone number.";
-    if (!EMAIL_PATTERN.test(answers.email.trim()))
-      errors.email = "Please enter a valid email address.";
+    const errors = contactErrorsFor(answers);
     setContactErrors(errors);
     return Object.keys(errors).length === 0;
   }, [answers]);
+
+  const validateContactValues = useCallback(
+    (values: ConciergeAnswers): Record<string, string> =>
+      contactErrorsFor(values),
+    [],
+  );
 
   const submitEnquiry = useCallback(async () => {
     if (submitStatus === "submitting") return;
@@ -254,6 +433,8 @@ export function PikuModal() {
       });
       if (!response.ok) throw new Error(`Enquiry failed: ${response.status}`);
       goTo("done");
+      /* Tell the mascot — it celebrates when the flow closes. */
+      window.dispatchEvent(new CustomEvent(PIKU_ENQUIRY_SENT_EVENT));
     } catch {
       setSubmitStatus("error");
     } finally {
@@ -262,8 +443,9 @@ export function PikuModal() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [answers, submitStatus]);
 
-  const progress = stepIndex(step);
-  const showProgress = progress >= 0;
+  const stage = stageIndex(step);
+  const showProgress = stage >= 0;
+  const stagesLeft = showProgress ? conciergeStages.length - (stage + 1) : 0;
   const showBack = step !== "intro" && step !== "done";
 
   return (
@@ -271,11 +453,13 @@ export function PikuModal() {
       {isOpen ? (
         <motion.div
           key="piku-backdrop"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.3, ease: EASE }}
-          className="fixed inset-0 z-[95] flex items-end justify-center bg-ink/60 backdrop-blur-sm sm:items-center sm:p-6"
+          initial={{ opacity: 0, backdropFilter: "blur(0px)" }}
+          animate={{ opacity: 1, backdropFilter: "blur(4px)" }}
+          exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
+          transition={
+            reduceMotion ? { duration: 0 } : { duration: 0.3, ease: EASE }
+          }
+          className="fixed inset-0 z-[95] flex items-end justify-center bg-ink/60 sm:items-center sm:p-6"
           onClick={closeConcierge}
         >
           <motion.div
@@ -283,20 +467,23 @@ export function PikuModal() {
             role="dialog"
             aria-modal="true"
             aria-label="Chat with Piku — gifting concierge"
-            initial={{ opacity: 0, y: 48, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 32, scale: 0.98 }}
-            transition={{ duration: 0.45, ease: EASE }}
+            initial={{ opacity: 0, y: 96, x: 48, scale: 0.94 }}
+            animate={{ opacity: 1, y: 0, x: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 48, x: 24, scale: 0.96 }}
+            transition={reduceMotion ? { duration: 0 } : SPRING_EMERGE}
             onClick={(event) => event.stopPropagation()}
-            className="flex h-[100dvh] w-full flex-col overflow-hidden bg-paper sm:h-auto sm:max-h-[88vh] sm:max-w-lg sm:rounded-2xl sm:shadow-lift"
+            className="flex h-[100dvh] w-full flex-col overflow-hidden bg-paper sm:h-auto sm:max-h-[88vh] sm:max-w-lg sm:origin-bottom-right sm:rounded-2xl sm:shadow-lift"
           >
             {/* Top — identity + support + close */}
             <div className="flex items-center gap-3 border-b border-line bg-paper px-4 py-3 sm:px-5">
+              {/* Header avatar: calm and still, periodic blink only */}
               <span
                 aria-hidden="true"
                 className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-cream [&_svg]:size-8"
               >
-                <PikuSprite emotion="happy" />
+                <span className="flex animate-piku-blink">
+                  <PikuSprite emotion="happy" />
+                </span>
               </span>
               <span className="min-w-0 flex-1">
                 <span className="block font-display text-lg font-semibold leading-tight tracking-[-0.01em]">
@@ -327,33 +514,76 @@ export function PikuModal() {
               </button>
             </div>
 
-            {/* Progress */}
+            {/* Progress — three numbered stages with a remaining count */}
             {showProgress ? (
               <div className="border-b border-line bg-paper px-4 pb-3 pt-2.5 sm:px-5">
                 <div
                   role="progressbar"
                   aria-valuemin={1}
-                  aria-valuemax={progressSteps.length}
-                  aria-valuenow={progress + 1}
-                  aria-label="Chat progress"
-                  className="h-1 overflow-hidden rounded-full bg-ink/10"
+                  aria-valuemax={conciergeStages.length}
+                  aria-valuenow={stage + 1}
+                  aria-label={`Step ${stage + 1} of ${conciergeStages.length}: ${conciergeStages[stage].label}`}
+                  className="flex items-center gap-2"
                 >
-                  <motion.div
-                    className="h-full rounded-full bg-gold"
-                    initial={false}
-                    animate={{
-                      width: `${((progress + 1) / progressSteps.length) * 100}%`,
-                    }}
-                    transition={{ duration: 0.4, ease: EASE }}
-                  />
+                  {conciergeStages.map((item, index) => {
+                    const completed = index < stage;
+                    const current = index === stage;
+                    return (
+                      <span key={item.id} className="flex items-center gap-2">
+                        <span
+                          className={cn(
+                            "flex size-7 items-center justify-center rounded-full text-xs font-semibold transition-colors duration-200",
+                            completed
+                              ? "bg-[#0B2A4D] text-white"
+                              : current
+                                ? "bg-[#1273EB] text-white"
+                                : "border border-line bg-card text-ink-soft",
+                          )}
+                        >
+                          {completed ? (
+                            <Check aria-hidden="true" className="size-3.5" />
+                          ) : (
+                            index + 1
+                          )}
+                        </span>
+                        <span
+                          className={cn(
+                            "text-xs",
+                            current
+                              ? "font-semibold text-ink"
+                              : completed
+                                ? "font-medium text-ink"
+                                : "font-medium text-ink-soft",
+                          )}
+                        >
+                          {item.label}
+                        </span>
+                        {index < conciergeStages.length - 1 ? (
+                          <span
+                            aria-hidden="true"
+                            className={cn(
+                              "h-px w-6 transition-colors duration-200 sm:w-10",
+                              index < stage ? "bg-[#0B2A4D]" : "bg-line",
+                            )}
+                          />
+                        ) : null}
+                      </span>
+                    );
+                  })}
                 </div>
+                <p className="mt-1.5 text-[11px] leading-relaxed text-ink-soft">
+                  {stagesLeft > 0
+                    ? `Step ${stage + 1} of ${conciergeStages.length} · ${stagesLeft} to go`
+                    : `Step ${stage + 1} of ${conciergeStages.length} · last step`}
+                </p>
               </div>
             ) : null}
 
             {/* Middle — conversation (footer removed: team handoff now lives in the header Support button) */}
             <div
               ref={scrollRef}
-              className="min-h-0 flex-1 overflow-y-auto px-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-5 sm:px-5"
+              id="piku-scroll-region"
+              className="piku-scroll min-h-0 flex-1 overflow-y-auto px-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-5 sm:px-5"
             >
               {showBack ? (
                 <button
@@ -375,6 +605,7 @@ export function PikuModal() {
                 contactErrors={contactErrors}
                 setContactErrors={setContactErrors}
                 validateContact={validateContact}
+                validateContactValues={validateContactValues}
                 submitStatus={submitStatus}
                 submitEnquiry={submitEnquiry}
                 openWhatsApp={openWhatsApp}
@@ -403,6 +634,9 @@ interface ConversationProps {
   contactErrors: Record<string, string>;
   setContactErrors: (errors: Record<string, string>) => void;
   validateContact: () => boolean;
+  validateContactValues: (
+    values: ConciergeAnswers,
+  ) => Record<string, string>;
   submitStatus: SubmitStatus;
   submitEnquiry: () => void;
   openWhatsApp: () => void;
@@ -419,9 +653,10 @@ function SingleSelectChips({
 }) {
   return (
     <div className="flex flex-wrap gap-2">
-      {options.map((option) => (
+      {options.map((option, index) => (
         <Chip
           key={option.value}
+          index={index}
           selected={value === option.value}
           onClick={() => onPick(option.value)}
         >
@@ -496,14 +731,14 @@ function Conversation(props: ConversationProps) {
   return (
     <div className="flex flex-col gap-3">
       {/* State 01 — intro */}
-      <StepMotion stepKey="intro">
+      <StepMotion stepKey="intro" instant>
         <PikuBubble>
           Hi, I’m Piku. I help teams find gifts people actually keep. Two
           minutes, a few quick questions — shall we start?
         </PikuBubble>
       </StepMotion>
       {step === "intro" ? (
-        <StepMotion stepKey="intro-action">
+        <StepMotion stepKey="intro-action" instant>
           <PrimaryAction onClick={() => props.goTo("occasion")}>
             Let’s start
           </PrimaryAction>
@@ -616,11 +851,12 @@ function Conversation(props: ConversationProps) {
                 you like.
               </PikuBubble>
               <div className="flex flex-wrap gap-2">
-                {giftStyleOptions.map((option) => {
+                {giftStyleOptions.map((option, index) => {
                   const selected = answers.styles.includes(option.value);
                   return (
                     <Chip
                       key={option.value}
+                      index={index}
                       selected={selected}
                       onClick={() => {
                         props.patch({
@@ -938,62 +1174,105 @@ function Conversation(props: ConversationProps) {
                   Your gifting brief
                 </p>
                 <dl className="divide-y divide-line px-4">
-                  <BriefRow
+                  <BriefSingleRow
                     label="Occasion"
-                    value={
+                    display={
                       answers.occasion === "other"
                         ? answers.occasionOther.trim() || "Other"
                         : optionLabel(occasionOptions, answers.occasion)
                     }
-                    onEdit={() => props.goTo("occasion")}
+                    options={occasionOptions}
+                    value={answers.occasion}
+                    onPick={(value) => props.patch({ occasion: value })}
+                    other={{
+                      text: answers.occasionOther,
+                      placeholder: "Tell us the occasion",
+                      ariaLabel: "Describe the occasion",
+                      onSave: (text) => {
+                        props.patch({
+                          occasion: "other",
+                          occasionOther: text,
+                        });
+                      },
+                    }}
                   />
-                  <BriefRow
+                  <BriefSingleRow
                     label="Feeling"
-                    value={optionLabel(feelingOptions, answers.feeling)}
-                    onEdit={() => props.goTo("feeling")}
+                    display={optionLabel(feelingOptions, answers.feeling)}
+                    options={feelingOptions}
+                    value={answers.feeling}
+                    onPick={(value) => props.patch({ feeling: value })}
                   />
-                  <BriefRow
+                  <BriefMultiRow
                     label="Gift style"
-                    value={
+                    display={
                       answers.styles.length > 0
                         ? answers.styles
                             .map((value) => optionLabel(giftStyleOptions, value))
                             .join(", ")
                         : "Open to suggestions"
                     }
-                    onEdit={() => props.goTo("gift-style")}
+                    options={giftStyleOptions}
+                    value={answers.styles}
+                    onSave={(styles) => props.patch({ styles })}
                   />
-                  <BriefRow
+                  <BriefTextRow
                     label="Quantity"
-                    value={answers.quantity.trim() || "—"}
-                    onEdit={() => props.goTo("details-quantity")}
+                    display={answers.quantity.trim() || "—"}
+                    value={answers.quantity}
+                    placeholder="e.g. 120"
+                    ariaLabel="Approximate quantity"
+                    inputMode="numeric"
+                    onSave={(quantity) => props.patch({ quantity })}
                   />
-                  <BriefRow
+                  <BriefTextRow
                     label="Delivery by"
-                    value={answers.deliveryDate.trim() || "—"}
-                    onEdit={() => props.goTo("details-date")}
+                    display={answers.deliveryDate.trim() || "—"}
+                    value={answers.deliveryDate}
+                    placeholder="e.g. before Diwali, 12 March"
+                    ariaLabel="Delivery date"
+                    onSave={(deliveryDate) => props.patch({ deliveryDate })}
                   />
-                  <BriefRow
+                  <BriefTextRow
                     label="Location"
-                    value={answers.location.trim() || "—"}
-                    onEdit={() => props.goTo("details-location")}
+                    display={answers.location.trim() || "—"}
+                    value={answers.location}
+                    placeholder="e.g. Jaipur, Mumbai, Delhi"
+                    ariaLabel="Delivery location"
+                    onSave={(location) => props.patch({ location })}
                   />
-                  <BriefRow
+                  <BriefSingleRow
                     label="Budget"
-                    value={optionLabel(conciergeBudgetOptions, answers.budget)}
-                    onEdit={() => props.goTo("details-budget")}
+                    display={optionLabel(conciergeBudgetOptions, answers.budget)}
+                    options={conciergeBudgetOptions}
+                    value={answers.budget}
+                    onPick={(value) => props.patch({ budget: value })}
                   />
                   {answers.requirement.trim() ? (
-                    <BriefRow
+                    <BriefTextRow
                       label="Requirement"
-                      value={answers.requirement.trim()}
-                      onEdit={() => props.goTo("details-notes")}
+                      display={answers.requirement.trim()}
+                      value={answers.requirement}
+                      placeholder="Anything the team should know…"
+                      ariaLabel="Any other requirement"
+                      multiline
+                      onSave={(requirement) => props.patch({ requirement })}
                     />
                   ) : null}
-                  <BriefRow
-                    label="Contact"
-                    value={`${answers.name.trim()} · ${answers.designation.trim()} · ${answers.company.trim()} · ${answers.phone.trim()} · ${answers.email.trim()}`}
-                    onEdit={() => props.goTo("contact")}
+                  <BriefContactRow
+                    display={`${answers.name.trim()} · ${answers.designation.trim()} · ${answers.company.trim()} · ${answers.phone.trim()} · ${answers.email.trim()}`}
+                    initial={{
+                      name: answers.name,
+                      designation: answers.designation,
+                      company: answers.company,
+                      phone: answers.phone,
+                      email: answers.email,
+                    }}
+                    validate={props.validateContactValues}
+                    onSave={(contact) => {
+                      props.patch(contact);
+                      props.setContactErrors({});
+                    }}
                   />
                 </dl>
               </div>
@@ -1052,10 +1331,13 @@ function Conversation(props: ConversationProps) {
       {/* State 13 — done */}
       {step === "done" ? (
         <StepMotion stepKey="done">
-          <PikuBubble>
-            Thank you — your brief is with our gifting team. We’ll reach out
-            within 48 hours with a shortlist and a quote.
-          </PikuBubble>
+          <div className="relative">
+            <Celebration />
+            <PikuBubble>
+              Thank you — your brief is with our gifting team. We’ll reach out
+              within 48 hours with a shortlist and a quote.
+            </PikuBubble>
+          </div>
           <div>
             <button
               type="button"
@@ -1125,31 +1407,416 @@ function ContactField({
   );
 }
 
-function BriefRow({
+/* ------------------------------------------------------------------ */
+/* Brief summary — inline answer editors (no flow walk-back)           */
+/* ------------------------------------------------------------------ */
+
+function BriefRowShell({
   label,
-  value,
-  onEdit,
+  editing,
+  onToggleEdit,
+  display,
+  children,
 }: {
   label: string;
-  value: string;
-  onEdit: () => void;
+  editing: boolean;
+  onToggleEdit: () => void;
+  display: ReactNode;
+  children?: ReactNode;
 }) {
   return (
-    <div className="flex items-start justify-between gap-3 py-2.5">
-      <dt className="shrink-0 text-xs font-medium uppercase tracking-[0.08em] text-ink-soft">
-        {label}
-      </dt>
-      <dd className="min-w-0 flex-1 text-right text-sm leading-relaxed text-ink">
-        {value}{" "}
-        <button
-          type="button"
-          onClick={onEdit}
-          aria-label={`Edit ${label.toLowerCase()}`}
-          className="ml-1 font-medium text-accent underline decoration-accent/30 underline-offset-2 transition-colors hover:text-accent-ink"
-        >
-          Edit
-        </button>
-      </dd>
+    <div className="py-2.5">
+      <div className="flex items-start justify-between gap-3">
+        <dt className="shrink-0 text-xs font-medium uppercase tracking-[0.08em] text-ink-soft">
+          {label}
+        </dt>
+        <dd className="min-w-0 flex-1 text-right text-sm leading-relaxed text-ink">
+          {!editing ? display : null}{" "}
+          <button
+            type="button"
+            onClick={onToggleEdit}
+            aria-expanded={editing}
+            aria-label={
+              editing ? `Close ${label.toLowerCase()} editor` : `Edit ${label.toLowerCase()}`
+            }
+            className="ml-1 font-medium text-accent underline decoration-accent/30 underline-offset-2 transition-colors hover:text-accent-ink"
+          >
+            {editing ? "Done" : "Edit"}
+          </button>
+        </dd>
+      </div>
+      {editing ? <div className="mt-2.5">{children}</div> : null}
     </div>
+  );
+}
+
+function BriefMiniButton({
+  children,
+  onClick,
+  primary = false,
+  disabled = false,
+}: {
+  children: ReactNode;
+  onClick: () => void;
+  primary?: boolean;
+  disabled?: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      className={cn(
+        "inline-flex min-h-9 items-center rounded-full px-4 py-1.5 text-xs font-semibold transition-colors disabled:pointer-events-none disabled:opacity-50 motion-reduce:transition-none",
+        primary
+          ? "bg-accent text-paper hover:bg-accent-ink"
+          : "border border-ink/15 text-ink hover:border-ink/35",
+      )}
+    >
+      {children}
+    </button>
+  );
+}
+
+/** Single-select answers — chips save on pick. */
+function BriefSingleRow({
+  label,
+  display,
+  options,
+  value,
+  onPick,
+  other,
+}: {
+  label: string;
+  display: ReactNode;
+  options: ConciergeOption[];
+  value: string | null;
+  onPick: (value: string) => void;
+  other?: {
+    text: string;
+    placeholder: string;
+    ariaLabel: string;
+    onSave: (text: string) => void;
+  };
+}) {
+  const [editing, setEditing] = useState(false);
+  const [otherOpen, setOtherOpen] = useState(false);
+  const [otherDraft, setOtherDraft] = useState("");
+  const openEditor = () => {
+    setOtherDraft(other?.text ?? "");
+    setOtherOpen(value === "other");
+    setEditing(true);
+  };
+  const saveOther = () => {
+    const trimmed = otherDraft.trim();
+    if (!trimmed || !other) return;
+    other.onSave(trimmed);
+    setEditing(false);
+    setOtherOpen(false);
+  };
+  return (
+    <BriefRowShell
+      label={label}
+      display={display}
+      editing={editing}
+      onToggleEdit={() => (editing ? setEditing(false) : openEditor())}
+    >
+      <SingleSelectChips
+        options={options}
+        value={value}
+        onPick={(picked) => {
+          if (other && picked === "other") {
+            setOtherDraft(other.text);
+            setOtherOpen(true);
+            return;
+          }
+          onPick(picked);
+          setEditing(false);
+          setOtherOpen(false);
+        }}
+      />
+      {other && (otherOpen || value === "other") ? (
+        <div className="mt-2 flex gap-2">
+          <input
+            type="text"
+            value={otherDraft}
+            onChange={(event) => setOtherDraft(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === "Enter") saveOther();
+            }}
+            placeholder={other.placeholder}
+            aria-label={other.ariaLabel}
+            className={fieldInputClasses}
+          />
+          <BriefMiniButton
+            primary
+            onClick={saveOther}
+            disabled={!otherDraft.trim()}
+          >
+            Save
+          </BriefMiniButton>
+        </div>
+      ) : null}
+    </BriefRowShell>
+  );
+}
+
+/** Multi-select answers — chips toggle a draft, Save commits. */
+function BriefMultiRow({
+  label,
+  display,
+  options,
+  value,
+  onSave,
+}: {
+  label: string;
+  display: ReactNode;
+  options: ConciergeOption[];
+  value: string[];
+  onSave: (value: string[]) => void;
+}) {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState<string[]>([]);
+  return (
+    <BriefRowShell
+      label={label}
+      display={display}
+      editing={editing}
+      onToggleEdit={() => {
+        if (!editing) setDraft(value);
+        setEditing(!editing);
+      }}
+    >
+      <div className="flex flex-wrap gap-2">
+        {options.map((option, index) => {
+          const selected = draft.includes(option.value);
+          return (
+            <Chip
+              key={option.value}
+              index={index}
+              selected={selected}
+              onClick={() =>
+                setDraft(
+                  selected
+                    ? draft.filter((s) => s !== option.value)
+                    : [...draft, option.value],
+                )
+              }
+            >
+              {option.label}
+            </Chip>
+          );
+        })}
+      </div>
+      <div className="mt-2.5 flex gap-2">
+        <BriefMiniButton
+          primary
+          onClick={() => {
+            onSave(draft);
+            setEditing(false);
+          }}
+        >
+          Save
+        </BriefMiniButton>
+        <BriefMiniButton onClick={() => setEditing(false)}>
+          Cancel
+        </BriefMiniButton>
+      </div>
+    </BriefRowShell>
+  );
+}
+
+/** Free-text answers — draft with Save/Cancel. */
+function BriefTextRow({
+  label,
+  display,
+  value,
+  placeholder,
+  ariaLabel,
+  multiline = false,
+  inputMode,
+  onSave,
+}: {
+  label: string;
+  display: ReactNode;
+  value: string;
+  placeholder: string;
+  ariaLabel: string;
+  multiline?: boolean;
+  inputMode?: "numeric" | "text";
+  onSave: (value: string) => void;
+}) {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState("");
+  const save = () => {
+    onSave(draft.trim());
+    setEditing(false);
+  };
+  return (
+    <BriefRowShell
+      label={label}
+      display={display}
+      editing={editing}
+      onToggleEdit={() => {
+        if (!editing) setDraft(value);
+        setEditing(!editing);
+      }}
+    >
+      {multiline ? (
+        <textarea
+          value={draft}
+          onChange={(event) => setDraft(event.target.value)}
+          rows={2}
+          placeholder={placeholder}
+          aria-label={ariaLabel}
+          className={cn(fieldInputClasses, "resize-y")}
+        />
+      ) : (
+        <input
+          type="text"
+          inputMode={inputMode}
+          value={draft}
+          onChange={(event) => setDraft(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === "Enter") save();
+          }}
+          placeholder={placeholder}
+          aria-label={ariaLabel}
+          className={fieldInputClasses}
+        />
+      )}
+      <div className="mt-2 flex gap-2">
+        <BriefMiniButton primary onClick={save}>
+          Save
+        </BriefMiniButton>
+        <BriefMiniButton onClick={() => setEditing(false)}>
+          Cancel
+        </BriefMiniButton>
+      </div>
+    </BriefRowShell>
+  );
+}
+
+/** Contact answers — draft of all five fields, validated on save. */
+function BriefContactRow({
+  display,
+  initial,
+  validate,
+  onSave,
+}: {
+  display: ReactNode;
+  initial: {
+    name: string;
+    designation: string;
+    company: string;
+    phone: string;
+    email: string;
+  };
+  validate: (values: ConciergeAnswers) => Record<string, string>;
+  onSave: (values: {
+    name: string;
+    designation: string;
+    company: string;
+    phone: string;
+    email: string;
+  }) => void;
+}) {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(initial);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  return (
+    <BriefRowShell
+      label="Contact"
+      display={display}
+      editing={editing}
+      onToggleEdit={() => {
+        if (!editing) {
+          setDraft(initial);
+          setErrors({});
+        }
+        setEditing(!editing);
+      }}
+    >
+      <div className="flex flex-col gap-3">
+        <ContactField
+          label="Name"
+          value={draft.name}
+          autoComplete="name"
+          placeholder="Asha Verma"
+          error={errors.name}
+          onChange={(value) => {
+            setDraft({ ...draft, name: value });
+            setErrors({ ...errors, name: "" });
+          }}
+        />
+        <ContactField
+          label="Designation"
+          value={draft.designation}
+          autoComplete="organization-title"
+          placeholder="HR Manager"
+          error={errors.designation}
+          onChange={(value) => {
+            setDraft({ ...draft, designation: value });
+            setErrors({ ...errors, designation: "" });
+          }}
+        />
+        <ContactField
+          label="Company"
+          value={draft.company}
+          autoComplete="organization"
+          placeholder="Acme Pvt Ltd"
+          error={errors.company}
+          onChange={(value) => {
+            setDraft({ ...draft, company: value });
+            setErrors({ ...errors, company: "" });
+          }}
+        />
+        <ContactField
+          label="Phone"
+          type="tel"
+          value={draft.phone}
+          autoComplete="tel"
+          placeholder="+91 98XXX XXXXX"
+          error={errors.phone}
+          onChange={(value) => {
+            setDraft({ ...draft, phone: value });
+            setErrors({ ...errors, phone: "" });
+          }}
+        />
+        <ContactField
+          label="Email"
+          type="email"
+          value={draft.email}
+          autoComplete="email"
+          placeholder="asha@acme.com"
+          error={errors.email}
+          onChange={(value) => {
+            setDraft({ ...draft, email: value });
+            setErrors({ ...errors, email: "" });
+          }}
+        />
+        <div className="flex gap-2">
+          <BriefMiniButton
+            primary
+            onClick={() => {
+              const errs = validate({
+                ...emptyConciergeAnswers,
+                ...draft,
+              });
+              setErrors(errs);
+              if (Object.keys(errs).length === 0) {
+                onSave(draft);
+                setEditing(false);
+              }
+            }}
+          >
+            Save
+          </BriefMiniButton>
+          <BriefMiniButton onClick={() => setEditing(false)}>
+            Cancel
+          </BriefMiniButton>
+        </div>
+      </div>
+    </BriefRowShell>
   );
 }

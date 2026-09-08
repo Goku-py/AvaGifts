@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 /* Shared styles                                                       */
 /* ------------------------------------------------------------------ */
 
-type ButtonVariant = "primary" | "secondary" | "ghost";
+type ButtonVariant = "primary" | "gradient" | "secondary" | "ghost" | "inverse";
 type ButtonSize = "sm" | "md" | "lg";
 
 interface ButtonStyleProps {
@@ -16,23 +16,28 @@ interface ButtonStyleProps {
 }
 
 const variantClasses: Record<ButtonVariant, string> = {
-  primary: "bg-accent text-paper hover:bg-accent-ink active:translate-y-px",
+  primary: "bg-interactive text-white hover:bg-interactive-hover active:bg-interactive-active active:translate-y-px",
+  /* Brand gradient — hero sections, CTAs, highlight panels only. */
+  gradient: "bg-gradient-primary text-white hover:opacity-90 active:translate-y-px",
   secondary:
-    "border border-ink/15 bg-transparent text-ink hover:border-ink/30 hover:bg-ink/[0.04] active:translate-y-px",
-  ghost: "text-ink hover:bg-ink/[0.06]",
+    "border border-neutral-300 bg-white text-text-primary hover:border-neutral-400 hover:bg-hover-surface active:translate-y-px",
+  ghost: "text-text-primary hover:bg-hover-surface",
+  /* Quiet action on dark / gradient bands. */
+  inverse:
+    "border border-white/25 bg-transparent text-white hover:border-white/45 hover:bg-white/10 active:translate-y-px",
 };
 
 const sizeClasses: Record<ButtonSize, string> = {
-  sm: "h-9 gap-1.5 px-4 text-sm",
-  md: "h-11 gap-2 px-5 text-sm",
-  lg: "h-12 gap-2 px-7 text-base",
+  sm: "h-9 gap-1.5 px-4 text-sm font-semibold",
+  md: "h-11 gap-2 px-5 text-button",
+  lg: "h-12 gap-2 px-7 text-button",
 };
 
 function buttonClasses({ variant = "primary", size = "md" }: ButtonStyleProps) {
   return cn(
-    "group inline-flex shrink-0 items-center justify-center rounded-full font-medium",
-    "transition-[background-color,border-color,color,box-shadow,transform] duration-200 ease-out",
-    "disabled:pointer-events-none disabled:opacity-50 motion-reduce:transition-none",
+    "group inline-flex shrink-0 items-center justify-center rounded-full",
+    "transition-[background-color,border-color,color,box-shadow,opacity,transform] duration-200 ease-out",
+    "disabled:pointer-events-none disabled:opacity-40 disabled:shadow-none motion-reduce:transition-none",
     variantClasses[variant],
     sizeClasses[size],
   );

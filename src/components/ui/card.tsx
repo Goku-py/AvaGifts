@@ -7,12 +7,12 @@ interface CardProps extends ComponentPropsWithoutRef<"div"> {
   children: ReactNode;
 }
 
-/** Base surface: white card, 20px radius, hairline border, quiet shadow. */
+/** Base surface: white card + shadow, hairline divider border. */
 export function Card({ hoverable = false, className, children, ...rest }: CardProps) {
   return (
     <div
       className={cn(
-        "rounded-2xl border border-line bg-card shadow-card",
+        "rounded-2xl border border-divider bg-card shadow-card",
         hoverable &&
           "transition-[transform,box-shadow] duration-300 ease-out hover:-translate-y-1 hover:shadow-lift motion-reduce:transition-none motion-reduce:hover:translate-y-0",
         className,

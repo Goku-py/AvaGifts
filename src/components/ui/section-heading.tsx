@@ -9,12 +9,12 @@ interface SectionHeadingProps {
   title: string;
   lede?: string;
   align?: "left" | "center";
-  /** Use "dark" on ink-toned bands. */
+  /** Use "dark" on navy/gradient bands. */
   tone?: "light" | "dark";
   className?: string;
 }
 
-/** Eyebrow + Fraunces title + optional lede, with staggered scroll-reveal. */
+/** Eyebrow + H2 title + optional serif lede, with staggered scroll-reveal. */
 export function SectionHeading({
   id,
   eyebrow,
@@ -33,10 +33,7 @@ export function SectionHeading({
         </Eyebrow>
       </Reveal>
       <Reveal delay={0.08}>
-        <h2
-          id={id}
-          className="mt-4 font-display text-3xl font-semibold leading-[1.08] tracking-[-0.02em] sm:text-4xl lg:text-[2.75rem]"
-        >
+        <h2 id={id} className="text-h2 mt-4 font-sans text-text-primary">
           {title}
         </h2>
       </Reveal>
@@ -44,8 +41,8 @@ export function SectionHeading({
         <Reveal delay={0.16}>
           <p
             className={cn(
-              "mt-4 text-base leading-relaxed sm:text-lg",
-              tone === "dark" ? "text-paper/70" : "text-ink-soft",
+              "text-body-lg mt-4 max-w-[65ch]",
+              tone === "dark" ? "text-white/70" : "text-text-secondary",
             )}
           >
             {lede}

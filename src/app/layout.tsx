@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Fraunces, Instrument_Sans } from "next/font/google";
+import { IBM_Plex_Sans, IBM_Plex_Serif } from "next/font/google";
 import { CatalogProvider } from "@/components/catalog/catalog-context";
 import { Footer } from "@/components/layout/footer";
 import { Header } from "@/components/layout/header";
@@ -13,16 +13,17 @@ import { MotionDefaults } from "@/components/ui/reveal";
 import "@/components/piku-concierge/piku-concierge.css";
 import "./globals.css";
 
-const display = Fraunces({
+const sans = IBM_Plex_Sans({
   subsets: ["latin"],
-  variable: "--font-fraunces",
-  style: ["normal", "italic"],
-  axes: ["opsz", "SOFT", "WONK"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-plex-sans",
 });
 
-const sans = Instrument_Sans({
+const serif = IBM_Plex_Serif({
   subsets: ["latin"],
-  variable: "--font-instrument-sans",
+  weight: ["400", "500", "600"],
+  variable: "--font-plex-serif",
+  style: ["normal", "italic"],
 });
 
 export const metadata: Metadata = {
@@ -38,15 +39,15 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${display.variable} ${sans.variable} h-full antialiased`}
+      className={`${sans.variable} ${serif.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">
         <MotionDefaults>
           <CatalogProvider>
-            <a
-              href="#main"
-              className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-full focus:bg-accent focus:px-5 focus:py-2.5 focus:text-sm focus:font-medium focus:text-paper"
-            >
+              <a
+                href="#main"
+                className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-full focus:bg-interactive focus:px-5 focus:py-2.5 focus:text-sm focus:font-medium focus:text-white"
+              >
               Skip to content
             </a>
             <PikuConciergeProvider>

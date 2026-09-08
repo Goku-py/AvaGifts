@@ -1,63 +1,70 @@
 "use client";
 
-import { MessageCircle } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Eyebrow } from "@/components/ui/eyebrow";
+import { Gift, MessageCircle } from "lucide-react";
 import { Reveal } from "@/components/ui/reveal";
 import { Section } from "@/components/ui/section";
+import { helpChoosing } from "@/lib/data";
 import { usePikuConcierge } from "./piku-concierge-context";
 
 /**
- * Mid-page entry point for the Piku concierge — sits between the ink
- * catalog band and the Why section. Opens the guided flow modal.
+ * "Need Help Choosing?" — guided assistance for undecided visitors.
+ * Both actions open the Piku concierge flow; "Send a Gifting Brief"
+ * deep-links straight to the details step.
  */
-export function PikuEntrySection() {
+export function NeedHelpChoosing() {
   const { openConcierge } = usePikuConcierge();
 
   return (
-    <Section
-      id="piku"
-      labelledBy="piku-heading"
-      tone="cream"
-      className="overflow-hidden"
-    >
-      {/* Faint concentric arcs — same decorative language as CatalogCta */}
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0">
-        <div className="absolute -left-40 -top-56 size-[560px] rounded-full border border-ink/[0.06]" />
-        <div className="absolute -left-24 -top-40 size-[380px] rounded-full border border-ink/[0.08]" />
-        <div className="absolute -bottom-72 -right-40 size-[620px] rounded-full border border-ink/[0.05]" />
-      </div>
+    <Section id="help" labelledBy="help-heading" tone="surface">
+      <Reveal>
+        <div className="rounded-2xl border border-divider bg-white px-6 py-10 shadow-card sm:px-10 sm:py-12 lg:px-14">
+          <div className="grid items-center gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:gap-14">
+            {/* Left — pitch + actions */}
+            <div>
+              <h2 id="help-heading" className="text-h3 font-sans text-text-primary">
+                {helpChoosing.title}
+              </h2>
+              <p className="text-body mt-4 max-w-md text-text-secondary">
+                {helpChoosing.body}
+              </p>
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
+                <button
+                  type="button"
+                  onClick={() => openConcierge()}
+                  className="inline-flex h-12 shrink-0 items-center justify-center gap-2 rounded-full bg-gradient-primary px-7 text-button text-white transition-opacity duration-200 hover:opacity-90 active:translate-y-px motion-reduce:transition-none"
+                >
+                  <MessageCircle aria-hidden="true" className="size-4" />
+                  {helpChoosing.primaryCta}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => openConcierge()}
+                  className="inline-flex h-12 shrink-0 items-center justify-center gap-2 rounded-full border border-neutral-300 bg-white px-7 text-button text-text-primary transition-colors duration-200 hover:border-neutral-400 hover:bg-hover-surface active:translate-y-px motion-reduce:transition-none"
+                >
+                  <Gift aria-hidden="true" className="size-4" />
+                  {helpChoosing.secondaryCta}
+                </button>
+              </div>
+            </div>
 
-      <div className="relative mx-auto max-w-2xl text-center">
-        <Reveal>
-          <Eyebrow className="justify-center">Meet Piku</Eyebrow>
-        </Reveal>
-        <Reveal delay={0.08}>
-          <h2
-            id="piku-heading"
-            className="mt-5 font-display text-4xl font-semibold leading-[1.06] tracking-[-0.02em] sm:text-5xl"
-          >
-            Tell Piku what you’re looking for.
-          </h2>
-        </Reveal>
-        <Reveal delay={0.16}>
-          <p className="mx-auto mt-5 max-w-xl text-base leading-relaxed text-ink-soft sm:text-lg">
-            A two-minute chat about your occasion, your people and your budget —
-            then our gifting team takes it from there.
-          </p>
-        </Reveal>
-        <Reveal delay={0.24}>
-          <div className="mt-9 flex flex-col items-center justify-center gap-4">
-            <Button size="lg" arrow onClick={openConcierge}>
-              <MessageCircle aria-hidden="true" className="size-4" />
-              Chat with Piku
-            </Button>
-            <p className="text-sm text-ink-soft">
-              No sign-ups. No catalogs to scroll. Just a short chat.
-            </p>
+            {/* Right — brief card */}
+            <div className="rounded-xl bg-surface p-6 sm:p-8">
+              <h3 className="text-h6 font-sans text-text-primary">Send a Gifting Brief</h3>
+              <p className="text-small mt-2 leading-relaxed text-text-secondary">
+                Know exactly what you need? Skip the chat and send your requirements
+                straight to our gifting team.
+              </p>
+              <button
+                type="button"
+                onClick={() => openConcierge("contact")}
+                className="mt-6 inline-flex h-11 w-full items-center justify-center rounded-full bg-interactive px-7 text-sm font-semibold text-white transition-colors duration-200 hover:bg-interactive-hover active:bg-interactive-active active:translate-y-px motion-reduce:transition-none"
+              >
+                Submit Brief
+              </button>
+            </div>
           </div>
-        </Reveal>
-      </div>
+        </div>
+      </Reveal>
     </Section>
   );
 }

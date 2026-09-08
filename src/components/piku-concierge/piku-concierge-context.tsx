@@ -9,12 +9,22 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { OPEN_PIKU_EVENT } from "@/lib/piku-concierge";
+import { OPEN_PIKU_EVENT, type ConciergeStep } from "@/lib/piku-concierge";
+import { PIKU_CONCIERGE_CLOSED_EVENT } from "@/lib/events";
 
 interface PikuConciergeContextValue {
   isOpen: boolean;
-  openConcierge: () => void;
+  /**
+   * Open the flow. With no argument the conversation resumes where it was
+   * (or starts at the intro); pass a step to jump straight there — e.g.
+   * the "Send a Gifting Brief" card opens the details form directly.
+   * Answers are never cleared.
+   */
+  openConcierge: (step?: ConciergeStep) => void;
   closeConcierge: () => void;
+  /** Step requested by the opener, consumed once by the modal on open. */
+  pendingStep: ConciergeStep | null;
+  clearPendingStep: () => void;
 }
 
 const PikuConciergeContext = createContext<PikuConciergeContextValue | null>(
@@ -27,9 +37,23 @@ const PikuConciergeContext = createContext<PikuConciergeContextValue | null>(
  */
 export function PikuConciergeProvider({ children }: { children: ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [pendingStep, setPendingStep] = useState<ConciergeStep | null>(null);
 
-  const openConcierge = useCallback(() => setIsOpen(true), []);
-  const closeConcierge = useCallback(() => setIsOpen(false), []);
+  const openConcierge = useCallback((step?: ConciergeStep) => {
+    setPendingStep(step ?? null);
+    setIsOpen(true);
+  }, []);
+
+  const clearPendingStep = useCallback(() => {
+    setPendingStep(null);
+  }, []);
+  /* Closing notifies the mascot (celebration after a sent enquiry). */
+  const closeConcierge = useCallback(() => {
+    setIsOpen(false);
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent(PIKU_CONCIERGE_CLOSED_EVENT));
+    }
+  }, []);
 
   useEffect(() => {
     const handleOpen = () => setIsOpen(true);
@@ -38,8 +62,14 @@ export function PikuConciergeProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value = useMemo(
-    () => ({ isOpen, openConcierge, closeConcierge }),
-    [isOpen, openConcierge, closeConcierge],
+    () => ({
+      isOpen,
+      openConcierge,
+      closeConcierge,
+      pendingStep,
+      clearPendingStep,
+    }),
+    [isOpen, openConcierge, closeConcierge, pendingStep, clearPendingStep],
   );
 
   return (

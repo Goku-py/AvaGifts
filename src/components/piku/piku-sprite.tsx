@@ -17,13 +17,15 @@ import type { PikuEmotion } from "./use-piku-brain";
 const INK = "#1B1E25";
 const CREAM = "#F5F0E8";
 const WHITE = "#ffffff";
-const SHIRT = "#BFD6F2";
-const TIE = "#F2B840";
-const BEAK = "#FF8C2A";
-const FOOT = "#FF8C2A";
+/* AvadheshCo palette: shirt = interactive #1273EB, tie = accent #FFDE59,
+   beak/feet stay in the orange family sanctioned by Gradient 3 (#FFAA71). */
+const SHIRT = "#1273EB";
+const TIE = "#FFDE59";
+const BEAK = "#FF9A4D";
+const FOOT = "#FF9A4D";
 const GLASS = "#1B1E25";
 const BLUSH = "#d4a5a5";
-const EXCITED_STAR = "#FFD87A";
+const EXCITED_STAR = "#FFDE59";
 const NERVOUS_TEAL = "#7ec8c8";
 
 function DepthLayer({
