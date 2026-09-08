@@ -13,10 +13,12 @@ import { usePikuBrain } from "./use-piku-brain";
 import { PikuSprite } from "./piku-sprite";
 import {
   PIKU_CELEBRATE_EVENT,
+  PIKU_CONCIERGE_CLOSED_EVENT,
   PIKU_GLANCE_END_EVENT,
   PIKU_GLANCE_EVENT,
   type PikuGlanceDetail,
 } from "@/lib/events";
+import { OPEN_PIKU_EVENT } from "@/lib/piku-concierge";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 function clamp(v: number, lo: number, hi: number) {
@@ -77,6 +79,10 @@ export function Piku(_props: PikuProps = {}) {
   const [burstPositions, setBurstPositions] = useState<Array<{ x: number; y: number; r: number }>>([]);
   const [btnEl, setBtnEl] = useState<HTMLButtonElement | null>(null);
   const [isWaking, setIsWaking] = useState(false);
+  /* While the concierge panel is open Piku steps aside — he's "in" the panel,
+     whose header shows his face. Two Pikus on screen at once read as two
+     different characters. */
+  const [isStowed, setIsStowed] = useState(false);
 
   const targetRot = useRef({ rx: 0, ry: 0, rz: 0 });
   const currentRot = useRef({ rx: 0, ry: 0, rz: 0 });
@@ -595,6 +601,15 @@ export function Piku(_props: PikuProps = {}) {
     burstKind.current = "heart";
   }, []);
 
+  /*
+   * Clicking Piku opens the concierge.
+   *
+   * It used to only play a squash-and-bounce, while a separate dock pill did
+   * the opening — so the thing that looked like Piku was a dead end and the
+   * thing that opened Piku wasn't Piku. The character reaction is kept as
+   * press feedback, but now it leads somewhere: the burst plays while the
+   * panel springs open from the same corner.
+   */
   const handleClick = useCallback(async () => {
     const now = Date.now();
     clickTimestamps.current.push(now);
@@ -604,6 +619,7 @@ export function Piku(_props: PikuProps = {}) {
     if (isRapid) clickTimestamps.current = [];
 
     interact();
+    window.dispatchEvent(new Event(OPEN_PIKU_EVENT));
 
     await playBurst(isRapid ? "star" : "heart", isRapid ? 8 : 5);
   }, [interact, playBurst]);
@@ -626,13 +642,19 @@ export function Piku(_props: PikuProps = {}) {
     const onCelebrate = () => {
       void playBurst("heart", 7);
     };
+    const onConciergeOpen = () => setIsStowed(true);
+    const onConciergeClosed = () => setIsStowed(false);
     window.addEventListener(PIKU_GLANCE_EVENT, onGlance);
     window.addEventListener(PIKU_GLANCE_END_EVENT, onGlanceEnd);
     window.addEventListener(PIKU_CELEBRATE_EVENT, onCelebrate);
+    window.addEventListener(OPEN_PIKU_EVENT, onConciergeOpen);
+    window.addEventListener(PIKU_CONCIERGE_CLOSED_EVENT, onConciergeClosed);
     return () => {
       window.removeEventListener(PIKU_GLANCE_EVENT, onGlance);
       window.removeEventListener(PIKU_GLANCE_END_EVENT, onGlanceEnd);
       window.removeEventListener(PIKU_CELEBRATE_EVENT, onCelebrate);
+      window.removeEventListener(OPEN_PIKU_EVENT, onConciergeOpen);
+      window.removeEventListener(PIKU_CONCIERGE_CLOSED_EVENT, onConciergeClosed);
     };
   }, [playBurst]);
 
@@ -664,6 +686,7 @@ export function Piku(_props: PikuProps = {}) {
     (isRoaming || emotion === "walking") && "piku--walking",
     isRoaming && "piku--roaming",
     isWaking && "piku--waking",
+    isStowed && "piku--stowed",
   ]
     .filter(Boolean)
     .join(" ");
@@ -672,12 +695,21 @@ export function Piku(_props: PikuProps = {}) {
     <div
       className={rootClass}
       style={{ right: anchor.right, bottom: anchor.bottom }}
+      /* Fully inert while stowed so nothing here is tabbable behind the panel. */
+      inert={isStowed || undefined}
     >
       {bubble && (
         <span className="piku-bubble" role="status" aria-live="polite">
           {bubble}
         </span>
       )}
+
+      {/* Standing invitation. Replaces the old fixed dock pill: the label now
+          belongs to the character instead of floating separately over the
+          page, so there is one thing to click, not two. */}
+      <span aria-hidden="true" className="piku-invite">
+        Chat with Piku
+      </span>
 
       <button
         ref={setBtnEl}
@@ -695,8 +727,9 @@ export function Piku(_props: PikuProps = {}) {
           setIsHovering(false);
           handleMouseLeave();
         }}
-        aria-label="Piku the penguin — your corporate gifting advisor. Click for a friendly hello."
-        title="Piku — your corporate gifting advisor"
+        aria-label="Chat with Piku, your gifting concierge — answer a few questions and we'll shortlist gifts for you."
+        aria-haspopup="dialog"
+        title="Chat with Piku"
       >
         <PikuSprite emotion={emotion} />
       </button>

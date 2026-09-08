@@ -4,13 +4,8 @@ import { CatalogProvider } from "@/components/catalog/catalog-context";
 import { Footer } from "@/components/layout/footer";
 import { Header } from "@/components/layout/header";
 import { Piku } from "@/components/piku";
-import {
-  PikuConciergeProvider,
-  PikuDock,
-  PikuModal,
-} from "@/components/piku-concierge";
+import { PikuConciergeProvider, PikuModal } from "@/components/piku-concierge";
 import { MotionDefaults } from "@/components/ui/reveal";
-import "@/components/piku-concierge/piku-concierge.css";
 import "./globals.css";
 
 const sans = IBM_Plex_Sans({
@@ -57,7 +52,6 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               </main>
               <Footer />
               <Piku />
-              <PikuDock />
               <PikuModal />
             </PikuConciergeProvider>
           </CatalogProvider>

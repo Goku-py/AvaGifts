@@ -1,4 +1,3 @@
-import { ShieldCheck } from "lucide-react";
 import { Reveal } from "@/components/ui/reveal";
 import { Section } from "@/components/ui/section";
 import { assurance } from "@/lib/data";
@@ -22,8 +21,7 @@ export function AvaAssurance() {
       <div className="relative mx-auto max-w-2xl text-center">
         <Reveal>
           {/* Official guarantee badge — the accent's key moment on the page. */}
-          <p className="inline-flex items-center gap-2 rounded-full border border-accent/40 bg-accent/10 px-4 py-2">
-            <ShieldCheck aria-hidden="true" className="size-4 text-accent" />
+          <p className="inline-flex items-center rounded-full border border-accent/40 bg-accent/10 px-4 py-2">
             <span className="text-caption uppercase tracking-[0.14em] text-accent">
               {assurance.badgeTitle}
             </span>

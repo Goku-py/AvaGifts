@@ -518,3 +518,79 @@
 @media (hover: none) {
   .piku-btn.piku-hovering { filter: none !important; }
 }
+
+/* ------------------------------------------------------------------ */
+/* Standing invitation + stow                                          */
+/*                                                                     */
+/* Replaces the old fixed "Chat with Piku" dock. That pill sat bottom-  */
+/* centre over page content and, crucially, was a second affordance     */
+/* competing with the mascot itself. The label now hangs off Piku, so   */
+/* the invitation and the character are one control.                    */
+/* ------------------------------------------------------------------ */
+
+.piku-invite {
+  position: absolute;
+  right: calc(100% + 10px);
+  bottom: 26%;
+  width: max-content;
+  padding: 7px 13px;
+  border-radius: 999px;
+  background: #0b2a4d;
+  color: #ffffff;
+  font-family: var(--font-plex-sans, system-ui), sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  white-space: nowrap;
+  box-shadow: 0 10px 28px -12px rgba(11, 42, 77, 0.5);
+  pointer-events: none;
+  z-index: 9;
+
+  /* Hidden until Piku is hovered or focused. */
+  opacity: 0;
+  transform: translateX(6px) scale(0.96);
+  transition:
+    opacity 200ms ease-out,
+    transform 200ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.piku-root:hover .piku-invite,
+.piku-root:focus-within .piku-invite {
+  opacity: 1;
+  transform: translateX(0) scale(1);
+}
+
+/* The speech bubble owns that space when it is showing — never stack both. */
+.piku-root:has(.piku-bubble) .piku-invite {
+  opacity: 0;
+}
+
+/* Touch devices have no hover, and the greeting bubble already carries the
+   invitation there. Showing a permanent pill would just re-create the dock. */
+@media (hover: none) {
+  .piku-invite {
+    display: none;
+  }
+}
+
+/* Stowed: Piku steps aside while the concierge panel is open, so there is
+   only ever one of him on screen. */
+.piku-root.piku--stowed {
+  opacity: 0;
+  transform: translateY(8px) scale(0.9);
+  pointer-events: none;
+  transition:
+    opacity 180ms ease-out,
+    transform 220ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .piku-invite {
+    transition: none;
+  }
+
+  .piku-root.piku--stowed {
+    transition: none;
+    transform: none;
+  }
+}

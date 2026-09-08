@@ -36,8 +36,10 @@ export type PikuEmotion =
 export type PikuAnchor = { right: number; bottom: number };
 
 /* ---- Copy — corporate gift advisor voice ---- */
+/* Names the action, since clicking Piku is now the only way into the
+   concierge — the separate dock pill that used to advertise it is gone. */
 const GREETING =
-  "Hi, I'm Piku — your corporate gifting pro. Let's find something memorable.";
+  "Hi, I'm Piku — your gifting concierge. Click me and I'll shortlist gifts for you.";
 
 const CLICK_QUIPS = [
   "At your service!",

@@ -1,3 +1,4 @@
+import type { ClientLogoName } from "@/components/ui/client-logos";
 import type { IconName } from "@/lib/icons";
 import type { ConciergeStep } from "@/lib/piku-concierge";
 
@@ -9,8 +10,7 @@ export type ProductTag =
   | "Local"
   | "Personalised"
   | "Premium"
-  | "Sustainable"
-  | "Useful";
+  | "Sustainable";
 
 export interface NavLink {
   label: string;
@@ -27,6 +27,8 @@ export interface TrustedCustomer {
   name: string;
   since: string;
   sector: string;
+  /** Key into the placeholder mark registry in ui/client-logos.tsx. */
+  logo: ClientLogoName;
 }
 
 export interface Category {
@@ -43,7 +45,6 @@ export interface Product {
   category: string;
   tags: ProductTag[];
   blurb: string;
-  priceBand: string;
   photo: string;
   photoAlt: string;
 }
@@ -164,18 +165,34 @@ export const hero = {
  *
  * These are deliberately generic stand-ins. Do NOT substitute real company
  * names or logos until the client relationship is confirmed and permission to
- * use the mark is on file. Replace `name`/`since`/`sector` here only; the
- * section derives its monogram from the name automatically.
+ * use the mark is on file. The `logo` key points at our own placeholder
+ * artwork in ui/client-logos.tsx — swap that for the supplied brand asset at
+ * the same time you swap the name.
  */
 export const trusted = {
   eyebrow: "Trusted by teams like yours",
   title: "The clients who gift with us keep coming back.",
   lede: "Repeat customers across tech, consumer and consulting — year after year, brief after brief.",
   customers: [
-    { name: "Northwind Technologies", since: "2021", sector: "Enterprise software" },
-    { name: "Meridian Consulting", since: "2022", sector: "Management consulting" },
-    { name: "Lumen Health", since: "2023", sector: "Healthcare" },
-    { name: "Kestrel Retail Group", since: "2024", sector: "Consumer retail" },
+    {
+      name: "Northwind Technologies",
+      since: "2021",
+      sector: "Enterprise software",
+      logo: "northwind",
+    },
+    {
+      name: "Meridian Consulting",
+      since: "2022",
+      sector: "Management consulting",
+      logo: "meridian",
+    },
+    { name: "Lumen Health", since: "2023", sector: "Healthcare", logo: "lumen" },
+    {
+      name: "Kestrel Retail Group",
+      since: "2024",
+      sector: "Consumer retail",
+      logo: "kestrel",
+    },
   ] as TrustedCustomer[],
 };
 
@@ -247,7 +264,6 @@ export const featuredProducts: Product[] = [
     category: "Client & CXO",
     tags: ["Premium", "Local"],
     blurb: "Hand-glazed Jaipur blue pottery — pen stand, coaster pair and card holder.",
-    priceBand: "₹1,800–₹2,600",
     photo: UNSPLASH("photo-1760124056943-eb64936d3d2a"),
     photoAlt: "Bowls hand-painted in cobalt blue and white, stacked in a row",
   },
@@ -257,7 +273,6 @@ export const featuredProducts: Product[] = [
     category: "Festive & Diwali",
     tags: ["Local", "Sustainable"],
     blurb: "Three hand-poured candles — sandalwood, oud and neroli — in reusable tins.",
-    priceBand: "₹1,200–₹1,800",
     photo: UNSPLASH("photo-1603006905003-be475563bc59"),
     photoAlt: "A lit candle burning in a frosted glass tumbler",
   },
@@ -267,7 +282,6 @@ export const featuredProducts: Product[] = [
     category: "Custom & Bespoke",
     tags: ["Personalised", "Premium"],
     blurb: "Full-grain leather, hand-stitched in Rajasthan and foil-monogrammed with your mark.",
-    priceBand: "₹1,500–₹2,200",
     photo: UNSPLASH("photo-1639371040157-55b642d03f4f"),
     photoAlt: "A leather-bound journal closed with a wrap-around tie",
   },
@@ -275,9 +289,8 @@ export const featuredProducts: Product[] = [
     id: "brass-planter-duo",
     name: "Brass Planter Duo",
     category: "Employee Appreciation",
-    tags: ["Useful", "Local"],
+    tags: ["Local"],
     blurb: "Hand-cast brass planters with a live jade and snake-plant pairing.",
-    priceBand: "₹1,200–₹1,800",
     photo: UNSPLASH("photo-1502920873987-ac48e660a95d"),
     photoAlt: "A leafy plant in a brass planter on a white desk",
   },
@@ -287,7 +300,6 @@ export const featuredProducts: Product[] = [
     category: "Client & CXO",
     tags: ["Premium"],
     blurb: "Featherweight cashmere blend, rolled into a ribbon-tied gift tube.",
-    priceBand: "₹4,500–₹6,000",
     photo: UNSPLASH("photo-1734553529922-bc020a21643b"),
     photoAlt: "Woven throws folded and stacked in mustard and cream",
   },
@@ -295,9 +307,8 @@ export const featuredProducts: Product[] = [
     id: "tea-connoisseur-chest",
     name: "Tea Connoisseur Chest",
     category: "Festive & Diwali",
-    tags: ["Premium", "Useful"],
+    tags: ["Premium"],
     blurb: "Eight single-estate teas with a double-walled glass brewer.",
-    priceBand: "₹2,000–₹3,000",
     photo: UNSPLASH("photo-1610112278819-069287c86d03"),
     photoAlt: "A tea caddy with a painted floral lid",
   },
@@ -305,9 +316,8 @@ export const featuredProducts: Product[] = [
     id: "recycled-cork-desk-mat",
     name: "Recycled Cork Desk Mat",
     category: "New Joiner Kits",
-    tags: ["Sustainable", "Useful"],
+    tags: ["Sustainable"],
     blurb: "Cork-and-rubber desk mat, laser-etched with your logo or their initials.",
-    priceBand: "₹800–₹1,200",
     photo: UNSPLASH("photo-1641247565151-fe622e1067d0"),
     photoAlt: "A tidy desk with a natural-finish desk mat, phone and glasses",
   },
@@ -317,7 +327,6 @@ export const featuredProducts: Product[] = [
     category: "Corporate Events",
     tags: ["Local", "Premium"],
     blurb: "Handloom silk stoles, gift-ready in a screen-printed cotton sleeve.",
-    priceBand: "₹1,800–₹2,800",
     photo: UNSPLASH("photo-1676696706907-0e04665b80bd"),
     photoAlt: "Teal silk falling in soft, lustrous folds",
   },

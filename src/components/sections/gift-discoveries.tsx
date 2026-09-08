@@ -13,7 +13,7 @@ import { discoveries, featuredProducts } from "@/lib/data";
 import { STAGGER } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
-const FILTERS = ["All", "Premium", "Personalised", "Sustainable", "Useful", "Local"] as const;
+const FILTERS = ["All", "Premium", "Personalised", "Sustainable", "Local"] as const;
 
 export function GiftDiscoveries() {
   const [filter, setFilter] = useState<(typeof FILTERS)[number]>("All");
@@ -113,9 +113,6 @@ export function GiftDiscoveries() {
                   </span>
                 ))}
               </div>
-              <p className="mt-6 font-sans text-lg font-semibold text-interactive">
-                {feature.priceBand}
-              </p>
             </div>
           </Card>
         </Reveal>
@@ -159,9 +156,6 @@ export function GiftDiscoveries() {
                     </span>
                   ))}
                 </div>
-                <p className="mt-3 text-sm font-semibold text-interactive">
-                  {product.priceBand}
-                </p>
               </div>
             </Card>
           </Reveal>

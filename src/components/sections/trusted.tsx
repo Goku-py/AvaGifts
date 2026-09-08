@@ -1,22 +1,9 @@
+import { getClientLogo } from "@/components/ui/client-logos";
 import { Reveal } from "@/components/ui/reveal";
 import { Section } from "@/components/ui/section";
 import { Eyebrow } from "@/components/ui/eyebrow";
 import { trusted } from "@/lib/data";
 import { STAGGER } from "@/lib/motion";
-
-/**
- * Derives a monogram from a company name — "Northwind Technologies" → "NT".
- * Keeps the tiles honest: a lettermark is clearly our own treatment, where a
- * fabricated logo would imply a brand asset we don't have.
- */
-function monogram(name: string) {
-  return name
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((word) => word[0])
-    .join("")
-    .toUpperCase();
-}
 
 export function TrustedCustomers() {
   return (
@@ -49,33 +36,33 @@ export function TrustedCustomers() {
         </div>
 
         <ul className="grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-divider bg-divider sm:grid-cols-4">
-          {trusted.customers.map((customer, index) => (
-            <Reveal
-              key={customer.name}
-              delay={index * STAGGER}
-              className="h-full"
-            >
-              <li className="flex h-full flex-col justify-between gap-6 bg-white p-5 sm:p-6">
-                <span
-                  aria-hidden="true"
-                  className="inline-flex size-11 items-center justify-center rounded-full bg-surface font-sans text-sm font-bold tracking-[0.02em] text-interactive"
-                >
-                  {monogram(customer.name)}
-                </span>
-                <div>
-                  <p className="font-sans text-sm font-semibold leading-snug text-text-primary">
-                    {customer.name}
-                  </p>
-                  <p className="text-caption mt-1 text-text-muted">
-                    {customer.sector}
-                  </p>
-                  <p className="text-caption mt-3 text-interactive">
-                    Since {customer.since}
-                  </p>
-                </div>
-              </li>
-            </Reveal>
-          ))}
+          {trusted.customers.map((customer, index) => {
+            const Mark = getClientLogo(customer.logo);
+            return (
+              <Reveal
+                key={customer.name}
+                delay={index * STAGGER}
+                className="h-full"
+              >
+                <li className="group flex h-full flex-col justify-between gap-6 bg-white p-5 sm:p-6">
+                  {/* Marks sit in the muted ink a real logo wall uses, and come
+                      up to brand blue on hover so the row still feels alive. */}
+                  <Mark className="size-8 text-text-muted transition-colors duration-300 ease-out group-hover:text-interactive motion-reduce:transition-none" />
+                  <div>
+                    <p className="font-sans text-sm font-semibold leading-snug text-text-primary">
+                      {customer.name}
+                    </p>
+                    <p className="text-caption mt-1 text-text-muted">
+                      {customer.sector}
+                    </p>
+                    <p className="text-caption mt-3 text-interactive">
+                      Since {customer.since}
+                    </p>
+                  </div>
+                </li>
+              </Reveal>
+            );
+          })}
         </ul>
       </div>
     </Section>
