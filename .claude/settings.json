@@ -1,7 +1,14 @@
 {
   "permissions": {
     "allow": [
-      "Bash(git commit -q -m ' *)"
+      "Bash(git commit -q -m ' *)",
+      "Bash(gh auth *)",
+      "Bash(gh repo *)",
+      "Bash(git ls-remote *)",
+      "Bash(echo \"--- exit: $? ---\")",
+      "Bash(grep -Ei \"\\\\.log$|\\\\.env|tsbuildinfo|playwright-mcp|_reference|secret|credential|\\\\.pem$|\\\\.key$\")",
+      "Bash(git count-objects *)",
+      "Bash(xargs -0 du -h)"
     ]
   }
 }
