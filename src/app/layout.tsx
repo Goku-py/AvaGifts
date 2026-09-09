@@ -5,6 +5,7 @@ import { Footer } from "@/components/layout/footer";
 import { Header } from "@/components/layout/header";
 import { Piku } from "@/components/piku";
 import { PikuConciergeProvider, PikuModal } from "@/components/piku-concierge";
+import { PikuGameProvider } from "@/components/piku-game/piku-game-context";
 import { MotionDefaults } from "@/components/ui/reveal";
 import "./globals.css";
 
@@ -46,13 +47,15 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               Skip to content
             </a>
             <PikuConciergeProvider>
-              <Header />
-              <main id="main" className="flex-1">
-                {children}
-              </main>
-              <Footer />
-              <Piku />
-              <PikuModal />
+              <PikuGameProvider>
+                <Header />
+                <main id="main" className="flex-1">
+                  {children}
+                </main>
+                <Footer />
+                <Piku />
+                <PikuModal />
+              </PikuGameProvider>
             </PikuConciergeProvider>
           </CatalogProvider>
         </MotionDefaults>

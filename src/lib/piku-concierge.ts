@@ -7,6 +7,8 @@
 /* enquiry form. No recommendations, no product logic, no LLM wording.  */
 /* ------------------------------------------------------------------ */
 
+import { formatFriendlyDate } from "@/lib/lead-time";
+
 /** TODO(whatsapp-number): replace with the real team WhatsApp number in
  *  international format, digits only (e.g. "919812345678"). The contact
  *  page currently only carries a placeholder phone number. */
@@ -236,7 +238,7 @@ export function conciergeSummaryLines(answers: ConciergeAnswers): string[] {
     );
   if (answers.quantity.trim()) lines.push(`Quantity: ${answers.quantity.trim()}`);
   if (answers.deliveryDate.trim())
-    lines.push(`Delivery by: ${answers.deliveryDate.trim()}`);
+    lines.push(`Delivery by: ${formatFriendlyDate(answers.deliveryDate.trim())}`);
   if (answers.location.trim()) lines.push(`Location: ${answers.location.trim()}`);
   if (answers.budget)
     lines.push(`Budget: ${optionLabel(conciergeBudgetOptions, answers.budget)}`);

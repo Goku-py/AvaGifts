@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { isDeliveryDateValid, MIN_LEAD_DAYS } from "@/lib/lead-time";
 
 /* ------------------------------------------------------------------ */
 /* Budget bands (shared by the enquiry form and the API route)          */
@@ -41,6 +42,21 @@ export const enquirySchema = z.object({
     })
     .default(""),
   occasion: z.string().trim().max(80).default(""),
+  /*
+   * One .refine() doing shape + range checking internally (via
+   * isDeliveryDateValid), not zod's z.iso.date() plus a separate range
+   * check — two refinements on one field would produce two different error
+   * messages depending on which fails first, and fieldErrorsFrom only
+   * surfaces the first issue per field. Optional, like quantity/phone:
+   * only name and email are required.
+   */
+  deliveryDate: z
+    .string()
+    .trim()
+    .refine((value) => value === "" || isDeliveryDateValid(value), {
+      message: `Please choose a date at least ${MIN_LEAD_DAYS} days from today.`,
+    })
+    .default(""),
   quantity: z
     .string()
     .trim()

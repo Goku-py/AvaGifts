@@ -4,7 +4,8 @@ import { Gift, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/ui/reveal";
 import { Section } from "@/components/ui/section";
-import { helpChoosing } from "@/lib/data";
+import { helpChoosing, pikuGame } from "@/lib/data";
+import { usePikuGame } from "@/components/piku-game/piku-game-context";
 import { usePikuConcierge } from "./piku-concierge-context";
 
 /**
@@ -14,6 +15,7 @@ import { usePikuConcierge } from "./piku-concierge-context";
  */
 export function NeedHelpChoosing() {
   const { openConcierge } = usePikuConcierge();
+  const { openGame } = usePikuGame();
 
   return (
     <Section id="help" labelledBy="help-heading" tone="surface">
@@ -46,6 +48,21 @@ export function NeedHelpChoosing() {
                   {helpChoosing.secondaryCta}
                 </Button>
               </div>
+
+              {/* Quiet, optional — deliberately not a third button. Doesn't
+                  compete with the two primary CTAs above, and this section
+                  (already "the Piku section") is where a visitor still
+                  deciding, not mid-checkout, is most likely to see it. */}
+              <p className="mt-5 text-sm text-text-secondary">
+                {pikuGame.entryPrompt}{" "}
+                <button
+                  type="button"
+                  onClick={openGame}
+                  className="font-medium text-interactive underline-offset-4 hover:text-interactive-hover hover:underline"
+                >
+                  {pikuGame.entryCta}
+                </button>
+              </p>
             </div>
 
             {/* Right — brief card */}

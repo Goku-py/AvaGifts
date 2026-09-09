@@ -1,6 +1,9 @@
+"use client";
+
 import { Logo } from "@/components/ui/logo";
+import { usePikuGame } from "@/components/piku-game/piku-game-context";
 import { InstagramIcon, LinkedinIcon, TwitterIcon } from "@/components/ui/social-icons";
-import { company, footerColumns, legalLinks } from "@/lib/data";
+import { company, footerColumns, legalLinks, pikuGame } from "@/lib/data";
 
 const SOCIALS = [
   { label: "AvaGifts on LinkedIn", href: "#", Icon: LinkedinIcon },
@@ -9,6 +12,7 @@ const SOCIALS = [
 ] as const;
 
 export function Footer() {
+  const { openGame } = usePikuGame();
   return (
     /* data-tone="dark" switches the focus ring to the accent — interactive
        blue is close to invisible against the navy band. */
@@ -63,6 +67,13 @@ export function Footer() {
                 {link.label}
               </a>
             ))}
+            <button
+              type="button"
+              onClick={openGame}
+              className="text-caption text-white/60 transition-colors duration-200 hover:text-white"
+            >
+              {pikuGame.footerCta}
+            </button>
           </div>
           <div className="flex items-center gap-2">
             {SOCIALS.map(({ label, href, Icon }) => (

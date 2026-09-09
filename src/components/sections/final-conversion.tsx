@@ -13,6 +13,7 @@ import {
   fieldErrorsFrom,
   type EnquiryField,
 } from "@/lib/enquiry";
+import { minDeliveryDateInputValue } from "@/lib/lead-time";
 import { usePikuConcierge } from "@/components/piku-concierge/piku-concierge-context";
 import { glanceHandlers } from "@/lib/piku-glance";
 import { cn } from "@/lib/utils";
@@ -29,6 +30,7 @@ const EMPTY_VALUES: Record<EnquiryField, string> = {
   email: "",
   phone: "",
   occasion: "",
+  deliveryDate: "",
   quantity: "",
   budget: "not-sure",
   message: "",
@@ -297,6 +299,25 @@ export function FinalConversion() {
                       className={inputClasses(Boolean(errors.quantity))}
                     />
                   </Field>
+
+                  <div className="sm:col-span-2">
+                    <Field
+                      label="Delivery date"
+                      name="deliveryDate"
+                      error={errors.deliveryDate}
+                    >
+                      <input
+                        {...fieldProps("deliveryDate")}
+                        type="date"
+                        min={minDeliveryDateInputValue()}
+                        className={inputClasses(Boolean(errors.deliveryDate))}
+                      />
+                      <p className="mt-1.5 text-xs text-text-muted">
+                        Please submit at least one week in advance so we can
+                        source, brand and deliver on time.
+                      </p>
+                    </Field>
+                  </div>
 
                   <div className="sm:col-span-2">
                     <Field label="Budget band" name="budget" error={errors.budget}>

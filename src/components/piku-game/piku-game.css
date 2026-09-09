@@ -1,0 +1,38 @@
+/* ------------------------------------------------------------------ *
+ * Piku mini-game — "Brand the Gifts"
+ *
+ * The falling box's position animation is deliberately plain CSS, driven
+ * only by --fall-duration and --fall-distance, with animation-timing-
+ * function: linear. Linear is load-bearing: hit detection reads the
+ * animation's time progress (via getAnimations()) and treats it as
+ * equivalent to distance progress. An eased curve would make those two
+ * fractions diverge, so the visual position and the hit-test zone would
+ * silently disagree about where the box actually is.
+ *
+ * Any decorative motion (the zone's active-state visual) is JS-timer
+ * driven with its own class, never mixed into this animation — so it can
+ * never interfere with the timing this file's animation is measured for.
+ * ------------------------------------------------------------------ */
+
+@keyframes piku-game-fall {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(var(--fall-distance, 232px));
+  }
+}
+
+.piku-game-box {
+  animation-name: piku-game-fall;
+  animation-timing-function: linear;
+  animation-duration: var(--fall-duration, 2600ms);
+  animation-fill-mode: forwards;
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .piku-game-box {
+    animation: none;
+  }
+}

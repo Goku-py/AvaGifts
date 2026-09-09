@@ -548,6 +548,18 @@ export const helpChoosing = {
 };
 
 /* ------------------------------------------------------------------ */
+/* Piku mini-game — quiet, optional entry points                       */
+/* ------------------------------------------------------------------ */
+
+export const pikuGame = {
+  /** Small subordinate link under the concierge section's primary CTAs. */
+  entryPrompt: "Prefer to play instead?",
+  entryCta: "Take a quick break with Piku",
+  /** Footer link, alongside the legal links. */
+  footerCta: "Play with Piku",
+};
+
+/* ------------------------------------------------------------------ */
 /* Final conversion                                                    */
 /* ------------------------------------------------------------------ */
 

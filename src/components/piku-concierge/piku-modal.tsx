@@ -12,6 +12,12 @@ import {
 } from "react";
 import { PikuSprite } from "@/components/piku/piku-sprite";
 import { PIKU_ENQUIRY_SENT_EVENT } from "@/lib/events";
+import {
+  formatFriendlyDate,
+  isDeliveryDateValid,
+  MIN_LEAD_DAYS,
+  minDeliveryDateInputValue,
+} from "@/lib/lead-time";
 import { EASE, SPRING_BOUNCY, SPRING_EMERGE, SPRING_FIRM, SPRING_SNAPPY, SPRING_SOFT } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import "./piku-concierge.css";
@@ -318,6 +324,7 @@ export function PikuModal() {
   const [step, setStep] = useState<ConciergeStep>("intro");
   const [answers, setAnswers] = useState<ConciergeAnswers>(emptyConciergeAnswers);
   const [contactErrors, setContactErrors] = useState<Record<string, string>>({});
+  const [dateError, setDateError] = useState<string | null>(null);
   const [submitStatus, setSubmitStatus] = useState<SubmitStatus>("idle");
   const scrollRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
@@ -461,8 +468,50 @@ export function PikuModal() {
     [],
   );
 
+  /*
+   * Gates "Continue" on the delivery-date step and re-checked before final
+   * submission — the native <input type="date" min={...}> stops most invalid
+   * picks, but min is only advisory (typed/pasted input, or a client that
+   * strips it, can still get an out-of-range value into state), so this is
+   * the real gate. The API re-validates the same rule via enquirySchema,
+   * since a client-side check alone can always be bypassed.
+   */
+  const validateDeliveryDate = useCallback(
+    /**
+     * `valueOverride` lets a caller validate a value that hasn't landed in
+     * `answers` yet — React batches the setState from `patch()`, so reading
+     * `answers.deliveryDate` immediately after calling `patch` in the same
+     * handler would see the pre-update value (e.g. Skip clearing the field
+     * and then re-triggering the very error it just cleared).
+     */
+    (valueOverride?: string): boolean => {
+      const value = valueOverride ?? answers.deliveryDate;
+      if (!value.trim()) {
+        setDateError(null); // optional field — empty is valid, just unanswered
+        return true;
+      }
+      if (!isDeliveryDateValid(value)) {
+        setDateError(
+          `Please choose a date at least ${MIN_LEAD_DAYS} days from today — the earliest is ${formatFriendlyDate(minDeliveryDateInputValue())}.`,
+        );
+        return false;
+      }
+      setDateError(null);
+      return true;
+    },
+    [answers.deliveryDate],
+  );
+
   const submitEnquiry = useCallback(async () => {
     if (submitStatus === "submitting") return;
+    // Re-checked here, not just at the date step: the visitor can jump
+    // straight to "brief" from an earlier step and never revisit "details
+    // -date", so this is the actual final gate on the client side. The API
+    // enforces the same rule independently via enquirySchema regardless.
+    if (!validateDeliveryDate()) {
+      goTo("details-date");
+      return;
+    }
     setSubmitStatus("submitting");
     const styleLabels = answers.styles
       .map((value) => optionLabel(giftStyleOptions, value))
@@ -472,9 +521,6 @@ export function PikuModal() {
         ? `Feeling: ${optionLabel(feelingOptions, answers.feeling)}`
         : null,
       styleLabels ? `Gift style: ${styleLabels}` : null,
-      answers.deliveryDate.trim()
-        ? `Delivery by: ${answers.deliveryDate.trim()}`
-        : null,
       answers.location.trim() ? `Location: ${answers.location.trim()}` : null,
       answers.requirement.trim()
         ? `Requirement: ${answers.requirement.trim()}`
@@ -500,6 +546,7 @@ export function PikuModal() {
               ? answers.occasionOther.trim() || "Other"
               : optionLabel(occasionOptions, answers.occasion),
           quantity: quantityDigits,
+          deliveryDate: answers.deliveryDate.trim(),
           budget: answers.budget ?? "not-sure",
           message: messageParts.join("\n"),
         }),
@@ -514,7 +561,7 @@ export function PikuModal() {
       setSubmitStatus((current) => (current === "submitting" ? "idle" : current));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [answers, submitStatus]);
+  }, [answers, submitStatus, validateDeliveryDate, goTo]);
 
   const stage = stageIndex(step);
   const showProgress = stage >= 0;
@@ -642,6 +689,8 @@ export function PikuModal() {
                 setContactErrors={setContactErrors}
                 validateContact={validateContact}
                 validateContactValues={validateContactValues}
+                dateError={dateError}
+                validateDeliveryDate={validateDeliveryDate}
                 submitStatus={submitStatus}
                 submitEnquiry={submitEnquiry}
                 openWhatsApp={openWhatsApp}
@@ -689,6 +738,8 @@ interface ConversationProps {
   contactErrors: Record<string, string>;
   setContactErrors: (errors: Record<string, string>) => void;
   validateContact: () => boolean;
+  dateError: string | null;
+  validateDeliveryDate: (valueOverride?: string) => boolean;
   validateContactValues: (
     values: ConciergeAnswers,
   ) => Record<string, string>;
@@ -986,28 +1037,59 @@ function Conversation(props: ConversationProps) {
               : "When do they need to arrive?"}
           </PikuBubble>
           {reached("details-location") && answers.deliveryDate.trim() ? (
-            <UserBubble>{answers.deliveryDate.trim()}</UserBubble>
+            <UserBubble>{formatFriendlyDate(answers.deliveryDate.trim())}</UserBubble>
           ) : null}
           {!reached("details-location") ? (
             <>
               <input
-                type="text"
+                type="date"
+                min={minDeliveryDateInputValue()}
                 value={answers.deliveryDate}
-                onChange={(event) =>
-                  props.patch({ deliveryDate: event.target.value })
-                }
-                onKeyDown={(event) => {
-                  if (event.key === "Enter") props.goTo("details-location");
+                onChange={(event) => {
+                  props.patch({ deliveryDate: event.target.value });
+                  if (props.dateError) props.validateDeliveryDate();
                 }}
-                placeholder="e.g. before Diwali, 12 March"
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" && props.validateDeliveryDate()) {
+                    props.goTo("details-location");
+                  }
+                }}
                 aria-label="Delivery date"
-                className={fieldInputClasses}
+                aria-invalid={props.dateError ? true : undefined}
+                aria-describedby={props.dateError ? "delivery-date-error" : undefined}
+                className={props.dateError ? fieldErrorClasses : fieldInputClasses}
               />
+              {/* Names the rule up front, not just after a rejection — the
+                  native min already stops most picks, but typed/pasted
+                  input can still slip an earlier date past it. */}
+              <p className="text-xs text-text-secondary">
+                Please choose a date at least {MIN_LEAD_DAYS} days out — the
+                earliest is {formatFriendlyDate(minDeliveryDateInputValue())}.
+              </p>
+              {props.dateError ? (
+                <p id="delivery-date-error" className="text-xs text-danger">
+                  {props.dateError}
+                </p>
+              ) : null}
               <div className="flex items-center gap-5">
-                <PrimaryAction onClick={() => props.goTo("details-location")}>
+                <PrimaryAction
+                  onClick={() => {
+                    if (props.validateDeliveryDate()) props.goTo("details-location");
+                  }}
+                >
                   Continue
                 </PrimaryAction>
-                <SkipButton onClick={() => props.goTo("details-location")} />
+                <SkipButton
+                  onClick={() => {
+                    props.patch({ deliveryDate: "" });
+                    // Empty is a valid, "unanswered" state — clears any
+                    // stale error left over from a previous invalid attempt.
+                    // Pass "" directly rather than re-reading answers, which
+                    // wouldn't reflect the patch above until the next render.
+                    props.validateDeliveryDate("");
+                    props.goTo("details-location");
+                  }}
+                />
               </div>
             </>
           ) : null}
@@ -1291,11 +1373,25 @@ function Conversation(props: ConversationProps) {
                   />
                   <BriefTextRow
                     label="Delivery by"
-                    display={answers.deliveryDate.trim() || "—"}
+                    display={
+                      answers.deliveryDate.trim()
+                        ? formatFriendlyDate(answers.deliveryDate.trim())
+                        : "—"
+                    }
                     value={answers.deliveryDate}
-                    placeholder="e.g. before Diwali, 12 March"
+                    placeholder="Select a date"
                     ariaLabel="Delivery date"
-                    onSave={(deliveryDate) => props.patch({ deliveryDate })}
+                    type="date"
+                    min={minDeliveryDateInputValue()}
+                    validate={(draftValue) =>
+                      draftValue && !isDeliveryDateValid(draftValue)
+                        ? `Must be at least ${MIN_LEAD_DAYS} days from today.`
+                        : null
+                    }
+                    onSave={(deliveryDate) => {
+                      props.patch({ deliveryDate });
+                      props.validateDeliveryDate(deliveryDate);
+                    }}
                   />
                   <BriefTextRow
                     label="Location"
@@ -1699,6 +1795,9 @@ function BriefTextRow({
   ariaLabel,
   multiline = false,
   inputMode,
+  type = "text",
+  min,
+  validate,
   onSave,
 }: {
   label: string;
@@ -1708,12 +1807,26 @@ function BriefTextRow({
   ariaLabel: string;
   multiline?: boolean;
   inputMode?: "numeric" | "text";
+  /** "date" renders a native date picker instead of free text. */
+  type?: "text" | "date";
+  /** Earliest selectable value — only meaningful with type="date". */
+  min?: string;
+  /** Optional synchronous check; a non-null return blocks Save and shows
+   *  the message inline, mirroring the concierge step's own validation. */
+  validate?: (draftValue: string) => string | null;
   onSave: (value: string) => void;
 }) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState("");
+  const [error, setError] = useState<string | null>(null);
   const save = () => {
-    onSave(draft.trim());
+    const trimmed = draft.trim();
+    const message = validate?.(trimmed) ?? null;
+    if (message) {
+      setError(message);
+      return;
+    }
+    onSave(trimmed);
     setEditing(false);
   };
   return (
@@ -1722,7 +1835,10 @@ function BriefTextRow({
       display={display}
       editing={editing}
       onToggleEdit={() => {
-        if (!editing) setDraft(value);
+        if (!editing) {
+          setDraft(value);
+          setError(null);
+        }
         setEditing(!editing);
       }}
     >
@@ -1737,23 +1853,34 @@ function BriefTextRow({
         />
       ) : (
         <input
-          type="text"
+          type={type}
+          min={min}
           inputMode={inputMode}
           value={draft}
-          onChange={(event) => setDraft(event.target.value)}
+          onChange={(event) => {
+            setDraft(event.target.value);
+            if (error) setError(null);
+          }}
           onKeyDown={(event) => {
             if (event.key === "Enter") save();
           }}
           placeholder={placeholder}
           aria-label={ariaLabel}
-          className={fieldInputClasses}
+          aria-invalid={error ? true : undefined}
+          className={error ? fieldErrorClasses : fieldInputClasses}
         />
       )}
+      {error ? <p className="mt-1.5 text-xs text-danger">{error}</p> : null}
       <div className="mt-2 flex gap-2">
         <BriefMiniButton primary onClick={save}>
           Save
         </BriefMiniButton>
-        <BriefMiniButton onClick={() => setEditing(false)}>
+        <BriefMiniButton
+          onClick={() => {
+            setEditing(false);
+            setError(null);
+          }}
+        >
           Cancel
         </BriefMiniButton>
       </div>
