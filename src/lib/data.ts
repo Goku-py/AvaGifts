@@ -20,7 +20,8 @@ export interface NavLink {
 export interface HeroVisualCard {
   src: string;
   alt: string;
-  caption: string;
+  /** Category pill shown over the slide, e.g. "Tech & Connectivity". */
+  category: string;
 }
 
 export interface TrustedCustomer {
@@ -131,29 +132,44 @@ export const headerCta = "Get a Custom Quote";
 /* ------------------------------------------------------------------ */
 
 export const hero = {
-  eyebrow: "Corporate gifting, curated",
+  eyebrow: "India's Premier B2B Platform",
   headline: "Corporate gifting, without the boring part.",
   subtext:
     "Find gifts people actually keep — unique, useful pieces discovered with India's finest local makers, curated for your team, your clients and every moment worth marking.",
-  primaryCta: "Get a Custom Quote",
+  primaryCta: "Find a Gift",
+  /*
+   * The hero carousel. Each image in public/design/ is a COMPLETE slide
+   * render at 616x721 — background tint, rings, category badge and the dot
+   * row are all baked into the artwork (see hero.tsx for why none of that
+   * is redrawn in the DOM).
+   *
+   * `category` therefore must match the badge printed in each PNG exactly:
+   * it is the accessible name for that slide's control and the text a
+   * screen reader hears when the carousel advances. If a slide is
+   * re-exported with a different badge, update the string here to match.
+   */
   visualCards: [
     {
-      src: UNSPLASH("photo-1632924192284-9163f3d88a16"),
-      alt: "Kraft-paper parcels tied with twine and dried sprigs",
-      caption: "Curated & gift-ready",
+      src: "/design/hero-slide-1.png",
+      alt: "Tech gifting set — wireless charger, power bank, keyboard and desk accessories",
+      category: "Tech & Connectivity",
     },
     {
-      src: UNSPLASH("photo-1543874911-320748e4c335"),
-      alt: "A carved wooden block pressing gold ink onto cloth",
-      caption: "Hand-finished, piece by piece",
+      src: "/design/hero-slide-2.png",
+      alt: "Mobile and personal tech — headphones, earbuds, smartwatch, phone stands and a selfie stick",
+      category: "Mobile & Personal Tech",
     },
     {
-      src: UNSPLASH("photo-1764764138654-9f29a11eed95"),
-      alt: "A kraft parcel tied with white string and sealed with red wax",
-      caption: "From 60+ artisan studios",
+      src: "/design/hero-slide-3.png",
+      alt: "Wellness gifting — massage gun, humidifier, eye massager, hair dryer and an electric toothbrush",
+      category: "Wellness & Personal Care",
+    },
+    {
+      src: "/design/hero-slide-4.png",
+      alt: "Home and lifestyle gifting — portable blender, travel flask, air purifier, lamp and a handheld vacuum",
+      category: "Home & Lifestyle",
     },
   ] as HeroVisualCard[],
-  floatingTag: "Handcrafted in Jaipur",
 };
 
 /* ------------------------------------------------------------------ */
