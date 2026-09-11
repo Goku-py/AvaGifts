@@ -1,83 +1,77 @@
-import { Check } from "lucide-react";
+import Image from "next/image";
 import { Reveal } from "@/components/ui/reveal";
 import { Section } from "@/components/ui/section";
-import { SectionHeading } from "@/components/ui/section-heading";
-import { howWeExecute, processSteps, servicesCapabilities } from "@/lib/data";
+import { howWeExecute, processSteps } from "@/lib/data";
+import { STAGGER } from "@/lib/motion";
 
 export function HowWeExecute() {
   return (
     <Section
       id="how-it-works"
       labelledBy="how-heading"
-      tone="surface"
-      density="spacious"
+      tone="ink-deep"
+      className="pt-20 pb-14 sm:pt-24 sm:pb-16 lg:pt-30 lg:pb-20"
     >
-      {/* Asymmetric split — the sticky claim holds the left rail while the
-          process scrolls past it, so the two columns read as one argument
-          rather than two stacked lists. */}
-      <div className="grid gap-16 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:gap-24">
-        <div className="lg:sticky lg:top-28 lg:self-start">
-          <SectionHeading
+      <div className="flex flex-col items-center gap-4">
+        <Reveal>
+          <h2
             id="how-heading"
-            eyebrow={howWeExecute.eyebrow}
-            title={howWeExecute.title}
-          />
+            className="text-section-title text-center text-surface"
+          >
+            {howWeExecute.title}
+          </h2>
+        </Reveal>
+        <Reveal delay={0.08}>
+          {/* 18/29.7 exactly — `.text-body-lg` is 18/1.7 = 30.6, a line off. */}
+          <p className="max-w-[754px] text-center text-[18px] leading-[29.7px] text-neutral-500">
+            {howWeExecute.lede}
+          </p>
+        </Reveal>
+      </div>
 
-          <Reveal delay={0.14}>
-            <div className="mt-8 border-l-2 border-accent pl-6">
-              <p className="text-h5 font-sans text-text-primary">
-                {howWeExecute.vendorMessage}
-              </p>
-              <p className="text-body mt-3 text-text-secondary">
-                {howWeExecute.vendorBody}
-              </p>
-            </div>
-          </Reveal>
-
-          <Reveal delay={0.2}>
-            <ul className="mt-10 grid gap-x-6 gap-y-3 sm:grid-cols-2">
-              {servicesCapabilities.map((capability) => (
-                <li
-                  key={capability}
-                  className="text-small flex items-start gap-2.5 text-text-primary"
-                >
-                  <Check
-                    aria-hidden="true"
-                    className="mt-0.5 size-4 shrink-0 text-interactive"
-                  />
-                  {capability}
-                </li>
-              ))}
-            </ul>
-          </Reveal>
-        </div>
-
+      <div className="relative mt-14 lg:mt-20">
         {/*
-          Oversized numerals carry the hierarchy here instead of another set of
-          badges. They're the page's second typographic peak after the hero and
-          give the section a scale nothing else on the page has.
+          The connector sits behind the illustrations at their mid-height and
+          fades out at both ends. Hidden below lg, where the steps stack and a
+          horizontal rule would cut across them.
         */}
-        <ol className="relative">
+        <div
+          aria-hidden="true"
+          className="absolute top-[96px] right-[178px] left-[178px] hidden h-px lg:block"
+          style={{
+            backgroundImage:
+              "linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.12) 10%, rgba(255,255,255,0.12) 90%, rgba(255,255,255,0) 100%)",
+          }}
+        />
+
+        <ol className="relative grid grid-cols-1 gap-12 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8">
           {processSteps.map((step, index) => (
-            <Reveal key={step.title} delay={0.1 + index * 0.06}>
-              <li className="group relative grid grid-cols-[auto_minmax(0,1fr)] gap-6 border-t border-divider py-8 first:border-t-0 first:pt-0 sm:gap-8">
-                <span
-                  aria-hidden="true"
-                  className="font-sans text-4xl font-bold leading-none tracking-[-0.03em] text-divider transition-colors duration-300 ease-out group-hover:text-accent motion-reduce:transition-none sm:text-5xl"
-                >
-                  {String(index + 1).padStart(2, "0")}
-                </span>
-                <div>
-                  <h3 className="text-h5 font-sans text-text-primary">
-                    <span className="sr-only">Step {index + 1}: </span>
-                    {step.title}
-                  </h3>
-                  <p className="text-body mt-2 max-w-md text-text-secondary">
-                    {step.body}
-                  </p>
+            <li key={step.title}>
+              <Reveal delay={(index % 4) * STAGGER}>
+                <div className="flex flex-col items-center gap-5">
+                  <div className="flex flex-col items-center gap-2.5">
+                    <Image
+                      src={step.image}
+                      alt={step.imageAlt}
+                      width={100}
+                      height={167}
+                      className="h-[167px] w-[100px] object-cover"
+                    />
+                    <span className="text-xs font-bold uppercase tracking-[0.96px] text-text-muted-dark">
+                      {String(index + 1).padStart(2, "0")}
+                    </span>
+                  </div>
+                  <div className="flex w-full flex-col items-center gap-[9px]">
+                    <h3 className="text-center text-xl font-semibold leading-[26px] tracking-[-0.4px] text-white">
+                      {step.title}
+                    </h3>
+                    <p className="text-center text-[18px] leading-[29.7px] text-neutral-500">
+                      {step.body}
+                    </p>
+                  </div>
                 </div>
-              </li>
-            </Reveal>
+              </Reveal>
+            </li>
           ))}
         </ol>
       </div>

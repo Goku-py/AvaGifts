@@ -63,6 +63,9 @@ export interface WhyPoint {
 export interface ProcessStep {
   title: string;
   body: string;
+  /** Piku illustration for the step — 100x167 in the design. */
+  image: string;
+  imageAlt: string;
 }
 
 export interface LifecycleStage {
@@ -469,33 +472,40 @@ export const whyPoints: WhyPoint[] = [
 /* ------------------------------------------------------------------ */
 
 export const howWeExecute = {
-  eyebrow: "How We Execute",
-  title: "One brief in. A finished programme out.",
-  vendorMessage: "You don't have to manage multiple vendors.",
-  vendorBody:
-    "Sourcing, branding, quality checks, wrapping and multi-city delivery — one team carries all of it, so your inbox carries none of it.",
+  title: "How AvadheshCo Works",
+  /* Figma leaves this as lorem; this is the approved vendor message. */
+  lede: "You don't have to manage multiple vendors. Sourcing, branding, quality checks, wrapping and multi-city delivery — one team carries all of it, so your inbox carries none of it.",
 };
 
+/*
+ * Four steps, matching the design. The approved copy had five: "We curate &
+ * source" and "Customise & brand" are merged into "Customize Your Gifts",
+ * which is the one step the design names for both halves of that work.
+ */
 export const processSteps: ProcessStep[] = [
   {
-    title: "Share your brief",
+    title: "Tell Us What You Need",
     body: "Occasion, audience, budget band and quantities — five minutes, one form.",
+    image: "/design/step-tell-us.png",
+    imageAlt: "Piku listening and taking down a brief",
   },
   {
-    title: "We curate & source",
-    body: "Your project manager shortlists from 60+ artisan partners and sends samples.",
+    title: "Customize Your Gifts",
+    body: "Your project manager shortlists from 60+ artisan partners, then brands and packages it — proofed with you before anything prints.",
+    image: "/design/step-customize.png",
+    imageAlt: "Piku holding a wrapped and ribboned gift box",
   },
   {
-    title: "Customise & brand",
-    body: "Branding, packaging and personal notes — proofed with you before anything prints.",
-  },
-  {
-    title: "Quality check, piece by piece",
+    title: "Quality Check",
     body: "Every single unit is inspected, cleaned and gift-wrapped by hand.",
+    image: "/design/step-quality-check.png",
+    imageAlt: "Piku checking items off an inspection clipboard",
   },
   {
-    title: "Delivered, door to door",
+    title: "Track & Deliver",
     body: "Multi-city drops, fully tracked, with proof of delivery for your records.",
+    image: "/design/step-track-deliver.png",
+    imageAlt: "Piku tracking a parcel on a phone while carrying it",
   },
 ];
 
@@ -713,14 +723,6 @@ export const stats: Stat[] = [
   { value: "60+", label: "Artisan partners" },
   { value: "4.9★", label: "Client rating" },
 ];
-
-export const servicesCapabilities = [
-  "Custom branding & packaging",
-  "Co-packed hampers",
-  "Multi-city delivery",
-  "GST invoicing",
-  "Dedicated project manager",
-] as const;
 
 export const company = {
   name: "AvaGifts",
