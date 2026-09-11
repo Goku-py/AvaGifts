@@ -1,64 +1,78 @@
+import Image from "next/image";
 import { Reveal } from "@/components/ui/reveal";
 import { Section } from "@/components/ui/section";
-import { SectionHeading } from "@/components/ui/section-heading";
 import { why, whyPoints } from "@/lib/data";
-import { getIcon } from "@/lib/icons";
 import { STAGGER } from "@/lib/motion";
-import { cn } from "@/lib/utils";
 
 export function WhyAvaGifts() {
   return (
-    <Section id="why" labelledBy="why-heading" tone="white">
-      <SectionHeading
-        id="why-heading"
-        eyebrow={why.eyebrow}
-        title={why.title}
-        lede={why.lede}
-      />
+    <Section
+      id="why"
+      labelledBy="why-heading"
+      tone="white"
+      className="pt-20 pb-14 sm:pt-24 sm:pb-16 lg:pt-30 lg:pb-20"
+    >
+      {/* 580/700, not 50/50 — the design gives the copy column the wider half. */}
+      <div className="grid items-start gap-10 lg:grid-cols-[580fr_700fr] lg:gap-0">
+        {/*
+          Sticky on desktop, as in the design: the photo holds while the six
+          rows scroll past it. `top-24` rather than the design's `top-0` —
+          the header is sticky too, and 0 would tuck the image underneath it.
+        */}
+        <div className="w-full lg:sticky lg:top-24 lg:h-[630px]">
+          <div className="relative aspect-[580/630] w-full overflow-hidden lg:h-full">
+            <Image
+              src={why.image}
+              alt={why.imageAlt}
+              fill
+              sizes="(min-width: 1024px) 580px, 100vw"
+              className="object-cover"
+            />
+          </div>
+        </div>
 
-      {/*
-        Deliberately not a card grid. Six bordered cards in a row is the single
-        most template-looking pattern on the page; ruled cells give the same
-        information an editorial, printed-page feel instead. The 1px gap over a
-        divider-coloured background draws the rules — no per-cell borders to
-        double up at the seams.
-      */}
-      {/* data-piku marks a landmark the mascot can offer a contextual hint on.
-          It sits on the grid rather than the <Section> because the observer
-          uses a 0.2 threshold, which a full-height band may never reach. */}
-      <div
-        data-piku="why"
-        className="mt-14 grid gap-px overflow-hidden border-y border-divider bg-divider sm:grid-cols-2 lg:grid-cols-3"
-      >
-        {whyPoints.map((point, index) => {
-          const Icon = getIcon(point.icon);
-          return (
-            <Reveal
-              key={point.title}
-              delay={(index % 3) * STAGGER}
-              className="h-full"
-            >
-              <article
-                className={cn(
-                  "group h-full bg-white p-7 transition-colors duration-300 ease-out lg:p-9",
-                  "hover:bg-surface motion-reduce:transition-none",
-                )}
+        <div className="flex w-full flex-col gap-5 lg:p-[60px]">
+          <div className="flex flex-col gap-4">
+            <Reveal>
+              <h2
+                id="why-heading"
+                className="text-section-title text-ink-900"
               >
-                <Icon
-                  aria-hidden="true"
-                  strokeWidth={1.5}
-                  className="size-8 text-interactive"
-                />
-                <h3 className="text-h5 mt-6 font-sans text-text-primary">
-                  {point.title}
-                </h3>
-                <p className="text-body mt-3 text-text-secondary">
-                  {point.body}
-                </p>
-              </article>
+                {why.title}
+              </h2>
             </Reveal>
-          );
-        })}
+            <Reveal delay={0.08}>
+              <p className="text-body-lg text-text-secondary">{why.lede}</p>
+            </Reveal>
+          </div>
+
+          {/* data-piku marks a landmark the mascot can offer a contextual hint on. */}
+          <ul data-piku="why" className="flex flex-col gap-4">
+            {whyPoints.map((point, index) => (
+              <li key={point.title}>
+                <Reveal delay={(index % 3) * STAGGER}>
+                  <div className="flex items-center gap-4 rounded-2xl border border-border bg-white p-5">
+                    <Image
+                      src={point.icon}
+                      alt=""
+                      width={point.iconWidth}
+                      height={point.iconHeight}
+                      className="shrink-0"
+                    />
+                    <div className="flex min-w-0 flex-col gap-1">
+                      <h3 className="text-base font-bold text-text-primary">
+                        {point.title}
+                      </h3>
+                      <p className="text-base leading-[1.4] text-text-secondary">
+                        {point.body}
+                      </p>
+                    </div>
+                  </div>
+                </Reveal>
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
     </Section>
   );

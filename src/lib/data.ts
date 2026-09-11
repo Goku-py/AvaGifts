@@ -53,7 +53,11 @@ export interface Product {
 export interface WhyPoint {
   title: string;
   body: string;
-  icon: IconName;
+  /** Path to the exported 60px icon. */
+  icon: string;
+  /** Intrinsic size — "Lower MOQ" is 60x59, the rest are square. */
+  iconWidth: number;
+  iconHeight: number;
 }
 
 export interface ProcessStep {
@@ -402,41 +406,61 @@ export const featuredProducts: Product[] = [
 /* ------------------------------------------------------------------ */
 
 export const why = {
-  eyebrow: "Why AvaGifts",
-  title: "Built for busy teams.",
-  lede: "We removed everything painful about corporate gifting — minimums, follow-ups and forgettable gifts.",
+  title: "Why AvadheshCo",
+  lede: "We are not just a catalogue. We are a curation and execution partner that helps you find the right gift, customise it, and deliver it with a human touch.",
+  image: "/design/why-office-collaboration.png",
+  imageAlt:
+    "Two navy gift boxes tied with copper ribbon, lit against a dark backdrop",
 };
 
+/*
+ * Titles and the first two bodies come from the Figma frame. The design leaves
+ * the remaining four bodies as "Less waiting. More gifting." placeholder, so
+ * those are condensed from the approved long-form copy to the one-line length
+ * the row allows.
+ */
 export const whyPoints: WhyPoint[] = [
   {
-    title: "Lower MOQs",
-    body: "Beautiful gifting shouldn't start at 500 units. Start at 25 and scale when you're ready.",
-    icon: "Boxes",
+    title: "Lower MOQ",
+    body: "Great gifting doesn't have to start at 500 units.",
+    icon: "/design/why-lower-moq.png",
+    iconWidth: 60,
+    iconHeight: 59,
   },
   {
-    title: "Full Customisation",
-    body: "Logo, palette, packaging, note card — every layer designed with you, not templated at you.",
-    icon: "Palette",
+    title: "Customisation",
+    body: "Make the gift yours.",
+    icon: "/design/why-customisation.png",
+    iconWidth: 60,
+    iconHeight: 60,
   },
   {
-    title: "Faster Turnarounds",
-    body: "Quotes in 48 hours, samples in a week, delivery on the date you circled.",
-    icon: "Timer",
+    title: "Faster Delivery",
+    body: "Quotes in 48 hours, delivery on the date you circled.",
+    icon: "/design/why-faster-delivery.png",
+    iconWidth: 60,
+    iconHeight: 60,
   },
   {
-    title: "Exclusive Artisan Network",
-    body: "60+ studios and craft clusters across India — many of whom don't sell corporate.",
-    icon: "Handshake",
+    title: "Exclusive & local",
+    body: "60+ studios and craft clusters across India.",
+    icon: "/design/why-exclusive-local.png",
+    iconWidth: 60,
+    iconHeight: 60,
   },
   {
-    title: "Dedicated Project Manager",
-    body: "One point of contact from brief to doorstep. No ticket queues, no handoffs.",
-    icon: "UserCheck",
+    title: "Prompt project manager support",
+    body: "One point of contact, from brief to doorstep.",
+    icon: "/design/why-project-manager.png",
+    iconWidth: 60,
+    iconHeight: 60,
   },
   {
-    title: "AvaCare Warranty",
-    body: "Broken, delayed or not as pictured? We replace it — no forms, no follow-ups.",
-    icon: "ShieldCheck",
+    title: "Ava Warranty",
+    body: "Broken, delayed or not as pictured? We replace it.",
+    icon: "/design/why-ava-warranty.png",
+    iconWidth: 60,
+    iconHeight: 60,
   },
 ];
 

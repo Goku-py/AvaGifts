@@ -43,10 +43,15 @@ const toneFocusContext: Partial<Record<SectionTone, string>> = {
 
 type SectionWidth = "standard" | "narrow" | "wide";
 
+/*
+ * Every band in the design is 1280px of content inside 80px gutters on a
+ * 1440 frame. 1360 + the 40px lg padding below reproduces that exactly
+ * (1360 - 80 = 1280 content, and (1440 - 1360) / 2 + 40 = 80 gutters).
+ */
 const containerWidthClasses: Record<SectionWidth, string> = {
-  standard: "max-w-[1200px]",
+  standard: "max-w-[1360px]",
   narrow: "max-w-[720px]",
-  wide: "max-w-[1360px]",
+  wide: "max-w-[1440px]",
 };
 
 /**
@@ -102,7 +107,7 @@ export function Section({
     >
       <div
         className={cn(
-          "mx-auto w-full px-6",
+          "mx-auto w-full px-6 lg:px-10",
           containerWidthClasses[width],
           containerClassName,
         )}
