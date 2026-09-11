@@ -44,12 +44,13 @@ const toneFocusContext: Partial<Record<SectionTone, string>> = {
 type SectionWidth = "standard" | "narrow" | "wide";
 
 /*
- * Every band in the design is 1280px of content inside 80px gutters on a
- * 1440 frame. 1360 + the 40px lg padding below reproduces that exactly
- * (1360 - 80 = 1280 content, and (1440 - 1360) / 2 + 40 = 80 gutters).
+ * Every band in the design is 1280px of content inside responsive gutters:
+ * 20px mobile, 40px tablet (md), 80px desktop (lg).
+ * The container width stays at 1440px and padding provides the gutters:
+ * 1440 - 2×80 = 1280 content at desktop.
  */
 const containerWidthClasses: Record<SectionWidth, string> = {
-  standard: "max-w-[1360px]",
+  standard: "max-w-[1440px]",
   narrow: "max-w-[720px]",
   wide: "max-w-[1440px]",
 };
@@ -58,12 +59,13 @@ const containerWidthClasses: Record<SectionWidth, string> = {
  * Vertical rhythm. Uniform spacing on every band is what makes a page read as
  * templated, so bands opt into a density instead of all sharing one value.
  */
-type SectionDensity = "compact" | "default" | "spacious";
+type SectionDensity = "compact" | "default" | "spacious" | "none";
 
 const densityClasses: Record<SectionDensity, string> = {
   compact: "py-12 sm:py-16 lg:py-20",
   default: "py-16 sm:py-24 lg:py-28",
   spacious: "py-20 sm:py-28 lg:py-40",
+  none: "py-0",
 };
 
 interface SectionProps extends ComponentPropsWithoutRef<"section"> {
@@ -107,7 +109,7 @@ export function Section({
     >
       <div
         className={cn(
-          "mx-auto w-full px-6 lg:px-10",
+          "mx-auto w-full px-5 md:px-10 lg:px-20",
           containerWidthClasses[width],
           containerClassName,
         )}

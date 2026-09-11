@@ -48,7 +48,7 @@ export function Hero() {
       id="top"
       labelledBy="hero-heading"
       tone="white"
-      density="compact"
+      density="none"
       className="overflow-hidden"
       aria-label="Introduction"
     >
