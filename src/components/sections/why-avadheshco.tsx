@@ -4,7 +4,7 @@ import { Section } from "@/components/ui/section";
 import { why, whyPoints } from "@/lib/data";
 import { STAGGER } from "@/lib/motion";
 
-export function WhyAvaGifts() {
+export function WhyAvadheshCo() {
   return (
     <Section
       id="why"

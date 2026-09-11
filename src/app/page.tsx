@@ -6,7 +6,7 @@ import { GiftDiscoveries } from "@/components/sections/gift-discoveries";
 import { Hero } from "@/components/sections/hero";
 import { HowWeExecute } from "@/components/sections/how-we-execute";
 import { TrustedCustomers } from "@/components/sections/trusted";
-import { WhyAvaGifts } from "@/components/sections/why-avagifts";
+import { WhyAvadheshCo } from "@/components/sections/why-avadheshco";
 
 export default function Home() {
   return (
@@ -14,7 +14,7 @@ export default function Home() {
       <Hero />
       <TrustedCustomers />
       <GiftDiscoveries />
-      <WhyAvaGifts />
+      <WhyAvadheshCo />
       <HowWeExecute />
       <AvaAssurance />
       <GiftingBanner />

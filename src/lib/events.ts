@@ -1,4 +1,4 @@
-/** Custom DOM events shared across AvaGifts components. */
+/** Custom DOM events shared across AvadheshCo components. */
 export const CLOSE_CATALOG_EVENT = "avagifts:close-catalog";
 export const OPEN_CATALOG_EVENT = "avagifts:open-catalog";
 
