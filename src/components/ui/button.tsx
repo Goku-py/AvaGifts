@@ -35,7 +35,10 @@ const sizeClasses: Record<ButtonSize, string> = {
 
 function buttonClasses({ variant = "primary", size = "md" }: ButtonStyleProps) {
   return cn(
-    "group inline-flex shrink-0 items-center justify-center rounded-full",
+    /* font-ui = Inter. The design sets content in Jost but every button
+       label in Inter Semi Bold, so the split lives here rather than at
+       each call site. */
+    "group inline-flex shrink-0 items-center justify-center rounded-full font-ui",
     "transition-[background-color,border-color,color,box-shadow,opacity,transform] duration-200 ease-out",
     "disabled:pointer-events-none disabled:opacity-40 disabled:shadow-none motion-reduce:transition-none",
     variantClasses[variant],

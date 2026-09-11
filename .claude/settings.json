@@ -8,7 +8,11 @@
       "Bash(echo \"--- exit: $? ---\")",
       "Bash(grep -Ei \"\\\\.log$|\\\\.env|tsbuildinfo|playwright-mcp|_reference|secret|credential|\\\\.pem$|\\\\.key$\")",
       "Bash(git count-objects *)",
-      "Bash(xargs -0 du -h)"
+      "Bash(xargs -0 du -h)",
+      "Bash(node node_modules/eslint/bin/eslint.js src/components/piku-game src/components/piku-concierge src/components/layout/footer.tsx src/lib/lead-time.ts src/lib/enquiry.ts src/lib/events.ts src/lib/piku-concierge.ts src/components/sections/final-conversion.tsx src/app/layout.tsx)",
+      "Bash(node node_modules/eslint/bin/eslint.js src/components/piku-game)",
+      "Bash(node node_modules/@playwright/test/cli.js test tests/date-validation.spec.ts --reporter=list)",
+      "Bash(git commit -m ' *)"
     ]
   }
 }

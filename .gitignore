@@ -48,3 +48,8 @@ server.log
 .playwright-mcp/
 test-results/
 
+
+# Raw design hand-off from Figma (incl. a Figma.dmg installer and
+# full-resolution stock). Optimised, renamed copies of everything the site
+# actually uses live in public/design/ and ARE committed.
+/src/Design src/

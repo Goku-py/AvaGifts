@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { IBM_Plex_Sans, IBM_Plex_Serif } from "next/font/google";
+import { Inter, Jost } from "next/font/google";
 import { CatalogProvider } from "@/components/catalog/catalog-context";
 import { Footer } from "@/components/layout/footer";
 import { Header } from "@/components/layout/header";
@@ -9,16 +9,23 @@ import { PikuGameProvider } from "@/components/piku-game/piku-game-context";
 import { MotionDefaults } from "@/components/ui/reveal";
 import "./globals.css";
 
-const sans = IBM_Plex_Sans({
+/*
+ * Jost is the primary CONTENT face in the Figma design — section labels,
+ * headlines and body copy are all Jost. Inter is used only for UI controls
+ * (the button label is Inter Semi Bold 14). That split is reflected in the
+ * theme tokens in globals.css: --font-sans/--font-display -> Jost,
+ * --font-ui -> Inter.
+ */
+const sans = Inter({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
-  variable: "--font-plex-sans",
+  variable: "--font-inter",
 });
 
-const serif = IBM_Plex_Serif({
+const display = Jost({
   subsets: ["latin"],
-  weight: ["400", "500", "600"],
-  variable: "--font-plex-serif",
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-jost",
   style: ["normal", "italic"],
 });
 
@@ -35,7 +42,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${sans.variable} ${serif.variable} h-full antialiased`}
+      className={`${sans.variable} ${display.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">
         <MotionDefaults>

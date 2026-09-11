@@ -1,7 +1,15 @@
 import type { ComponentPropsWithoutRef, ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
-type SectionTone = "white" | "surface" | "navy" | "gradient" | "warm";
+type SectionTone =
+  | "white"
+  | "surface"
+  | "navy"
+  | "gradient"
+  | "warm"
+  | "ink"
+  | "ink-deep"
+  | "accent";
 
 const toneClasses: Record<SectionTone, string> = {
   white: "bg-white text-text-primary",
@@ -9,19 +17,28 @@ const toneClasses: Record<SectionTone, string> = {
   navy: "bg-primary text-white",
   gradient: "bg-gradient-primary text-white",
   warm: "bg-gradient-warm text-primary",
+  /* The redesign's black bands. */
+  ink: "bg-ink-850 text-text-on-dark",
+  "ink-deep": "bg-ink-900 text-text-on-dark",
+  /* The yellow logo band. */
+  accent: "bg-accent text-primary",
 };
 
 /**
  * Focus-ring context per tone. The default interactive blue only reads on
  * light, low-chroma backgrounds:
- *  - "dark"  (navy/gradient) → accent gold
- *  - "warm"  (orange→gold)   → navy, since blue on orange is muddy
+ *  - "dark"  (navy/gradient/ink) → accent gold
+ *  - "warm"  (orange→gold)       → navy, since blue on orange is muddy
+ *  - "accent" (solid yellow)     → navy, same reason
  * Everything else keeps the global blue ring.
  */
 const toneFocusContext: Partial<Record<SectionTone, string>> = {
   navy: "dark",
   gradient: "dark",
+  ink: "dark",
+  "ink-deep": "dark",
   warm: "warm",
+  accent: "warm",
 };
 
 type SectionWidth = "standard" | "narrow" | "wide";
