@@ -79,7 +79,7 @@ export function Header() {
         scrolled ? "border-b border-divider" : "border-b border-transparent",
       )}
     >
-      <div className="mx-auto flex h-16 w-full max-w-[1200px] items-center justify-between gap-4 px-6 lg:h-20">
+      <div className="mx-auto flex h-16 w-full max-w-[1440px] items-center justify-between gap-4 px-5 md:px-10 lg:px-20 lg:h-20">
         <a
           href="#top"
           aria-label="AvadheshCo — back to top"

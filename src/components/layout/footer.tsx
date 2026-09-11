@@ -16,7 +16,7 @@ export function Footer() {
       className="font-ui bg-ink-900 text-white"
       aria-label="Site footer"
     >
-      <div className="mx-auto w-full max-w-[1360px] px-6 pt-16 pb-10 lg:px-10 lg:pt-20">
+      <div className="mx-auto w-full max-w-[1440px] px-5 pt-16 pb-10 md:px-10 lg:px-20 lg:pt-20">
         <div className="flex flex-col gap-12 lg:flex-row lg:gap-12">
           <div className="flex w-full flex-col gap-4 lg:w-[300px] lg:shrink-0">
             {/*
