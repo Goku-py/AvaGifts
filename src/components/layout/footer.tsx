@@ -1,91 +1,94 @@
-"use client";
-
 import { Logo } from "@/components/ui/logo";
-import { usePikuGame } from "@/components/piku-game/piku-game-context";
-import { InstagramIcon, LinkedinIcon, TwitterIcon } from "@/components/ui/social-icons";
-import { company, footerColumns, legalLinks, pikuGame } from "@/lib/data";
-
-const SOCIALS = [
-  { label: "AvaGifts on LinkedIn", href: "#", Icon: LinkedinIcon },
-  { label: "AvaGifts on Instagram", href: "#", Icon: InstagramIcon },
-  { label: "AvaGifts on Twitter", href: "#", Icon: TwitterIcon },
-] as const;
+import { company, footerColumns, legalLinks } from "@/lib/data";
 
 export function Footer() {
-  const { openGame } = usePikuGame();
+  const year = new Date().getFullYear();
+
   return (
-    /* data-tone="dark" switches the focus ring to the accent — interactive
-       blue is close to invisible against the navy band. */
-    <footer data-tone="dark" className="bg-primary text-white">
-      <div className="mx-auto w-full max-w-[1200px] px-6 py-16 lg:py-20">
-        <div className="grid gap-12 lg:grid-cols-[1.15fr_2fr] lg:gap-16">
-          <div>
-            <Logo mono className="text-white" />
-            <p className="text-small mt-4 max-w-xs leading-relaxed text-white/70">
-              {company.tagline} Curated, customised and delivered from India’s finest
-              makers.
+    /*
+      `data-tone="dark"` swaps the focus ring to the accent — interactive blue
+      is effectively invisible on #0a0a0a.
+
+      The footer is set entirely in Inter, unlike the Jost content bands.
+    */
+    <footer
+      data-tone="dark"
+      className="font-ui bg-ink-900 text-white"
+      aria-label="Site footer"
+    >
+      <div className="mx-auto w-full max-w-[1360px] px-6 pt-16 pb-10 lg:px-10 lg:pt-20">
+        <div className="flex flex-col gap-12 lg:flex-row lg:gap-12">
+          <div className="flex w-full flex-col gap-4 lg:w-[300px] lg:shrink-0">
+            {/*
+              The design keeps the full-colour lockup on the dark band. Both
+              Figma logo frames are 195x56 around the same padded source, so
+              the visible lockup is the same size here as in the header —
+              hence no size override.
+
+              `self-start` matters: this is a flex column, so the default
+              `align-items: stretch` would widen the `w-auto` image to the
+              column and the fixed height would squash the mark into an
+              ellipse.
+            */}
+            <Logo className="self-start" />
+            <p className="text-[13px] leading-[1.5] text-text-disabled">
+              {company.tagline}
             </p>
           </div>
 
           <nav
             aria-label="Footer"
-            className="grid grid-cols-2 gap-x-8 gap-y-10 sm:grid-cols-4"
+            className="grid flex-1 grid-cols-2 gap-8 sm:grid-cols-4 lg:gap-12"
           >
             {footerColumns.map((column) => (
-              <div key={column.title}>
-                <h3 className="text-caption uppercase tracking-[0.14em] text-white/60">
+              <div key={column.title} className="flex flex-col gap-3">
+                <h2 className="text-[11px] font-bold uppercase text-white">
                   {column.title}
-                </h3>
-                <ul className="mt-4 space-y-2.5">
-                  {column.links.map((link) => (
-                    <li key={link.label}>
-                      <a
-                        href={link.href}
-                        className="text-sm text-white/75 transition-colors duration-200 hover:text-white"
-                      >
-                        {link.label}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
+                </h2>
+                {column.links.map((link) =>
+                  /*
+                    Links without an href render as text, not as anchors that
+                    go nowhere. Visually identical to the design; each becomes
+                    a real link once its page exists.
+                  */
+                  link.href ? (
+                    <a
+                      key={link.label}
+                      href={link.href}
+                      className="w-fit rounded-sm text-[13px] text-text-disabled transition-colors duration-200 hover:text-white"
+                    >
+                      {link.label}
+                    </a>
+                  ) : (
+                    <span
+                      key={link.label}
+                      className="text-[13px] text-text-disabled"
+                    >
+                      {link.label}
+                    </span>
+                  ),
+                )}
               </div>
             ))}
           </nav>
         </div>
 
-        <div className="mt-14 flex flex-col items-start justify-between gap-6 border-t border-white/10 pt-8 sm:flex-row sm:items-center">
-          <p className="text-caption text-white/60">
-            © {new Date().getFullYear()} {company.name} · Crafted with care in India
-          </p>
-          <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
-            {legalLinks.map((link) => (
-              <a
-                key={link.label}
-                href={link.href}
-                className="text-caption text-white/60 transition-colors duration-200 hover:text-white"
-              >
-                {link.label}
-              </a>
-            ))}
-            <button
-              type="button"
-              onClick={openGame}
-              className="text-caption text-white/60 transition-colors duration-200 hover:text-white"
-            >
-              {pikuGame.footerCta}
-            </button>
-          </div>
-          <div className="flex items-center gap-2">
-            {SOCIALS.map(({ label, href, Icon }) => (
-              <a
-                key={label}
-                href={href}
-                aria-label={label}
-                className="inline-flex size-9 items-center justify-center rounded-full text-white/70 transition-colors duration-200 hover:bg-white/10 hover:text-white"
-              >
-                <Icon aria-hidden="true" className="size-4" />
-              </a>
-            ))}
+        <div className="mt-16 flex flex-col gap-4 border-t border-[#e5e7eb] pt-6 text-xs text-white sm:flex-row sm:items-center sm:justify-between">
+          <p>© {year} AvadheshCo. All rights reserved.</p>
+          <div className="flex gap-6">
+            {legalLinks.map((link) =>
+              link.href ? (
+                <a
+                  key={link.label}
+                  href={link.href}
+                  className="rounded-sm transition-colors duration-200 hover:text-text-disabled"
+                >
+                  {link.label}
+                </a>
+              ) : (
+                <span key={link.label}>{link.label}</span>
+              ),
+            )}
           </div>
         </div>
       </div>

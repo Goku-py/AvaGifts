@@ -95,9 +95,19 @@ export interface JournalArticle {
   photoAlt: string;
 }
 
+/**
+ * `href` is optional on purpose. Most of the design's footer links point at
+ * pages that don't exist yet on this single-page site; those render as plain
+ * text rather than as anchors that go nowhere. Add an href as each page ships.
+ */
+export interface FooterLink {
+  label: string;
+  href?: string;
+}
+
 export interface FooterColumn {
   title: string;
-  links: NavLink[];
+  links: FooterLink[];
 }
 
 export interface Stat {
@@ -683,38 +693,33 @@ export const footerColumns: FooterColumn[] = [
     title: "Explore",
     links: [
       { label: "Gifts", href: "#gifts" },
-      { label: "Why AvaGifts", href: "#why" },
-      { label: "Ava Assurance", href: "#assurance" },
+      { label: "Gift by Feeling" },
+      { label: "Gift Guides" },
       { label: "Gifting Journal", href: "#journal" },
     ],
   },
   {
     title: "For Businesses",
     links: [
-      { label: "How It Works", href: "#how-it-works" },
-      { label: "Get a Custom Quote", href: "#contact" },
-      { label: "Need Help Choosing", href: "#help" },
+      { label: "Corporate Gifting" },
+      { label: "Custom Gifting" },
+      { label: "Bulk Orders" },
+      { label: "Project Support" },
     ],
   },
   {
     title: "For Makers",
-    links: [
-      { label: "Made Somewhere", href: "#makers" },
-      { label: "Become a Gifting Partner", href: "#for-makers" },
-    ],
+    links: [{ label: "Become a Gifting Partner" }, { label: "Supplier Stories" }],
   },
   {
     title: "Company",
-    links: [
-      { label: "Contact", href: "#contact" },
-      { label: "hello@avagifts.in", href: "mailto:hello@avagifts.in" },
-    ],
+    links: [{ label: "About" }, { label: "Contact", href: "#contact" }],
   },
 ];
 
-export const legalLinks: NavLink[] = [
-  { label: "Privacy Policy", href: "#" },
-  { label: "Terms of Service", href: "#" },
+export const legalLinks: FooterLink[] = [
+  { label: "Privacy Policy" },
+  { label: "Terms of Service" },
 ];
 
 /* ------------------------------------------------------------------ */
@@ -730,7 +735,8 @@ export const stats: Stat[] = [
 
 export const company = {
   name: "AvaGifts",
-  tagline: "Curated corporate gifting, without the boring part.",
+  tagline:
+    "Curated corporate gifting systems. Empowering local makers through structured brand fulfillment.",
   blurb:
     "Curated corporate gifting, without the boring part. We connect companies with India's finest makers and handle everything from discovery to doorstep.",
   story: [
