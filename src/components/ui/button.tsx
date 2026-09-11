@@ -6,7 +6,13 @@ import { cn } from "@/lib/utils";
 /* Shared styles                                                       */
 /* ------------------------------------------------------------------ */
 
-type ButtonVariant = "primary" | "gradient" | "secondary" | "ghost" | "inverse";
+type ButtonVariant =
+  | "primary"
+  | "gradient"
+  | "secondary"
+  | "ghost"
+  | "inverse"
+  | "ink";
 type ButtonSize = "sm" | "md" | "lg";
 
 interface ButtonStyleProps {
@@ -25,6 +31,10 @@ const variantClasses: Record<ButtonVariant, string> = {
   /* Quiet action on dark / gradient bands. */
   inverse:
     "border border-white/25 bg-transparent text-white hover:border-white/45 hover:bg-white/10 active:translate-y-px",
+  /* The redesign's black pill — primary action on light bands. The hairline
+     border is in the design and keeps the pill's edge legible where it sits
+     on a photo rather than on flat white. */
+  ink: "border-[0.5px] border-ink-800 bg-ink-850 text-white hover:bg-ink-800 active:translate-y-px",
 };
 
 const sizeClasses: Record<ButtonSize, string> = {

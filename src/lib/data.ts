@@ -118,14 +118,19 @@ const UNSPLASH = (id: string) =>
 /* Navigation                                                          */
 /* ------------------------------------------------------------------ */
 
+/*
+ * Mobile-sheet only — the design has no desktop nav. "For Makers" is gone
+ * with the maker sections, so every href here must still resolve to a live
+ * section id on the page.
+ */
 export const navLinks: NavLink[] = [
   { label: "Gifts", href: "#gifts" },
   { label: "How It Works", href: "#how-it-works" },
   { label: "Gifting Journal", href: "#journal" },
-  { label: "For Makers", href: "#for-makers" },
 ];
 
-export const headerCta = "Get a Custom Quote";
+export const headerCta = "Talk to Gift Expert";
+export const catalogCta = "Download Catalogue";
 
 /* ------------------------------------------------------------------ */
 /* Hero                                                                */

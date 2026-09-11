@@ -252,9 +252,9 @@
     font-weight: 500;
   }
 
-  /* Button 16 — sans, medium emphasis */
+  /* Button 14 — the design sets every button label at Inter Semi Bold 14. */
   .text-button {
-    font-size: 1rem;
+    font-size: 0.875rem;
     font-weight: 600;
     letter-spacing: -0.005em;
   }
