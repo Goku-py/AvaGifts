@@ -666,9 +666,10 @@ export const pikuGame = {
 /* ------------------------------------------------------------------ */
 
 export const finalConversion = {
-  eyebrow: "Get started",
-  title: "Tell us what you're gifting. We'll take it from here.",
-  lede: "Share the occasion and we'll come back with a shortlist, samples and a quote — within 48 hours.",
+  /* The design breaks the heading across two lines explicitly. */
+  titleLine1: "Tell us what you're gifting.",
+  titleLine2: "We'll take it from here.",
+  lede: "AvadheshCo handles everything from discovery and curation to sourcing, quality compliance, custom packaging, and end-to-end delivery.",
   quoteCta: "Get a Custom Quote",
   expertCta: "Talk to a Gifting Expert",
 };
