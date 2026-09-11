@@ -87,11 +87,10 @@ export interface MakerStory {
 }
 
 export interface JournalArticle {
+  /** Small label above the title. */
+  eyebrow: string;
   title: string;
-  excerpt: string;
-  category: string;
-  readTime: string;
-  href: string;
+  subtitle: string;
   photo: string;
   photoAlt: string;
 }
@@ -576,42 +575,46 @@ export const makerCta = {
 /* Gifting Journal — draft placeholder articles                        */
 /* ------------------------------------------------------------------ */
 
-export const journal = {
-  eyebrow: "Gifting Journal",
-  title: "Notes from the world of thoughtful gifting.",
+/* The full-bleed banner that introduces the journal. */
+export const giftingBanner = {
+  titleLine1: "The Gifting Journal",
+  titleLine2: "Just for You",
+  /* Figma leaves this as lorem; this is the approved journal lede. */
   lede: "Guides, maker stories and ideas for gifting that lands.",
+  cta: "Get a Custom Quote",
+  image: "/design/banner-gifting-journal.jpg",
+  imageAlt:
+    "Brown paper parcels tied with red and white twine beside an open notebook and fairy lights",
 };
 
+/*
+ * The design's own copy. These are not links — there are no article URLs
+ * yet, and a card-wide `href="#"` would be a focusable control that scrolls
+ * to the top, which is worse than no affordance at all.
+ */
 export const journalArticles: JournalArticle[] = [
   {
-    title: "The corporate gifting guide for busy teams",
-    excerpt:
-      "Budgets, timelines and the etiquette nobody tells you — everything to plan a gifting programme that people remember.",
-    category: "Guides",
-    readTime: "6 min read",
-    href: "#",
-    photo: UNSPLASH("photo-1672256019300-9589d730bedd"),
-    photoAlt: "A leather journal fastened with a metal clasp",
+    eyebrow: "Featured Case",
+    title: "One City. One Gift.",
+    subtitle: "Focusing on local craft initiatives across Jaipur.",
+    photo: "/design/journal-one-city.jpg",
+    photoAlt:
+      "Two people exchanging a small wrapped gift against a city skyline at night",
   },
   {
-    title: "Beyond the dry-fruit box: festive gifting, rethought",
-    excerpt:
-      "Diwali hampers your clients haven't already received — from hand-poured candles to single-estate teas.",
-    category: "Inspiration",
-    readTime: "4 min read",
-    href: "#",
-    photo: UNSPLASH("photo-1551975173-0493fae765d2"),
-    photoAlt: "Stacked glazed clay pots in blue and terracotta",
+    eyebrow: "Featured Partner",
+    title: "Supplier of the Year",
+    subtitle: "Honoring our traditional woodworkers.",
+    photo: "/design/journal-supplier-of-the-year.jpg",
+    photoAlt: "Hands holding a gold star award on a ribbon",
   },
   {
-    title: "How we choose our makers",
-    excerpt:
-      "Inside our vetting process — craft, working conditions and the quiet details that decide who joins the network.",
-    category: "Behind the Scenes",
-    readTime: "5 min read",
-    href: "#",
-    photo: UNSPLASH("photo-1544031089-3ebe8bf549b0"),
-    photoAlt: "An artisan stamping a repeating pattern onto white cloth",
+    eyebrow: "Trend Report",
+    title: "Gifting Trends 2026",
+    subtitle: "Eco-packaging & authentic utility.",
+    photo: "/design/journal-gifting-trends.jpg",
+    photoAlt:
+      "An open gift box with small wrapped presents bursting out against bokeh lights",
   },
 ];
 

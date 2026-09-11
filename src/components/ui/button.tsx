@@ -12,7 +12,8 @@ type ButtonVariant =
   | "secondary"
   | "ghost"
   | "inverse"
-  | "ink";
+  | "ink"
+  | "light";
 type ButtonSize = "sm" | "md" | "lg";
 
 interface ButtonStyleProps {
@@ -35,6 +36,11 @@ const variantClasses: Record<ButtonVariant, string> = {
      border is in the design and keeps the pill's edge legible where it sits
      on a photo rather than on flat white. */
   ink: "border-[0.5px] border-ink-800 bg-ink-850 text-white hover:bg-ink-800 active:translate-y-px",
+  /* The white pill the design uses on photographic dark bands. The subtle
+     top-to-bottom gradient and hairline are what stop it reading as a flat
+     white rectangle over a busy image. */
+  light:
+    "border-[0.75px] border-surface bg-gradient-to-b from-white to-neutral-100 text-ink-850 hover:to-neutral-200 active:translate-y-px",
 };
 
 const sizeClasses: Record<ButtonSize, string> = {
