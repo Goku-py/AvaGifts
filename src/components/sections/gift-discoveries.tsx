@@ -65,10 +65,11 @@ export function GiftDiscoveries() {
                 </div>
                 <div className="flex flex-col gap-2 p-5">
                   {/*
-                    The design's #868e96 measures 3.3:1 on white, under the
-                    4.5:1 this 12px label needs, so it runs one step darker.
+                    #868e96 is the design's value. It measures 3.3:1 on white,
+                    under the 4.5:1 a 12px label needs — flagged, and exact
+                    fidelity was chosen over the contrast bump.
                   */}
-                  <p className="text-xs font-medium capitalize text-neutral-700">
+                  <p className="text-xs font-medium capitalize text-text-muted">
                     {card.eyebrow}
                   </p>
                   <h3 className="text-h6 font-bold text-ink-850">
