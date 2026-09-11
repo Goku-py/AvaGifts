@@ -333,6 +333,55 @@
 }
 
 /* ------------------------------------------------------------------ */
+/* Logo marquee — client band                                          */
+/*                                                                     */
+/* The track renders its children exactly twice and translates by -50%,
+   so the second copy lands precisely where the first began. Animating a
+   percentage of the track rather than a measured pixel width is what
+   makes the loop seamless: there is nothing to measure, so there's no
+   stale getBoundingClientRect and no visible jump when webfonts or
+   images settle. Speed scales with content via --marquee-duration.
+
+   The duplicate copy is aria-hidden in the component, and under reduced
+   motion the component renders a single copy — killing the animation
+   alone would leave a truncated double list sitting still.             */
+/* ------------------------------------------------------------------ */
+
+@keyframes marquee-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.marquee-viewport {
+  overflow: hidden;
+  /* Stops the offscreen half extending the scroll width — an unclipped
+     duplicated track is a classic source of mobile horizontal scroll. */
+  contain: paint;
+}
+
+.marquee-track {
+  display: flex;
+  align-items: center;
+  width: max-content;
+  animation: marquee-scroll var(--marquee-duration, 40s) linear infinite;
+}
+
+.marquee-viewport:hover .marquee-track,
+.marquee-viewport:focus-within .marquee-track {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track {
+    animation: none;
+  }
+}
+
+/* ------------------------------------------------------------------ */
 /* Piku ambient life — compositor-only loops (transform/opacity).      */
 /* Durations/phases are overridden per-use via inline animationDelay   */
 /* or [animation-duration:...]. All go static under reduced motion.    */

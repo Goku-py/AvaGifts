@@ -1,4 +1,3 @@
-import type { ClientLogoName } from "@/components/ui/client-logos";
 import type { IconName } from "@/lib/icons";
 import type { ConciergeStep } from "@/lib/piku-concierge";
 
@@ -26,10 +25,11 @@ export interface HeroVisualCard {
 
 export interface TrustedCustomer {
   name: string;
-  since: string;
-  sector: string;
-  /** Key into the placeholder mark registry in ui/client-logos.tsx. */
-  logo: ClientLogoName;
+  /** Logo artwork in public/design/. */
+  logo: string;
+  /** Intrinsic size of the logo file, so next/image can reserve space. */
+  width: number;
+  height: number;
 }
 
 export interface Category {
@@ -177,38 +177,29 @@ export const hero = {
 /* ------------------------------------------------------------------ */
 
 /*
- * DRAFT — placeholder client names.
+ * TEMPORARY client logos.
  *
- * These are deliberately generic stand-ins. Do NOT substitute real company
- * names or logos until the client relationship is confirmed and permission to
- * use the mark is on file. The `logo` key points at our own placeholder
- * artwork in ui/client-logos.tsx — swap that for the supplied brand asset at
- * the same time you swap the name.
+ * These are real, identifiable brands taken from the Figma design and are
+ * placeholders for this build only — the final client list is confirmed at
+ * production. Displaying a company's mark on a public site is a claim about
+ * a client relationship, so before launch each one must either be replaced
+ * or have written permission on file.
+ *
+ * `name` is the accessible name for the logo image; keep it matching the
+ * artwork.
  */
 export const trusted = {
-  eyebrow: "Trusted by teams like yours",
-  title: "The clients who gift with us keep coming back.",
-  lede: "Repeat customers across tech, consumer and consulting — year after year, brief after brief.",
+  title: "Some companies don't gift with us just once.",
+  lede: "They come back when the next gifting moment arrives.",
   customers: [
-    {
-      name: "Northwind Technologies",
-      since: "2021",
-      sector: "Enterprise software",
-      logo: "northwind",
-    },
-    {
-      name: "Meridian Consulting",
-      since: "2022",
-      sector: "Management consulting",
-      logo: "meridian",
-    },
-    { name: "Lumen Health", since: "2023", sector: "Healthcare", logo: "lumen" },
-    {
-      name: "Kestrel Retail Group",
-      since: "2024",
-      sector: "Consumer retail",
-      logo: "kestrel",
-    },
+    { name: "Arvind Store", logo: "/design/client-1-arvind.png", width: 280, height: 280 },
+    { name: "Ashirvad by Aliaxis", logo: "/design/client-2-ashirvad.png", width: 280, height: 150 },
+    { name: "Cakeezyy", logo: "/design/client-3-cakeezyy.png", width: 280, height: 280 },
+    { name: "bigbasket", logo: "/design/client-4-bigbasket.png", width: 280, height: 101 },
+    { name: "henlo", logo: "/design/client-5-henlo.png", width: 280, height: 170 },
+    { name: "Instamart", logo: "/design/client-6-instamart.png", width: 280, height: 280 },
+    { name: "FirstClub", logo: "/design/client-7-firstclub.png", width: 280, height: 136 },
+    { name: "Shadowfax", logo: "/design/client-8-shadowfax.png", width: 280, height: 106 },
   ] as TrustedCustomer[],
 };
 
