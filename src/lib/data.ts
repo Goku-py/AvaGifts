@@ -212,10 +212,63 @@ export const trusted = {
 /* Gift Discoveries                                                    */
 /* ------------------------------------------------------------------ */
 
+export interface DiscoveryCard {
+  /** Small label above the title. */
+  eyebrow: string;
+  title: string;
+  image: string;
+  alt: string;
+}
+
+/*
+ * TEMPORARY IMAGERY — the Figma frame only has four product photographs and
+ * reuses two of them across the six cards, so "Best Personalised Gift" and
+ * "Best Experience Gift" currently repeat the shots above them. Swap in the
+ * real category photography before launch.
+ */
 export const discoveries = {
-  eyebrow: "Gift Discoveries",
-  title: "Gifts they'll actually keep.",
-  lede: "A shortlist of pieces our clients reorder — maker-made, brandable and delivered gift-ready. Filter by what matters to you.",
+  title: "Gift Discoveries",
+  /* Figma sets lorem here; this is the approved lede, minus its old closing
+     line about filtering — the redesign has no filter chips. */
+  lede: "A shortlist of pieces our clients reorder — maker-made, brandable and delivered gift-ready.",
+  cards: [
+    {
+      eyebrow: "Selected Pick",
+      title: "Gift of the Month",
+      image: "/design/discovery-tech-accessories.png",
+      alt: "Headphones, a smartwatch, earbuds and phone accessories arranged together",
+    },
+    {
+      eyebrow: "Budget Curation",
+      title: "Best Gifts Under ₹1,000",
+      image: "/design/discovery-desk-tech.png",
+      alt: "A compact keyboard, mouse, power bank, desk clock and charging hub",
+    },
+    {
+      eyebrow: "Executive Range",
+      title: "Best CXO Gifts",
+      image: "/design/discovery-home-appliances.png",
+      alt: "A portable blender, air purifier, handheld vacuum and ambient lamp",
+    },
+    {
+      eyebrow: "Regional Heritage",
+      title: "Best Local Discovery",
+      image: "/design/discovery-personal-care.png",
+      alt: "A hair dryer, humidifier, handheld vacuum and scented lamp",
+    },
+    {
+      eyebrow: "Custom Craft",
+      title: "Best Personalised Gift",
+      image: "/design/discovery-home-appliances.png",
+      alt: "A portable blender, air purifier, handheld vacuum and ambient lamp",
+    },
+    {
+      eyebrow: "Memories & Events",
+      title: "Best Experience Gift",
+      image: "/design/discovery-desk-tech.png",
+      alt: "A compact keyboard, mouse, power bank, desk clock and charging hub",
+    },
+  ] satisfies DiscoveryCard[],
 };
 
 export const categories: Category[] = [

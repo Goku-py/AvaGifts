@@ -252,6 +252,20 @@
     font-weight: 500;
   }
 
+  /*
+   * Band heading 52 → 32 — Jost Medium. The redesign sets every section
+   * heading at this one size and weight (Gift Discoveries, the trusted band,
+   * Why AvadheshCo), which is lighter and larger than `.text-h2`. The clamp
+   * scales it down proportionally so the mobile hierarchy matches desktop.
+   */
+  .text-section-title {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 1.35rem + 2.2vw, 3.25rem);
+    line-height: 1.185;
+    letter-spacing: -0.015em;
+    font-weight: 500;
+  }
+
   /* Button 14 — the design sets every button label at Inter Semi Bold 14. */
   .text-button {
     font-size: 0.875rem;

@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" fill="none" stroke-miterlimit="10">
+  <g transform="translate(2.344 39.997) scale(1 -1)">
+    <g id="g291">
+    <g id="g297">
+    <path id="path299" d="M15.3906 3.51562H1.17187V24.6094" stroke="#CED4DA" stroke-width="2.34375" stroke-miterlimit="10"/>
+    </g>
+    <g id="g301">
+    <path id="path303" d="M15.3906 18.75V31.7969L21.0476 37.7366C21.6878 38.4091 22.592 38.8281 23.5937 38.8281C25.5354 38.8281 27.1094 37.2541 27.1094 35.3125C27.1094 33.3709 25.5354 31.7969 23.5937 31.7969" stroke="#CED4DA" stroke-width="2.34375" stroke-miterlimit="10"/>
+    </g>
+    <g id="g305">
+    <path id="path307" d="M7.1875 31.7968C5.24586 31.7968 3.67187 33.3708 3.67187 35.3124C3.67187 37.2541 5.24586 38.8281 7.1875 38.8281C8.1893 38.8281 9.09336 38.409 9.73367 37.7367L15.3906 31.7968" stroke="#CED4DA" stroke-width="2.34375" stroke-miterlimit="10"/>
+    </g>
+    <path id="path309" d="M36.4844 8.20312H13.0469V12.8906H36.4844V8.20312Z" stroke="#CED4DA" stroke-width="2.34375" stroke-miterlimit="10"/>
+    <g id="g311">
+    <path id="path313" d="M24.7656 4.6875V12.8906L21.9544 16.6392C21.5268 17.2093 20.8455 17.5781 20.0781 17.5781C18.7837 17.5781 17.7344 16.5287 17.7344 15.2344C17.7344 13.9399 18.7837 12.8906 20.0781 12.8906" stroke="#CED4DA" stroke-width="2.34375" stroke-miterlimit="10"/>
+    </g>
+    <g id="g315">
+    <path id="path317" d="M24.7656 12.8906L27.5769 16.6392C28.0045 17.2093 28.6857 17.5781 29.4531 17.5781C30.7475 17.5781 31.7969 16.5288 31.7969 15.2344C31.7969 13.9399 30.7475 12.8906 29.4531 12.8906" stroke="#CED4DA" stroke-width="2.34375" stroke-miterlimit="10"/>
+    </g>
+    <g id="g319">
+    <path id="path321" d="M34.1406 8.20312V1.17187H15.3906V8.20312" stroke="#CED4DA" stroke-width="2.34375" stroke-miterlimit="10"/>
+    </g>
+    </g>
+  </g>
+  <g transform="translate(0.002 16.559) scale(1 -1)">
+    <g id="g277">
+    <path id="path283" d="M34.1406 1.17187H1.17187V8.35937H34.1406V1.17187Z" stroke="#CED4DA" stroke-width="2.34375" stroke-miterlimit="10"/>
+    </g>
+  </g>
+  <g transform="translate(30.626 22.419) scale(1 -1)">
+    <g id="g285">
+    <path id="path287" d="M1.17187 7.03126V9.39002e-06" stroke="#CED4DA" stroke-width="2.34375" stroke-miterlimit="10"/>
+    </g>
+  </g>
+</svg>
