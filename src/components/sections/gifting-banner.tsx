@@ -25,7 +25,9 @@ export function GiftingBanner() {
       tone="ink-deep"
       width="wide"
       className="relative overflow-hidden py-0"
-      containerClassName="max-w-none px-0 lg:px-0"
+      /* Every breakpoint's gutter must be zeroed: Section sets px-5 md:px-10
+         lg:px-20, and an unmatched variant would inset the full-bleed photo. */
+      containerClassName="max-w-none px-0 md:px-0 lg:px-0"
     >
       <div className="relative flex min-h-[420px] items-center sm:min-h-[500px] lg:aspect-[1440/580] lg:min-h-0">
         <Image

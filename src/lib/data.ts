@@ -1,16 +1,3 @@
-import type { IconName } from "@/lib/icons";
-import type { ConciergeStep } from "@/lib/piku-concierge";
-
-/* ------------------------------------------------------------------ */
-/* Types                                                               */
-/* ------------------------------------------------------------------ */
-
-export type ProductTag =
-  | "Local"
-  | "Personalised"
-  | "Premium"
-  | "Sustainable";
-
 export interface NavLink {
   label: string;
   href: string;
@@ -30,24 +17,6 @@ export interface TrustedCustomer {
   /** Intrinsic size of the logo file, so next/image can reserve space. */
   width: number;
   height: number;
-}
-
-export interface Category {
-  slug: string;
-  title: string;
-  blurb: string;
-  icon: IconName;
-  productCount: number;
-}
-
-export interface Product {
-  id: string;
-  name: string;
-  category: string;
-  tags: ProductTag[];
-  blurb: string;
-  photo: string;
-  photoAlt: string;
 }
 
 export interface WhyPoint {
@@ -75,17 +44,6 @@ export interface AssurancePoint {
   icon: string;
 }
 
-export interface MakerStory {
-  eyebrow: string;
-  title: string;
-  location: string;
-  craft: string;
-  paragraphs: string[];
-  quote: string;
-  photo: string;
-  photoAlt: string;
-}
-
 export interface JournalArticle {
   /** Small label above the title. */
   eyebrow: string;
@@ -110,11 +68,6 @@ export interface FooterColumn {
   links: FooterLink[];
 }
 
-export interface Stat {
-  value: string;
-  label: string;
-}
-
 /* ------------------------------------------------------------------ */
 /* Photography — draft stock, replace with brand assets.               */
 /*                                                                     */
@@ -126,12 +79,6 @@ export interface Stat {
 /*                                                                     */
 /* Art direction: warm neutrals, craft materials, daylight. Avoid      */
 /* saturated party colours — they fight the navy/blue palette.         */
-/* ------------------------------------------------------------------ */
-
-const UNSPLASH = (id: string) =>
-  `https://images.unsplash.com/${id}?q=80&w=1200&auto=format&fit=crop`;
-
-/* ------------------------------------------------------------------ */
 /* Navigation                                                          */
 /* ------------------------------------------------------------------ */
 
@@ -148,10 +95,6 @@ export const navLinks: NavLink[] = [
 
 export const headerCta = "Talk to Gift Expert";
 export const catalogCta = "Download Catalogue";
-
-/* ------------------------------------------------------------------ */
-/* Hero                                                                */
-/* ------------------------------------------------------------------ */
 
 export const hero = {
   eyebrow: "India's Premier B2B Platform",
@@ -194,10 +137,6 @@ export const hero = {
   ] as HeroVisualCard[],
 };
 
-/* ------------------------------------------------------------------ */
-/* Trusted customers                                                   */
-/* ------------------------------------------------------------------ */
-
 /*
  * TEMPORARY client logos.
  *
@@ -224,10 +163,6 @@ export const trusted = {
     { name: "Shadowfax", logo: "/design/client-8-shadowfax.png", width: 280, height: 106 },
   ] as TrustedCustomer[],
 };
-
-/* ------------------------------------------------------------------ */
-/* Gift Discoveries                                                    */
-/* ------------------------------------------------------------------ */
 
 export interface DiscoveryCard {
   /** Small label above the title. */
@@ -288,136 +223,6 @@ export const discoveries = {
   ] satisfies DiscoveryCard[],
 };
 
-export const categories: Category[] = [
-  {
-    slug: "employee-appreciation",
-    title: "Employee Appreciation",
-    blurb:
-      "Everyday recognition that lands — work anniversaries, milestone thanks and team wins, wrapped beautifully.",
-    icon: "Gift",
-    productCount: 48,
-  },
-  {
-    slug: "client-cxo",
-    title: "Client & CXO",
-    blurb:
-      "Boardroom-grade gifts that open doors and keep them open. Quietly premium, never forgettable.",
-    icon: "Briefcase",
-    productCount: 36,
-  },
-  {
-    slug: "festive-diwali",
-    title: "Festive & Diwali",
-    blurb:
-      "Hamper season, handled — artisan mithai tins, hand-poured candles and handloom textiles.",
-    icon: "Flame",
-    productCount: 52,
-  },
-  {
-    slug: "new-joiner-kits",
-    title: "New Joiner Kits",
-    blurb:
-      "Day-one welcome kits new hires actually keep — useful, branded and boxed with care.",
-    icon: "Package",
-    productCount: 24,
-  },
-  {
-    slug: "corporate-events",
-    title: "Corporate Events",
-    blurb:
-      "Speaker gifts, attendee kits and stage-ready swag — minus the landfill.",
-    icon: "PartyPopper",
-    productCount: 31,
-  },
-  {
-    slug: "custom-bespoke",
-    title: "Custom & Bespoke",
-    blurb:
-      "One brief in, a fully bespoke gift programme out. Designed with our makers, end to end.",
-    icon: "PenTool",
-    productCount: 18,
-  },
-];
-
-export const featuredProducts: Product[] = [
-  {
-    id: "blue-pottery-desk-set",
-    name: "Blue Pottery Desk Set",
-    category: "Client & CXO",
-    tags: ["Premium", "Local"],
-    blurb: "Hand-glazed Jaipur blue pottery — pen stand, coaster pair and card holder.",
-    photo: UNSPLASH("photo-1760124056943-eb64936d3d2a"),
-    photoAlt: "Bowls hand-painted in cobalt blue and white, stacked in a row",
-  },
-  {
-    id: "soy-wax-candle-trio",
-    name: "Soy Wax Candle Trio",
-    category: "Festive & Diwali",
-    tags: ["Local", "Sustainable"],
-    blurb: "Three hand-poured candles — sandalwood, oud and neroli — in reusable tins.",
-    photo: UNSPLASH("photo-1603006905003-be475563bc59"),
-    photoAlt: "A lit candle burning in a frosted glass tumbler",
-  },
-  {
-    id: "artisanal-leather-journal",
-    name: "Artisanal Leather Journal",
-    category: "Custom & Bespoke",
-    tags: ["Personalised", "Premium"],
-    blurb: "Full-grain leather, hand-stitched in Rajasthan and foil-monogrammed with your mark.",
-    photo: UNSPLASH("photo-1639371040157-55b642d03f4f"),
-    photoAlt: "A leather-bound journal closed with a wrap-around tie",
-  },
-  {
-    id: "brass-planter-duo",
-    name: "Brass Planter Duo",
-    category: "Employee Appreciation",
-    tags: ["Local"],
-    blurb: "Hand-cast brass planters with a live jade and snake-plant pairing.",
-    photo: UNSPLASH("photo-1502920873987-ac48e660a95d"),
-    photoAlt: "A leafy plant in a brass planter on a white desk",
-  },
-  {
-    id: "cashmere-travel-wrap",
-    name: "Cashmere Travel Wrap",
-    category: "Client & CXO",
-    tags: ["Premium"],
-    blurb: "Featherweight cashmere blend, rolled into a ribbon-tied gift tube.",
-    photo: UNSPLASH("photo-1734553529922-bc020a21643b"),
-    photoAlt: "Woven throws folded and stacked in mustard and cream",
-  },
-  {
-    id: "tea-connoisseur-chest",
-    name: "Tea Connoisseur Chest",
-    category: "Festive & Diwali",
-    tags: ["Premium"],
-    blurb: "Eight single-estate teas with a double-walled glass brewer.",
-    photo: UNSPLASH("photo-1610112278819-069287c86d03"),
-    photoAlt: "A tea caddy with a painted floral lid",
-  },
-  {
-    id: "recycled-cork-desk-mat",
-    name: "Recycled Cork Desk Mat",
-    category: "New Joiner Kits",
-    tags: ["Sustainable"],
-    blurb: "Cork-and-rubber desk mat, laser-etched with your logo or their initials.",
-    photo: UNSPLASH("photo-1641247565151-fe622e1067d0"),
-    photoAlt: "A tidy desk with a natural-finish desk mat, phone and glasses",
-  },
-  {
-    id: "mysore-silk-stole",
-    name: "Mysore Silk Stole",
-    category: "Corporate Events",
-    tags: ["Local", "Premium"],
-    blurb: "Handloom silk stoles, gift-ready in a screen-printed cotton sleeve.",
-    photo: UNSPLASH("photo-1676696706907-0e04665b80bd"),
-    photoAlt: "Teal silk falling in soft, lustrous folds",
-  },
-];
-
-/* ------------------------------------------------------------------ */
-/* Why AvaGifts                                                        */
-/* ------------------------------------------------------------------ */
-
 export const why = {
   title: "Why AvadheshCo",
   lede: "We are not just a catalogue. We are a curation and execution partner that helps you find the right gift, customise it, and deliver it with a human touch.",
@@ -477,10 +282,6 @@ export const whyPoints: WhyPoint[] = [
   },
 ];
 
-/* ------------------------------------------------------------------ */
-/* How We Execute                                                      */
-/* ------------------------------------------------------------------ */
-
 export const howWeExecute = {
   title: "How AvadheshCo Works",
   /* Figma leaves this as lorem; this is the approved vendor message. */
@@ -519,10 +320,6 @@ export const processSteps: ProcessStep[] = [
   },
 ];
 
-/* ------------------------------------------------------------------ */
-/* Ava Assurance                                                       */
-/* ------------------------------------------------------------------ */
-
 /*
  * The hero artwork still carries "AvaGifts" branding baked into the image —
  * it needs re-exporting with the AvadheshCo lockup before launch.
@@ -552,39 +349,7 @@ export const assurance = {
   ] satisfies AssurancePoint[],
 };
 
-/* ------------------------------------------------------------------ */
-/* Made Somewhere — maker story                                        */
-/* ------------------------------------------------------------------ */
-
 /* Draft narrative — swap for the commissioned maker story when final. */
-export const makerStory: MakerStory = {
-  eyebrow: "Made Somewhere",
-  title: "Meet Radhika, block printer.",
-  location: "Jaipur, Rajasthan",
-  craft: "Hand block printing",
-  paragraphs: [
-    "Radhika learned block printing at her family's workshop in Sanganer, where the wooden blocks are carved by hand and the indigo vats are older than she is. Today she runs her own studio with nine artisans, printing table linens and gift textiles for studios across three continents.",
-    "Every AvaGifts textile in her collection is printed to order — which is why no two gift runs are ever quite identical. \"A gift should feel chosen, not ordered,\" she says. We agree.",
-  ],
-  quote: "A gift should feel chosen, not ordered.",
-  photo: UNSPLASH("photo-1748327219221-8c56726d6f75"),
-  photoAlt: "An artisan pressing a carved block onto patterned cloth",
-};
-
-/* ------------------------------------------------------------------ */
-/* Maker CTA                                                           */
-/* ------------------------------------------------------------------ */
-
-export const makerCta = {
-  title: "Are you a maker?",
-  body: "We're always looking for studios and craft clusters who want corporate clients — without losing what makes their work theirs.",
-  cta: "Become a Gifting Partner",
-};
-
-/* ------------------------------------------------------------------ */
-/* Gifting Journal — draft placeholder articles                        */
-/* ------------------------------------------------------------------ */
-
 /* The full-bleed banner that introduces the journal. */
 export const giftingBanner = {
   titleLine1: "The Gifting Journal",
@@ -628,53 +393,6 @@ export const journalArticles: JournalArticle[] = [
   },
 ];
 
-/* ------------------------------------------------------------------ */
-/* Need Help Choosing                                                  */
-/* ------------------------------------------------------------------ */
-
-export const helpChoosing = {
-  title: "Need help choosing?",
-  body: "Tell Piku what you're looking for — occasion, audience, budget — and we'll curate the options for you. Prefer to write it out? Send a brief straight to the team.",
-  primaryCta: "Help Me Choose",
-  /** undefined = open the concierge at the start of the conversation. */
-  primaryStep: undefined,
-  secondaryCta: "Send a Gifting Brief",
-  /** Deep-links past the guided questions to the written-brief step. */
-  secondaryStep: "brief",
-  briefCardTitle: "Send a Gifting Brief",
-  briefCardBody:
-    "Know exactly what you need? Skip the chat and send your requirements straight to our gifting team.",
-  briefCardCta: "Submit Brief",
-  briefCardStep: "contact",
-} satisfies {
-  title: string;
-  body: string;
-  primaryCta: string;
-  primaryStep: ConciergeStep | undefined;
-  secondaryCta: string;
-  secondaryStep: ConciergeStep;
-  briefCardTitle: string;
-  briefCardBody: string;
-  briefCardCta: string;
-  briefCardStep: ConciergeStep;
-};
-
-/* ------------------------------------------------------------------ */
-/* Piku mini-game — quiet, optional entry points                       */
-/* ------------------------------------------------------------------ */
-
-export const pikuGame = {
-  /** Small subordinate link under the concierge section's primary CTAs. */
-  entryPrompt: "Prefer to play instead?",
-  entryCta: "Take a quick break with Piku",
-  /** Footer link, alongside the legal links. */
-  footerCta: "Play with Piku",
-};
-
-/* ------------------------------------------------------------------ */
-/* Final conversion                                                    */
-/* ------------------------------------------------------------------ */
-
 export const finalConversion = {
   /* The design breaks the heading across two lines explicitly. */
   titleLine1: "Tell us what you're gifting.",
@@ -683,10 +401,6 @@ export const finalConversion = {
   quoteCta: "Get a Custom Quote",
   expertCta: "Talk to a Gifting Expert",
 };
-
-/* ------------------------------------------------------------------ */
-/* Footer                                                              */
-/* ------------------------------------------------------------------ */
 
 export const footerColumns: FooterColumn[] = [
   {
@@ -720,17 +434,6 @@ export const footerColumns: FooterColumn[] = [
 export const legalLinks: FooterLink[] = [
   { label: "Privacy Policy" },
   { label: "Terms of Service" },
-];
-
-/* ------------------------------------------------------------------ */
-/* Stats + company (existing content)                                  */
-/* ------------------------------------------------------------------ */
-
-export const stats: Stat[] = [
-  { value: "1,200+", label: "Gifts delivered" },
-  { value: "48-hr", label: "Quote turnaround" },
-  { value: "60+", label: "Artisan partners" },
-  { value: "4.9★", label: "Client rating" },
 ];
 
 export const company = {

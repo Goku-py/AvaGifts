@@ -5,9 +5,6 @@ import { GiftingJournal } from "@/components/sections/gifting-journal";
 import { GiftDiscoveries } from "@/components/sections/gift-discoveries";
 import { Hero } from "@/components/sections/hero";
 import { HowWeExecute } from "@/components/sections/how-we-execute";
-import { MakerCta } from "@/components/sections/maker-cta";
-import { MadeSomewhere } from "@/components/sections/made-somewhere";
-import { NeedHelpChoosing } from "@/components/piku-concierge";
 import { TrustedCustomers } from "@/components/sections/trusted";
 import { WhyAvaGifts } from "@/components/sections/why-avagifts";
 
@@ -20,11 +17,8 @@ export default function Home() {
       <WhyAvaGifts />
       <HowWeExecute />
       <AvaAssurance />
-      <MadeSomewhere />
-      <MakerCta />
       <GiftingBanner />
       <GiftingJournal />
-      <NeedHelpChoosing />
       <FinalConversion />
     </>
   );
