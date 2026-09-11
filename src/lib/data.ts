@@ -68,10 +68,11 @@ export interface ProcessStep {
   imageAlt: string;
 }
 
-export interface LifecycleStage {
+export interface AssurancePoint {
   title: string;
   body: string;
-  icon: IconName;
+  /** Path to the exported 40px icon. */
+  icon: string;
 }
 
 export interface MakerStory {
@@ -513,34 +514,33 @@ export const processSteps: ProcessStep[] = [
 /* Ava Assurance                                                       */
 /* ------------------------------------------------------------------ */
 
+/*
+ * The hero artwork still carries "AvaGifts" branding baked into the image —
+ * it needs re-exporting with the AvadheshCo lockup before launch.
+ */
 export const assurance = {
-  eyebrow: "Ava Assurance",
-  title: "Gifting, backed by AvaGifts.",
-  lede: "An official guarantee that travels with every gift — from the maker's bench to your recipient's desk.",
-  badgeTitle: "AvaCare Warranty",
-  badgeBody: "Official guarantee on every order",
-  stages: [
+  title: "Gifting, backed by AvadheshCo.",
+  lede: "From sourcing to delivery, your gifting project has a team behind it.",
+  image: "/design/assurance-hero.png",
+  imageAlt:
+    "Piku holding an Ava Assurance card listing quality checks, personalisation and support",
+  points: [
     {
-      title: "Responsibly sourced",
-      body: "Direct from 60+ vetted artisan studios and craft clusters.",
-      icon: "Handshake" as IconName,
+      title: "CURATED",
+      body: "Products selected for the requirement.",
+      icon: "/design/assurance-curated.png",
     },
     {
-      title: "Inspected piece by piece",
-      body: "Every unit checked, cleaned and gift-wrapped by hand.",
-      icon: "ShieldCheck" as IconName,
+      title: "QUALITY CHECKED",
+      body: "Gifts goes through the required quality process.",
+      icon: "/design/assurance-quality-checked.png",
     },
     {
-      title: "Branded & proofed",
-      body: "Your branding proofed with you before anything prints.",
-      icon: "Palette" as IconName,
+      title: "SUPPORTED",
+      body: "AvadheshCo remains available after the order.",
+      icon: "/design/assurance-supported.png",
     },
-    {
-      title: "Delivered & tracked",
-      body: "Multi-city drops with tracking and proof of delivery.",
-      icon: "Package" as IconName,
-    },
-  ],
+  ] satisfies AssurancePoint[],
 };
 
 /* ------------------------------------------------------------------ */
