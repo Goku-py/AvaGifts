@@ -24,7 +24,11 @@ export function GiftingBanner() {
       labelledBy="gifting-banner-heading"
       tone="ink-deep"
       width="wide"
-      className="relative overflow-hidden py-0"
+      /* `density="none"`, not `py-0` in className: a bare `py-0` only beats
+         the density's base value, leaving its sm: and lg: variants to add
+         112px of band above and below the full-bleed photo. */
+      density="none"
+      className="relative overflow-hidden"
       /* Every breakpoint's gutter must be zeroed: Section sets px-5 md:px-10
          lg:px-20, and an unmatched variant would inset the full-bleed photo. */
       containerClassName="max-w-none px-0 md:px-0 lg:px-0"
