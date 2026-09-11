@@ -67,7 +67,7 @@ const PROUD_QUIPS = [
   "Spot-on choice — your clients will love it!",
   "That's corporate gifting done right.",
   "Premium pick — well chosen!",
-  "AvaGifts corporate — approved!",
+  "AvadheshCo corporate — approved!",
 ] as const;
 
 const NERVOUS_QUIPS = [
@@ -93,7 +93,7 @@ const HINTS: Record<string, string> = {
   catalog: "Psst — our corporate catalog has curated premium collections.",
   contact: "Need bulk pricing or custom branding? We reply within 48h.",
   featured: "Corporate favorites — trusted by 1,200+ brands!",
-  why: "Here's why 1,200+ companies trust AvaGifts for corporate gifting.",
+  why: "Here's why 1,200+ companies trust AvadheshCo for corporate gifting.",
 };
 
 const ANCHORS: readonly PikuAnchor[] = [

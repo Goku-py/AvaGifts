@@ -437,7 +437,7 @@ export const legalLinks: FooterLink[] = [
 ];
 
 export const company = {
-  name: "AvaGifts",
+  name: "AvadheshCo",
   tagline:
     "Curated corporate gifting systems. Empowering local makers through structured brand fulfillment.",
   blurb:

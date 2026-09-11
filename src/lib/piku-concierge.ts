@@ -256,7 +256,7 @@ export function conciergeSummaryLines(answers: ConciergeAnswers): string[] {
 
 export function buildWhatsAppMessage(answers: ConciergeAnswers): string {
   const detail = conciergeSummaryLines(answers);
-  const header = "Hi AvaGifts team! Piku helped me put together my gifting brief.";
+  const header = "Hi AvadheshCo team! Piku helped me put together my gifting brief.";
   if (detail.length === 0)
     return `${header} I'd like some help with corporate gifting.`;
   return `${header}\n\n${detail.map((line) => `• ${line}`).join("\n")}`;

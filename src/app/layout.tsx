@@ -31,11 +31,11 @@ const display = Jost({
 
 export const metadata: Metadata = {
   title: {
-    default: "AvaGifts — Corporate gifting, curated",
-    template: "%s — AvaGifts",
+    default: "AvadheshCo — Corporate gifting, curated",
+    template: "%s — AvadheshCo",
   },
   description:
-    "AvaGifts curates, customises and delivers premium gifts from India’s finest makers — for teams, clients and the moments that matter.",
+    "AvadheshCo curates, customises and delivers premium gifts from India’s finest makers — for teams, clients and the moments that matter.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

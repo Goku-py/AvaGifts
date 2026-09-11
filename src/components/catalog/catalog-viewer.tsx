@@ -28,7 +28,7 @@ import { CLOSE_CATALOG_EVENT } from "@/lib/events";
 import type { SizeType } from "page-flip";
 
 /* ------------------------------------------------------------------ */
-/* AvaGifts — Flipbook catalog viewer                                  */
+/* AvadheshCo — Flipbook catalog viewer                                  */
 /*                                                                     */
 /* Renders `public/catalog/avagifts-catalog.pdf` as a realistic        */
 /* page-turning book (StPageFlip) with pages rasterised by pdf.js.     */
@@ -350,14 +350,14 @@ export default function CatalogViewer() {
       ref={overlayRef}
       role="dialog"
       aria-modal="true"
-      aria-label="AvaGifts product catalog"
+      aria-label="AvadheshCo product catalog"
       data-tone="dark"
       className="fixed inset-0 z-[90] flex flex-col bg-primary/92 backdrop-blur-md"
     >
       {/* Top bar */}
       <div className="flex items-center justify-between gap-3 px-4 py-3 text-white sm:px-6">
         <p className="font-display text-sm tracking-wide sm:text-base">
-          AvaGifts <span className="hidden text-white/60 sm:inline">· Catalog 2026</span>
+          AvadheshCo <span className="hidden text-white/60 sm:inline">· Catalog 2026</span>
         </p>
 
         <div className="flex items-center gap-1.5">
