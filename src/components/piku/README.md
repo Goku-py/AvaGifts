@@ -1,42 +1,59 @@
-# Piku — the AvaGifts penguin guide
+# Piku — the AvadheshCo chat launcher
 
-Piku is a friendly, flat 2D penguin mascot (Duolingo-style) who floats over the site and reacts with organic, living motion. **This folder is fully modular** — it imports nothing outside itself (only `react`), so it can be developed, restyled or removed independently.
+Piku is the floating chat assistant in the bottom-right corner. He is a
+**rendered image, and he never walks**: the motion is the breath baked into
+the image plus a CSS idle bob and a JS-scheduled blink, the speech bubble, and
+a puff of hearts when he is clicked. Clicking him opens the gifting concierge
+beside him.
 
 ## Files
 
-| File              | Role                                                                  |
-| ----------------- | --------------------------------------------------------------------- |
-| `piku.tsx`        | Root widget. Mount once near the end of `<body>`. No props. Central RAF writes `--rx/--ry/--rz/--pupil-*/--scarf-*/--shadow-*`. |
-| `piku-sprite.tsx` | Flat 2D SVG sprite. Pure presentational — `emotion` drives face. Simple depth layers, solid fills, office dress (blue shirt, yellow tie, glasses). |
-| `use-piku-brain.ts` | Autonomy engine: emotions, hints, wandering, sleep, organic reactions. |
-| `piku.css`        | Flat 2D cascade, `@property` vars, emotion keyframes, reduced-motion safe. |
-| `index.ts`        | Public exports (`Piku`, `PikuSprite`, `usePikuBrain`, types).          |
+| File | Role |
+| --- | --- |
+| `piku.tsx` | The launcher. Mount once near the end of `<body>`, inside `PikuConciergeProvider`. No props. Renders the animated WebP via `<picture>` (still frame for reduced motion). Plain `img`, not `next/image` — the optimiser would re-encode the animated WebP and drop frames. |
+| `use-piku-brain.ts` | Brain 2.0 behavior system: priority tiers, per-entry + global (~6s) speech cooldowns, session limits, greeting/welcome-back guards, click cadence, hover wave, cursor glance, scroll hints, sleepy/wake beats. No movement. |
+| `piku.css` | Launcher, bubble, invite pill and heart burst, plus the `PikuSprite` styles. Wrapper-only motion hooks (idle bob, emotion hops) target the inner wrappers; `.piku-root` never transforms. |
+| `piku-sprite.tsx` | The flat SVG Piku. Not used by the launcher; still used by the mini-game. |
+| `index.ts` | Public exports (`Piku`, `PikuSprite`, `usePikuBrain`, types). |
+| `PIKU-BIBLE.md` | Character bible: palette, proportions, the 3D pipeline. |
 
-## Design
+## The launcher art
 
-Flat, Duolingo-style penguin mascot:
-- **Round black body** with large white/cream belly
-- **Big expressive eyes** — white circles with dark pupils and tiny white shine dots
-- **Small orange beak** — simple triangle
-- **Office dress** — light blue shirt, yellow tie, black pants with belt
-- **Thick black glasses** — rectangular frames
-- **Small orange feet**
-- **Simple curved wings** on sides
+```
+src/components/piku/piku.tsx           <picture> loop + still
+public/brand/piku/piku-idle.webp       24-frame breathing loop, 8fps, 192x208 (~128 KB)
+public/brand/piku/piku-still.webp      frame 0 for prefers-reduced-motion (~7 KB)
+public/brand/piku/piku.glb             source model — never loaded at runtime
+```
 
-No gradients, no filters, no 3D depth — just bold flat shapes and solid fills.
+The game and the concierge modal keep their previous art untouched
+(`PikuSprite` / modal face + still).
 
 ## Behaviour
 
-- **Greeting** — waves + says hello ~1.2 s after load, returns to idle after 2.6 s.
-- **Click / tap / Enter / Space** — 80 ms squash (`scaleY 0.82 scaleX 1.12`) → 700 ms spring bounce → 5 heart burst (8 stars on rapid 4 clicks in 1.5 s → nervous). Random quip `happy / excited / thinking / proud`.
-- **Idle life (no input needed)** — breathing period drifts 2.8–4.2 s (RAF `sin` phase drift), hip sway 0.5–0.8°, randomized blink 2.5–5.5 s with occasional double-blink, eye darts every 1–3 s ±1 px, tie tail 2-stage lag, wing ±1° breath, shadow penumbra reacts to lift.
-- **Gaze** — organic delayed tracking: head `lerp 0.095`, pupils `0.18`, tie `0.04`, dampened prediction `vel*2` blended 0.7/0.3, velocity deadzone, centre deadzone 0.15, clamp `ry ±12° rx ±8°`.
-- **Fast scroll** (>550 px in <400 ms + speed gate) — soft surprised (cooldown 4 s). Very fast fling → excited. Bottom 200 px → excited celebration.
-- **Cursor approach** (desktop only, dot >200) — curious. Disabled on touch / <768 px.
-- **Long hover 2 s** — wave. Form focus → thinking. `avagifts:open-catalog` → excited. Any `pointerdown/keydown` wakes from sleep.
-- **Inactivity 35 s** — sleepy (head droop, slower breathe, Zzz). Wakes to curious.
-- **Wandering** — every 32 s picks new anchor from `[{28,28},{28,172},{104,100}]` via 900 ms `cubic-bezier(0.22,1,0.36,1)` on `.piku-root` (desktop ≥768 px only).
-- **Contextual hints** — `[data-piku="catalog|contact|featured|why"]` intersecting at 0.2 triggers once-per-key, 8 s cooldown.
+- **Position** — fixed at `right: 28px; bottom: 28px`, `z-index: 40`, 96x104
+  (88x96 at 768–1023px, 76x84 below 768px). He does not wander, roam or walk.
+- **Greeting** — a bubble ~1.2s after load, to Piku's left.
+- **Click / Enter / Space** — opens the concierge and plays 5 hearts. A second
+  click closes it. `aria-expanded` reflects the state.
+- **While the panel is open** — Piku stays visible beside it; the bubble and the
+  "Chat with Piku" hover pill are hidden, because both hang exactly where the
+  panel sits.
+- **Contextual hints** — `[data-piku="catalog|contact|featured|why"]` scrolling
+  into view shows a hint once per key, with an 8s cooldown.
+- **Inactivity 35s** — goes sleepy; the next input wakes him. This only changes
+  which quip he says next, not how he looks.
+
+## The concierge panel
+
+`src/components/piku-concierge/piku-modal.tsx`.
+
+- **From 640px up** — a non-modal floating panel anchored bottom-right, to
+  Piku's left (`right: 140px` = his 28px inset + 96px box + 16px gap), bottom
+  aligned with him, 400px wide. No dimming, no scroll lock, no focus trap. It
+  closes on Escape, the X, a click elsewhere on the page, or a click on Piku.
+- **Below 640px** — a modal full-screen sheet with a dimmed backdrop, scroll
+  lock and a Tab trap.
 
 ## Adding a contextual hint
 
@@ -51,15 +68,24 @@ const HINTS = {
 
 ## Accessibility
 
-- Real `<button>` with `aria-label`, `title`, keyboard `Enter/Space`, `focus-visible` gold outline.
-- Bubble `role="status"` + `aria-live="polite"`.
-- `prefers-reduced-motion: reduce` disables all animations/transitions.
-- `pointer: coarse` disables gaze hover.
+- A real `<button>` with `aria-label`, `aria-haspopup="dialog"`,
+  `aria-expanded`, and a `focus-visible` outline.
+- The bubble is `role="status"` + `aria-live="polite"`.
+- The cartoon art is the animated WebP; `prefers-reduced-motion: reduce`
+  swaps in the still frame via `<picture>`.
+- Keyboard: Enter/Space on the button opens the panel; focus moves into it.
 
 ## Layering
 
-`z-index: 40` — below catalog viewer overlay (`z-50`).
+`z-index: 40` for Piku, `z-[95]` for the concierge panel.
 
-## Independent development
+## Tests
 
-Mount `<Piku />` on any route and edit only this folder. No outside imports.
+`tests/piku-widget.spec.ts` (placement, asset, stillness, reduced motion) and
+`tests/piku-heart.spec.ts` (greeting, burst, panel position and closing). Both
+expect a production build on `:3100`:
+
+```sh
+npm run build && npx next start -p 3100
+npx playwright test tests/piku-widget.spec.ts tests/piku-heart.spec.ts
+```

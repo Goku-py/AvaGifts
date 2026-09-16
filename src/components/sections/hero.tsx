@@ -104,7 +104,7 @@ export function Hero() {
         {/* Carousel */}
         <Reveal delay={0.2}>
           <div
-            className="relative mx-auto w-full max-w-[616px] overflow-hidden rounded-2xl"
+            className="relative mx-auto w-full max-w-[616px] overflow-hidden"
             onMouseEnter={hold}
             onMouseLeave={release}
             onFocusCapture={hold}

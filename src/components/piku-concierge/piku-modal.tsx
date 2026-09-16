@@ -10,15 +10,19 @@ import {
   type CSSProperties,
   type ReactNode,
 } from "react";
-import { PikuSprite } from "@/components/piku/piku-sprite";
-import { PIKU_ENQUIRY_SENT_EVENT } from "@/lib/events";
+import {
+  PIKU_CONCIERGE_STEP_EVENT,
+  PIKU_ENQUIRY_SENT_EVENT,
+  PIKU_FORM_ERROR_EVENT,
+  PIKU_FORM_VALID_EVENT,
+} from "@/lib/events";
 import {
   formatFriendlyDate,
   isDeliveryDateValid,
   MIN_LEAD_DAYS,
   minDeliveryDateInputValue,
 } from "@/lib/lead-time";
-import { EASE, SPRING_BOUNCY, SPRING_EMERGE, SPRING_FIRM, SPRING_SNAPPY, SPRING_SOFT } from "@/lib/motion";
+import { EASE, SPRING_BOUNCY, SPRING_EMERGE, SPRING_FIRM, SPRING_SNAPPY } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import "./piku-concierge.css";
 import {
@@ -38,6 +42,31 @@ import {
   type ConciergeOption,
   type ConciergeStep,
 } from "@/lib/piku-concierge";
+
+/** Announce a form-level validation outcome to the mascot (Phase 16). */
+function notifyFormOutcome(valid: boolean) {
+  window.dispatchEvent(
+    new CustomEvent(valid ? PIKU_FORM_VALID_EVENT : PIKU_FORM_ERROR_EVENT),
+  );
+}
+
+/**
+ * Below Tailwind's `sm` breakpoint the concierge is a modal full-screen sheet.
+ * From `sm` up it is a non-modal floating panel beside Piku, like any website
+ * chat assistant: no dimming, no scroll lock, no focus trap. PikuModal mounts
+ * with the page, so this has settled long before anyone opens the panel.
+ */
+function useIsSheet(): boolean {
+  const [isSheet, setIsSheet] = useState(false);
+  useEffect(() => {
+    const mql = window.matchMedia("(max-width: 639px)");
+    const update = () => setIsSheet(mql.matches);
+    update();
+    mql.addEventListener("change", update);
+    return () => mql.removeEventListener("change", update);
+  }, []);
+  return isSheet;
+}
 import { usePikuConcierge } from "./piku-concierge-context";
 
 /* ------------------------------------------------------------------ */
@@ -52,22 +81,72 @@ import { usePikuConcierge } from "./piku-concierge-context";
  * sprite. Every one of Piku's turns carries one so the panel reads as a
  * conversation with someone rather than a form, and the full sprite would be
  * hundreds of DOM nodes per turn.
+ *
+ * Phase 21: the bust renders the canonical identity (black head, white face,
+ * round black glasses, orange beak). Mood stays filter/scale only — no new
+ * shapes per mood. The entry animation stays in CSS (piku-face-in 320ms, EASE).
  */
-function PikuFace({ className }: { className?: string }) {
+type PikuFaceMood = "happy" | "thinking" | "curious" | "proud" | "nervous" | "excited";
+
+const PIKU_FACE_MOOD_STYLE: Record<PikuFaceMood, CSSProperties> = {
+  happy: { filter: "none", scale: "1" },
+  curious: { filter: "saturate(1.2)", scale: "1.05" },
+  thinking: { filter: "saturate(0.9) brightness(0.97)", scale: "1" },
+  proud: { filter: "saturate(1.1)", scale: "1.08" },
+  nervous: { filter: "saturate(0.85)", scale: "0.97" },
+  excited: { filter: "saturate(1.3) brightness(1.05)", scale: "1.1" },
+};
+
+/** Map the concierge step to Piku's face. Contact and any date/contact
+ *  error read as nervous; done celebrates as excited. */
+function moodForStep(step: ConciergeStep, hasError = false): PikuFaceMood {
+  if (hasError) return "nervous";
+  switch (step) {
+    case "intro":
+    case "occasion":
+      return "happy";
+    case "feeling":
+    case "gift-style":
+      return "curious";
+    case "details-quantity":
+    case "details-date":
+    case "details-location":
+    case "details-budget":
+    case "details-notes":
+      return "thinking";
+    case "confirm":
+    case "brief":
+      return "proud";
+    case "contact":
+      return "nervous";
+    case "done":
+      return "excited";
+    default:
+      return "happy";
+  }
+}
+
+function PikuFace({ className, mood = "happy" }: { className?: string; mood?: PikuFaceMood }) {
   return (
-    <svg viewBox="0 0 32 32" aria-hidden="true" className={className}>
-      <circle cx="16" cy="16" r="16" fill="#0B2A4D" />
-      <ellipse cx="16" cy="18.5" rx="8" ry="9" fill="#F5F0E8" />
-      <circle cx="12.4" cy="13.6" r="3.1" fill="#fff" />
-      <circle cx="19.6" cy="13.6" r="3.1" fill="#fff" />
-      <circle cx="12.9" cy="14" r="1.35" fill="#1B1E25" />
-      <circle cx="19.1" cy="14" r="1.35" fill="#1B1E25" />
-      <path d="M14.2 18.4h3.6l-1.8 2.4-1.8-2.4Z" fill="#FF9A4D" />
+    <svg viewBox="0 0 32 32" aria-hidden="true" className={className} style={PIKU_FACE_MOOD_STYLE[mood]}>
+      {/* The same Piku the launcher shows, reduced to a 32px bust: black
+          head, white face mask, round black glasses with a bridge, orange
+          beak. Token colours only — see globals.css piku tokens. */}
+      <circle cx="16" cy="16" r="16" fill="var(--color-piku-black)" />
+      <ellipse cx="16" cy="19" rx="9" ry="9.6" fill="var(--color-piku-white)" />
+      <circle cx="11.9" cy="13.9" r="3.5" fill="none" stroke="var(--color-piku-black)" strokeWidth="1.5" />
+      <circle cx="20.1" cy="13.9" r="3.5" fill="none" stroke="var(--color-piku-black)" strokeWidth="1.5" />
+      <path d="M15.4 13.7h1.2" stroke="var(--color-piku-black)" strokeWidth="1.4" strokeLinecap="round" />
+      <circle cx="12.3" cy="14.2" r="1.3" fill="var(--color-piku-black)" />
+      <circle cx="19.7" cy="14.2" r="1.3" fill="var(--color-piku-black)" />
+      <circle cx="12.75" cy="13.75" r="0.45" fill="var(--color-piku-white)" />
+      <circle cx="20.15" cy="13.75" r="0.45" fill="var(--color-piku-white)" />
+      <path d="M14.1 19.4h3.8l-1.9 2.6-1.9-2.6Z" fill="var(--color-piku-orange)" />
     </svg>
   );
 }
 
-function PikuBubble({ children }: { children: ReactNode }) {
+function PikuBubble({ mood = "happy", children }: { mood?: PikuFaceMood; children: ReactNode }) {
   const reduceMotion = useReducedMotion();
   return (
     <motion.div
@@ -77,7 +156,7 @@ function PikuBubble({ children }: { children: ReactNode }) {
       transition={reduceMotion ? { duration: 0 } : SPRING_BOUNCY}
       className="flex max-w-[92%] items-start gap-2.5"
     >
-      <PikuFace className="piku-face mt-0.5 size-7 shrink-0" />
+      <PikuFace mood={mood} className="piku-face mt-0.5 size-7 shrink-0" />
       <div className="piku-said rounded-2xl rounded-tl-md border border-divider bg-white px-4 py-3 text-sm leading-relaxed text-text-primary shadow-card">
         {children}
       </div>
@@ -329,6 +408,7 @@ export function PikuModal() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
+  const isSheet = useIsSheet();
   const advanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const reduceMotion = useReducedMotion();
 
@@ -358,18 +438,38 @@ export function PikuModal() {
   );
 
   /* Jump to a requested step on open (e.g. "Send a Gifting Brief" opens
-     the contact step directly). Plain opens resume untouched. */
-  useEffect(() => {
-    if (!isOpen || !pendingStep) return;
+     the contact step directly). Applied during render — React's "adjust
+     state when a prop changes" pattern — instead of an effect, so there is
+     no cascading render pass and no set-state-in-effect. */
+  const [appliedPending, setAppliedPending] = useState<ConciergeStep | null>(null);
+  if (appliedPending !== null && (!isOpen || !pendingStep)) {
+    setAppliedPending(null);
+  } else if (isOpen && pendingStep && pendingStep !== appliedPending) {
+    setAppliedPending(pendingStep);
     setStep(pendingStep);
-    clearPendingStep();
-  }, [isOpen, pendingStep, clearPendingStep]);
+  }
+  useEffect(() => {
+    if (isOpen && appliedPending) clearPendingStep();
+  }, [isOpen, appliedPending, clearPendingStep]);
 
-  /* Scroll-lock + Esc + initial focus + focus trap while open */
+  /* Announce the active step so the mascot can react once per stage
+     (Phase 20). Unknown steps are ignored by the brain's dialogue map. */
+  useEffect(() => {
+    if (!isOpen) return;
+    window.dispatchEvent(
+      new CustomEvent(PIKU_CONCIERGE_STEP_EVENT, { detail: { step } }),
+    );
+  }, [isOpen, step]);
+
+  /*
+   * Esc and initial focus on every layout. The scroll lock and the Tab trap
+   * belong to the phone sheet only — the floating panel is non-modal, so the
+   * page behind it has to stay scrollable and reachable.
+   */
   useEffect(() => {
     if (!isOpen) return;
     const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
+    if (isSheet) document.body.style.overflow = "hidden";
     closeRef.current?.focus();
 
     const onKeyDown = (event: KeyboardEvent) => {
@@ -377,7 +477,7 @@ export function PikuModal() {
         closeConcierge();
         return;
       }
-      if (event.key !== "Tab") return;
+      if (event.key !== "Tab" || !isSheet) return;
 
       /*
        * Trap Tab inside the panel. `aria-modal` tells assistive tech to
@@ -406,10 +506,25 @@ export function PikuModal() {
 
     window.addEventListener("keydown", onKeyDown);
     return () => {
-      document.body.style.overflow = previousOverflow;
+      if (isSheet) document.body.style.overflow = previousOverflow;
       window.removeEventListener("keydown", onKeyDown);
     };
-  }, [isOpen, closeConcierge]);
+  }, [isOpen, isSheet, closeConcierge]);
+
+  /* The floating panel closes on a click anywhere else on the page — except
+     Piku, whose own click already toggles it. The sheet has its backdrop. */
+  useEffect(() => {
+    if (!isOpen || isSheet) return;
+    const onPointerDown = (event: PointerEvent) => {
+      const target = event.target;
+      if (!(target instanceof Node)) return;
+      if (panelRef.current?.contains(target)) return;
+      if (target instanceof Element && target.closest(".piku-root")) return;
+      closeConcierge();
+    };
+    document.addEventListener("pointerdown", onPointerDown);
+    return () => document.removeEventListener("pointerdown", onPointerDown);
+  }, [isOpen, isSheet, closeConcierge]);
 
   /* Smooth-scroll the latest message into view. Skipped while the user is
      typing in a field (scrolling would yank the caret out of sight), and
@@ -494,9 +609,11 @@ export function PikuModal() {
         setDateError(
           `Please choose a date at least ${MIN_LEAD_DAYS} days from today — the earliest is ${formatFriendlyDate(minDeliveryDateInputValue())}.`,
         );
+        notifyFormOutcome(false);
         return false;
       }
       setDateError(null);
+      if (value.trim()) notifyFormOutcome(true);
       return true;
     },
     [answers.deliveryDate],
@@ -557,10 +674,10 @@ export function PikuModal() {
       window.dispatchEvent(new CustomEvent(PIKU_ENQUIRY_SENT_EVENT));
     } catch {
       setSubmitStatus("error");
+      notifyFormOutcome(false);
     } finally {
       setSubmitStatus((current) => (current === "submitting" ? "idle" : current));
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [answers, submitStatus, validateDeliveryDate, goTo]);
 
   const stage = stageIndex(step);
@@ -574,18 +691,23 @@ export function PikuModal() {
         <motion.div
           key="piku-backdrop"
           initial={{ opacity: 0, backdropFilter: "blur(0px)" }}
-          animate={{ opacity: 1, backdropFilter: "blur(4px)" }}
+          animate={{ opacity: 1, backdropFilter: isSheet ? "blur(4px)" : "blur(0px)" }}
           exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
           transition={
             reduceMotion ? { duration: 0 } : { duration: 0.3, ease: EASE }
           }
-          className="fixed inset-0 z-[95] flex items-end justify-center bg-primary/60 sm:items-center sm:p-6"
-          onClick={closeConcierge}
+          /*
+           * Phones: a dimmed full-screen sheet. From sm up this layer has no
+           * colour and no hit area — it only positions the panel, which floats
+           * in the bottom-right corner to Piku's left.
+           */
+          className="fixed inset-0 z-[95] flex items-end justify-center bg-primary/60 sm:pointer-events-none sm:block sm:bg-transparent"
+          onClick={isSheet ? closeConcierge : undefined}
         >
           <motion.div
             key="piku-panel"
             role="dialog"
-            aria-modal="true"
+            aria-modal={isSheet}
             aria-label="Chat with Piku — gifting concierge"
             initial={{ opacity: 0, y: 96, x: 48, scale: 0.94 }}
             animate={{ opacity: 1, y: 0, x: 0, scale: 1 }}
@@ -593,21 +715,31 @@ export function PikuModal() {
             transition={reduceMotion ? { duration: 0 } : SPRING_EMERGE}
             ref={panelRef}
             onClick={(event) => event.stopPropagation()}
-            /* min-h keeps short states (intro, done) from rendering as a
-               512px-wide, ~180px-tall sliver, and stops the card resizing
-               dramatically between steps while it is centred. */
-            className="flex h-[100dvh] w-full flex-col overflow-hidden bg-white sm:h-auto sm:max-h-[88vh] sm:min-h-[420px] sm:max-w-lg sm:origin-bottom-right sm:rounded-2xl sm:shadow-lift"
+            /*
+             * From sm up the panel sits to Piku's left, bottom-aligned with
+             * him: right = his 28px inset + his 96px box + a 16px gap. min-h
+             * stops short states (intro, done) collapsing to a sliver and the
+             * card jumping in size between steps.
+             */
+            className="flex h-[100dvh] w-full flex-col overflow-hidden bg-white sm:pointer-events-auto sm:absolute sm:bottom-7 sm:right-[140px] sm:h-auto sm:max-h-[min(560px,calc(100dvh-56px))] sm:min-h-[420px] sm:w-[min(400px,calc(100vw-172px))] sm:origin-bottom-right sm:rounded-2xl sm:shadow-lift"
           >
             {/* Top — identity + support + close */}
             <div className="flex items-center gap-3 border-b border-divider bg-white px-4 py-3 sm:px-5">
-              {/* Header avatar: calm and still, periodic blink only */}
+              {/* Header avatar: the same rendered Piku as the launcher, still. */}
               <span
                 aria-hidden="true"
-                className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-surface [&_svg]:size-8"
+                className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-surface"
               >
-                <span className="flex animate-piku-blink">
-                  <PikuSprite emotion="happy" />
-                </span>
+                {/* Plain img: next/image would re-encode the WebP for nothing. */}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/brand/piku/piku-still.webp"
+                  alt=""
+                  width={32}
+                  height={35}
+                  className="h-auto w-8"
+                  draggable={false}
+                />
               </span>
               <span className="min-w-0 flex-1">
                 <span className="block font-display text-base font-semibold leading-tight tracking-[-0.01em]">
@@ -847,7 +979,7 @@ function Conversation(props: ConversationProps) {
     <div className="mt-auto flex flex-col">
       {/* State 01 — intro */}
       <StepMotion stepKey="intro" instant state={stateFor("intro")}>
-        <PikuBubble>
+        <PikuBubble mood={moodForStep("intro")}>
           Hi, I’m Piku. I help teams find gifts people actually keep. Two
           minutes, a few quick questions — shall we start?
         </PikuBubble>
@@ -863,7 +995,7 @@ function Conversation(props: ConversationProps) {
       {/* State 02 — occasion */}
       {reached("occasion") ? (
         <StepMotion stepKey="occasion" state={stateFor("occasion")}>
-          <PikuBubble>First — what’s the occasion?</PikuBubble>
+          <PikuBubble mood={moodForStep("occasion")}>First — what’s the occasion?</PikuBubble>
           {reached("feeling") && answers.occasion ? (
             <>
               <UserBubble>
@@ -871,7 +1003,7 @@ function Conversation(props: ConversationProps) {
                   ? answers.occasionOther.trim()
                   : optionLabel(occasionOptions, answers.occasion)}
               </UserBubble>
-              <PikuBubble>{occasionAck(answers.occasion, answers.occasionOther)}</PikuBubble>
+              <PikuBubble mood={moodForStep("occasion")}>{occasionAck(answers.occasion, answers.occasionOther)}</PikuBubble>
             </>
           ) : null}
           {!reached("feeling") ? (
@@ -921,13 +1053,13 @@ function Conversation(props: ConversationProps) {
       {/* State 03 — feeling */}
       {reached("feeling") ? (
         <StepMotion stepKey="feeling" state={stateFor("feeling")}>
-          <PikuBubble>And how should it make them feel?</PikuBubble>
+          <PikuBubble mood={moodForStep("feeling")}>And how should it make them feel?</PikuBubble>
           {reached("gift-style") && answers.feeling ? (
             <>
               <UserBubble>
                 {optionLabel(feelingOptions, answers.feeling)}
               </UserBubble>
-              <PikuBubble>{feelingAck(answers.feeling)}</PikuBubble>
+              <PikuBubble mood={moodForStep("feeling")}>{feelingAck(answers.feeling)}</PikuBubble>
             </>
           ) : null}
           {!reached("gift-style") ? (
@@ -947,7 +1079,7 @@ function Conversation(props: ConversationProps) {
       {/* State 04 — gift style (multi-select) */}
       {reached("gift-style") ? (
         <StepMotion stepKey="gift-style" state={stateFor("gift-style")}>
-          <PikuBubble>
+          <PikuBubble mood={moodForStep("gift-style")}>
             What kind of gifts are you leaning towards? Pick as many as
             you like.
           </PikuBubble>
@@ -960,7 +1092,7 @@ function Conversation(props: ConversationProps) {
                       .join(", ")
                   : "Open to suggestions"}
               </UserBubble>
-              <PikuBubble>{stylesAck(answers.styles)}</PikuBubble>
+              <PikuBubble mood={moodForStep("gift-style")}>{stylesAck(answers.styles)}</PikuBubble>
             </>
           ) : null}
           {!reached("details-quantity") ? (
@@ -997,7 +1129,7 @@ function Conversation(props: ConversationProps) {
       {/* State 05 — quantity */}
       {reached("details-quantity") ? (
         <StepMotion stepKey="details-quantity" state={stateFor("details-quantity")}>
-          <PikuBubble>
+          <PikuBubble mood={moodForStep("details-quantity")}>
             Now the practical bits. Roughly how many gifts are we talking?
           </PikuBubble>
           {reached("details-date") && answers.quantity.trim() ? (
@@ -1031,7 +1163,7 @@ function Conversation(props: ConversationProps) {
       {/* State 06 — delivery date */}
       {reached("details-date") ? (
         <StepMotion stepKey="details-date" state={stateFor("details-date")}>
-          <PikuBubble>
+          <PikuBubble mood={moodForStep("details-date", Boolean(props.dateError))}>
             {answers.quantity.trim()
               ? `Noted — ${answers.quantity.trim()} gifts. When do they need to arrive?`
               : "When do they need to arrive?"}
@@ -1099,7 +1231,7 @@ function Conversation(props: ConversationProps) {
       {/* State 07 — location */}
       {reached("details-location") ? (
         <StepMotion stepKey="details-location" state={stateFor("details-location")}>
-          <PikuBubble>
+          <PikuBubble mood={moodForStep("details-location")}>
             Where should they be delivered? A city — or several.
           </PikuBubble>
           {reached("details-budget") && answers.location.trim() ? (
@@ -1132,13 +1264,13 @@ function Conversation(props: ConversationProps) {
       {/* State 08 — budget */}
       {reached("details-budget") ? (
         <StepMotion stepKey="details-budget" state={stateFor("details-budget")}>
-          <PikuBubble>Last practical one — what budget per gift feels right?</PikuBubble>
+          <PikuBubble mood={moodForStep("details-budget")}>Last practical one — what budget per gift feels right?</PikuBubble>
           {reached("details-notes") && answers.budget ? (
             <>
               <UserBubble>
                 {optionLabel(conciergeBudgetOptions, answers.budget)}
               </UserBubble>
-              <PikuBubble>Perfect — that helps us shortlist well.</PikuBubble>
+              <PikuBubble mood={moodForStep("details-budget")}>Perfect — that helps us shortlist well.</PikuBubble>
             </>
           ) : null}
           {!reached("details-notes") ? (
@@ -1158,7 +1290,7 @@ function Conversation(props: ConversationProps) {
       {/* State 09 — optional requirement */}
       {reached("details-notes") ? (
         <StepMotion stepKey="details-notes" state={stateFor("details-notes")}>
-          <PikuBubble>
+          <PikuBubble mood={moodForStep("details-notes")}>
             Anything else I should pass on? Brand colours, must-haves,
             things to avoid — or skip ahead.
           </PikuBubble>
@@ -1191,7 +1323,7 @@ function Conversation(props: ConversationProps) {
       {/* State 10 — confirmation */}
       {reached("confirm") ? (
         <StepMotion stepKey="confirm" state={stateFor("confirm")}>
-          <PikuBubble>
+          <PikuBubble mood={moodForStep("confirm")}>
             Perfect — I’ve got everything the team needs to start. Just your
             details, and I’ll hand this over.
           </PikuBubble>
@@ -1208,7 +1340,7 @@ function Conversation(props: ConversationProps) {
         <StepMotion stepKey="contact" state={stateFor("contact")}>
           {!reached("brief") ? (
             <>
-              <PikuBubble>Where should the team reach you?</PikuBubble>
+              <PikuBubble mood={moodForStep("contact", Object.values(props.contactErrors).some(Boolean))}>Where should the team reach you?</PikuBubble>
               <div className="flex flex-col gap-3.5 rounded-2xl border border-divider bg-white p-4 shadow-card">
                 <ContactField
                   label="Name"
@@ -1293,14 +1425,16 @@ function Conversation(props: ConversationProps) {
               </div>
               <PrimaryAction
                 onClick={() => {
-                  if (props.validateContact()) props.goTo("brief");
+                  const ok = props.validateContact();
+                  notifyFormOutcome(ok);
+                  if (ok) props.goTo("brief");
                 }}
               >
                 Review my brief
               </PrimaryAction>
             </>
           ) : (
-            <PikuBubble>
+            <PikuBubble mood={moodForStep("contact")}>
               Thanks, {answers.name.trim().split(" ")[0] || "there"} — details saved.
             </PikuBubble>
           )}
@@ -1312,7 +1446,7 @@ function Conversation(props: ConversationProps) {
         <StepMotion stepKey="brief" state={stateFor("brief")}>
           {!reached("done") ? (
             <>
-              <PikuBubble>
+              <PikuBubble mood={moodForStep("brief")}>
                 Here’s your brief. Anything look off? Tap edit to fix it.
               </PikuBubble>
               <div className="overflow-hidden rounded-2xl border border-divider bg-white shadow-card">
@@ -1493,7 +1627,7 @@ function Conversation(props: ConversationProps) {
         <StepMotion stepKey="done" state={stateFor("done")}>
           <div className="relative">
             <Celebration />
-            <PikuBubble>
+            <PikuBubble mood={moodForStep("done")}>
               Thank you — your brief is with our gifting team. We’ll reach out
               within 48 hours with a shortlist and a quote.
             </PikuBubble>

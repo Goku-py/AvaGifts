@@ -35,3 +35,28 @@ export interface PikuGameOutcomeDetail {
   hits: number;
   misses: number;
 }
+
+/* Piku ↔ concierge step intelligence (Phase 20). The modal announces its
+   opening and each conversation stage so the brain can react once per
+   step instead of every keystroke. */
+export const PIKU_CONCIERGE_OPENED_EVENT = "avagifts:piku-concierge-opened";
+export const PIKU_CONCIERGE_STEP_EVENT = "avagifts:piku-concierge-step";
+
+/** Payload for PIKU_CONCIERGE_STEP_EVENT — the ConciergeStep id. */
+export interface PikuConciergeStepDetail {
+  step: string;
+}
+
+/* Form intelligence (Phase 16) — field-level validation feedback. */
+export const PIKU_FORM_VALID_EVENT = "avagifts:piku-form-valid";
+export const PIKU_FORM_ERROR_EVENT = "avagifts:piku-form-error";
+
+/* In-round runner reactions (Phase 22) — hit and milestone beats between
+   STARTED and COMPLETED. */
+export const PIKU_GAME_HIT_EVENT = "avagifts:piku-game-hit";
+export const PIKU_GAME_MILESTONE_EVENT = "avagifts:piku-game-milestone";
+
+/** Payload for PIKU_GAME_MILESTONE_EVENT. */
+export interface PikuGameMilestoneDetail {
+  score: number;
+}

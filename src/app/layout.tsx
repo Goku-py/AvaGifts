@@ -3,6 +3,7 @@ import { Inter, Jost } from "next/font/google";
 import { CatalogProvider } from "@/components/catalog/catalog-context";
 import { Footer } from "@/components/layout/footer";
 import { Header } from "@/components/layout/header";
+import { ServiceWorkerRegistrar } from "@/components/layout/service-worker-registrar";
 import { Piku } from "@/components/piku";
 import { PikuConciergeProvider, PikuModal } from "@/components/piku-concierge";
 import { PikuGameProvider } from "@/components/piku-game/piku-game-context";
@@ -66,6 +67,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             </PikuConciergeProvider>
           </CatalogProvider>
         </MotionDefaults>
+        <ServiceWorkerRegistrar />
       </body>
     </html>
   );

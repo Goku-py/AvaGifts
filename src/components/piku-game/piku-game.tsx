@@ -111,6 +111,12 @@ export default function PikuGame({ onClose }: { onClose: () => void }) {
   const scoreRef = useRef(0);
   const hitsRef = useRef(0);
   const missesRef = useRef(0);
+  /* Hit parity for proud/WINK alternation: odd hits stay plain proud, even
+     hits add the WINK lean class. Ref holds the count (no render); winkLean
+     drives the class toggle. */
+  const hitParityRef = useRef(0);
+  const [winkLean, setWinkLean] = useState(false);
+  const winkTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const difficulty = useMemo(() => getDifficulty(score), [score]);
 
@@ -129,6 +135,9 @@ export default function PikuGame({ onClose }: { onClose: () => void }) {
     scoreRef.current = 0;
     hitsRef.current = 0;
     missesRef.current = 0;
+    hitParityRef.current = 0;
+    if (winkTimer.current) clearTimeout(winkTimer.current);
+    setWinkLean(false);
     setScore(0);
     setHits(0);
     setMisses(0);
@@ -143,6 +152,8 @@ export default function PikuGame({ onClose }: { onClose: () => void }) {
   const endGame = useCallback(
     (finalScore: number, finalHits: number, finalMisses: number) => {
       clearZoneTimers();
+      if (winkTimer.current) clearTimeout(winkTimer.current);
+      setWinkLean(false);
       setPhase("gameOver");
       const detail: PikuGameOutcomeDetail = {
         score: finalScore,
@@ -177,7 +188,14 @@ export default function PikuGame({ onClose }: { onClose: () => void }) {
       setLastOutcome(outcome);
 
       if (outcome === "hit") {
+        hitParityRef.current += 1;
+        const isWinkFrame = hitParityRef.current % 2 === 0;
         flashEmotion("proud", 700);
+        if (winkTimer.current) clearTimeout(winkTimer.current);
+        setWinkLean(isWinkFrame);
+        if (isWinkFrame) {
+          winkTimer.current = setTimeout(() => setWinkLean(false), 700);
+        }
         const nextHits = hits + 1;
         const nextScore = score + POINTS_PER_HIT;
         hitsRef.current = nextHits;
@@ -189,6 +207,8 @@ export default function PikuGame({ onClose }: { onClose: () => void }) {
           setRoundIndex((i) => i + 1);
         }, 380);
       } else {
+        if (winkTimer.current) clearTimeout(winkTimer.current);
+        setWinkLean(false);
         flashEmotion("nervous", 700);
         const nextMisses = misses + 1;
         missesRef.current = nextMisses;
@@ -255,7 +275,15 @@ export default function PikuGame({ onClose }: { onClose: () => void }) {
 
     const zoneEnterMs = difficulty.zoneStart * difficulty.fallMs;
     const zoneExitMs = difficulty.zoneEnd * difficulty.fallMs;
-    const enter = setTimeout(() => setZoneActive(true), zoneEnterMs);
+    /* IDEA pre-beat, mirroring use-piku-brain: surprised 350ms then curious.
+       Cancelled by settle's clearZoneTimers if the box settles first (the
+       curious beat is pushed so it clears with the zone timers). */
+    const enter = setTimeout(() => {
+      setZoneActive(true);
+      flashEmotion("surprised", 350);
+      const curiousBeat = setTimeout(() => flashEmotion("curious", 700), 350);
+      zoneTimers.current.push(curiousBeat);
+    }, zoneEnterMs);
     const exit = setTimeout(() => setZoneActive(false), zoneExitMs);
     zoneTimers.current.push(enter, exit);
     return () => {
@@ -334,9 +362,19 @@ export default function PikuGame({ onClose }: { onClose: () => void }) {
     }
     if (emotionTimer.current) clearTimeout(emotionTimer.current);
     if (advanceTimer.current) clearTimeout(advanceTimer.current);
+    if (winkTimer.current) clearTimeout(winkTimer.current);
     clearZoneTimers();
     onClose();
   }, [phase, score, hits, misses, clearZoneTimers, onClose]);
+
+  /* Wink-lean timer is outside the zone/advance timers (it outlives the
+     380ms round advance), so it needs its own unmount cleanup. */
+  useEffect(
+    () => () => {
+      if (winkTimer.current) clearTimeout(winkTimer.current);
+    },
+    [],
+  );
 
   /* Scroll-lock + Esc + initial focus + focus trap while open — mirrors
      the concierge modal's implementation (the more complete of the two
@@ -398,7 +436,13 @@ export default function PikuGame({ onClose }: { onClose: () => void }) {
       >
         {/* Header */}
         <div className="flex items-center gap-3 border-b border-divider px-4 py-3 sm:px-5">
-          <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-surface [&_svg]:size-7">
+          <span
+            className={
+              winkLean
+                ? "flex size-9 shrink-0 items-center justify-center rounded-full bg-surface piku-game-wink [&_svg]:size-7"
+                : "flex size-9 shrink-0 items-center justify-center rounded-full bg-surface [&_svg]:size-7"
+            }
+          >
             <PikuSprite emotion={emotion} />
           </span>
           <span className="min-w-0 flex-1">
@@ -523,7 +567,13 @@ export default function PikuGame({ onClose }: { onClose: () => void }) {
                   needs the real dimensions (as the header avatar above
                   already does, via its own `size-9`).
                 */}
-                <div className="absolute bottom-1 right-2 size-14">
+                <div
+                  className={
+                    winkLean
+                      ? "absolute bottom-1 right-2 size-14 piku-game-wink"
+                      : "absolute bottom-1 right-2 size-14"
+                  }
+                >
                   <PikuSprite emotion={emotion} />
                 </div>
               </div>

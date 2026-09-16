@@ -10,7 +10,10 @@ import {
   type ReactNode,
 } from "react";
 import { OPEN_PIKU_EVENT, type ConciergeStep } from "@/lib/piku-concierge";
-import { PIKU_CONCIERGE_CLOSED_EVENT } from "@/lib/events";
+import {
+  PIKU_CONCIERGE_CLOSED_EVENT,
+  PIKU_CONCIERGE_OPENED_EVENT,
+} from "@/lib/events";
 
 interface PikuConciergeContextValue {
   isOpen: boolean;
@@ -39,9 +42,12 @@ export function PikuConciergeProvider({ children }: { children: ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
   const [pendingStep, setPendingStep] = useState<ConciergeStep | null>(null);
 
+  /* Opening notifies the mascot (Phase 20) — both entry points below
+     announce so the brain can wave without polling open state. */
   const openConcierge = useCallback((step?: ConciergeStep) => {
     setPendingStep(step ?? null);
     setIsOpen(true);
+    window.dispatchEvent(new CustomEvent(PIKU_CONCIERGE_OPENED_EVENT));
   }, []);
 
   const clearPendingStep = useCallback(() => {
@@ -56,7 +62,10 @@ export function PikuConciergeProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    const handleOpen = () => setIsOpen(true);
+    const handleOpen = () => {
+      setIsOpen(true);
+      window.dispatchEvent(new CustomEvent(PIKU_CONCIERGE_OPENED_EVENT));
+    };
     window.addEventListener(OPEN_PIKU_EVENT, handleOpen);
     return () => window.removeEventListener(OPEN_PIKU_EVENT, handleOpen);
   }, []);
@@ -87,11 +96,4 @@ export function usePikuConcierge(): PikuConciergeContextValue {
     );
   }
   return context;
-}
-
-/** Imperative opener for buttons that don't consume the context. */
-export function openPikuConcierge() {
-  if (typeof window !== "undefined") {
-    window.dispatchEvent(new CustomEvent(OPEN_PIKU_EVENT));
-  }
 }

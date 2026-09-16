@@ -36,3 +36,22 @@
     animation: none;
   }
 }
+
+/* ------------------------------------------------------------------ *
+ * WINK frames — even hits lean while proud lids show in the sprite.
+ * Sprite-only (transform on the wrapper); the fall above stays linear.
+ * EASE 0.3s matches the widget lean in piku.css.
+ * ------------------------------------------------------------------ */
+
+.piku-game-wink {
+  --piku-lean: 5;
+  transform: rotate(5deg);
+  transition: transform 300ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .piku-game-wink {
+    transform: none;
+    transition: none;
+  }
+}

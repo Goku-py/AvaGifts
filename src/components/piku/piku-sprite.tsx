@@ -3,29 +3,32 @@
 import type { PikuEmotion } from "./use-piku-brain";
 
 /* ------------------------------------------------------------------ *
- * Piku Flat 2D Sprite — Duolingo-style penguin mascot
+ * Piku Flat 2D Sprite — AvaGifts brand penguin mascot
  *
  * Flat, bold shapes. Solid fills only. No gradients, no filters, no 3D.
  * Office dress: blue shirt, yellow tie, black pants, glasses.
  *
  * viewBox 0 0 120 130 — squat proportions, large head, small wings
- * --rx/--ry/--rz cascade from .piku-btn via RAF. No JS transforms here.
+ * --rx/--ry/--rz + --piku-turn cascade from .piku-root via CSS (.piku-svg
+ * appends rotateY(var(--piku-turn)) for FRONT-RIGHT/LEFT ±8-12 and
+ * RIGHT/LEFT fake ±18-22; BACK is never rendered and maps to peeking).
  * Pupils follow --pupil-x/y + --pupil-scale.
  * Ground shadows isolated outside <svg> as CSS siblings.
+ * Phase-1 is CSS-class-only recombination: no new paths.
  * ------------------------------------------------------------------ */
 
-const INK = "#1B1E25";
+const INK = "#111111";
 const CREAM = "#F5F0E8";
 const WHITE = "#ffffff";
-/* AvadheshCo palette: shirt = interactive #1273EB, tie = accent #FFDE59,
-   beak/feet stay in the orange family sanctioned by Gradient 3 (#FFAA71). */
-const SHIRT = "#1273EB";
-const TIE = "#FFDE59";
-const BEAK = "#FF9A4D";
-const FOOT = "#FF9A4D";
-const GLASS = "#1B1E25";
+/* Piku 2.0 UI tokens (globals.css): black body/glasses, blue shirt, warm
+   yellow tie, orange beak/feet — the canonical character palette. */
+const SHIRT = "#2F80ED";
+const TIE = "#FFC857";
+const BEAK = "#F28C28";
+const FOOT = "#F28C28";
+const GLASS = "#111111";
 const BLUSH = "#d4a5a5";
-const EXCITED_STAR = "#FFDE59";
+const EXCITED_STAR = "#FFC857";
 /* Sweat lines. Was a stray #7ec8c8 from the previous brand; the mint from
    Gradient 3 is the palette's own cool accent and reads the same. */
 const NERVOUS_MINT = "#51F8B0";
@@ -59,6 +62,7 @@ export function PikuSprite({ emotion }: { emotion: PikuEmotion }) {
   const isSleepy = emotion === "sleepy";
   const isHappy = emotion === "happy";
   const isSurprised = emotion === "surprised";
+  const isCurious = emotion === "curious";
   const isThinking = emotion === "thinking";
   const isExcited = emotion === "excited";
   const isProud = emotion === "proud";
@@ -153,7 +157,7 @@ export function PikuSprite({ emotion }: { emotion: PikuEmotion }) {
           {/* Face background — cream circle */}
           <ellipse cx={60} cy={43} rx={18} ry={15} fill={CREAM} />
 
-          {/* Eyes — big, expressive, Duolingo-style */}
+          {/* Eyes — big, expressive */}
           <g className="piku-eyes">
             {/* White eye circles */}
             <ellipse cx={44} cy={50} rx={10} ry={9} fill={WHITE} />
@@ -228,11 +232,12 @@ export function PikuSprite({ emotion }: { emotion: PikuEmotion }) {
               </g>
             )}
 
-            {/* Proud — half-closed */}
+            {/* Proud — asymmetric lid-close for WINK (left winks shut,
+                right stays half-lidded). Reuses the existing lid shapes. */}
             {isProud && (
               <g fill={INK} opacity={0.82}>
-                <path d="M34 48 Q44 46 54 48 L54 50 Q44 47.5 34 50 Z" />
-                <path d="M66 48 Q76 46 86 48 L86 50 Q76 47.5 66 50 Z" />
+                <path d="M34 49.5 Q44 48 54 49.5 L54 51 Q44 49.5 34 51 Z" />
+                <path d="M66 47 Q76 44.5 86 47 L86 49.5 Q76 47 66 49.5 Z" />
               </g>
             )}
 
@@ -289,8 +294,9 @@ export function PikuSprite({ emotion }: { emotion: PikuEmotion }) {
             </g>
           )}
 
-          {/* Proud sparkles */}
-          {isProud && (
+          {/* Proud sparkles — reused as the IDEA sparkle-swap for curious.
+              No new paths: curious borrows the same two stars. */}
+          {(isProud || isCurious) && (
             <g className="piku-proud-sparkle" fill={TIE} opacity={0.72}>
               <path d="M42 44 l0.7 -2.4 0.7 2.4 2.4 0.7 -2.4 0.8 -0.7 2.5 -0.7 -2.5 -2.4 -0.8 Z" />
               <path d="M74 44 l0.7 -2.4 0.7 2.4 2.4 0.7 -2.4 0.8 -0.7 2.5 -0.7 -2.5 -2.4 -0.8 Z" />
@@ -346,7 +352,8 @@ export function PikuSprite({ emotion }: { emotion: PikuEmotion }) {
             </g>
           )}
 
-          {/* Peeking hat */}
+          {/* Peeking hat — WORKING reference maps here (with nervous as the
+              alternate); BACK view is never rendered and also maps here. */}
           {isPeeking && (
             <g className="piku-peek-hat" transform="translate(40,7.5)">
               <rect x={0} y={0} width={40} height={8} rx={4} fill="#2E3440" />

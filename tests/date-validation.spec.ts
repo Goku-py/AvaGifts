@@ -32,7 +32,11 @@ async function gotoConciergeDateStep(page: Page) {
   await page.waitForLoadState('networkidle');
   await page.waitForTimeout(1500);
 
-  await page.locator('.piku-btn').click();
+  // Piku's idle bob is an infinite animation, so a real mouse click can trip
+  // Playwright's stability check. Dispatch through the DOM — same handler.
+  await page.evaluate(() => {
+    document.querySelector<HTMLButtonElement>('.piku-btn')?.click();
+  });
   await page.waitForTimeout(800);
   await page.getByRole('button', { name: /let.?s start/i }).click();
 

@@ -12,7 +12,18 @@
       "Bash(node node_modules/eslint/bin/eslint.js src/components/piku-game src/components/piku-concierge src/components/layout/footer.tsx src/lib/lead-time.ts src/lib/enquiry.ts src/lib/events.ts src/lib/piku-concierge.ts src/components/sections/final-conversion.tsx src/app/layout.tsx)",
       "Bash(node node_modules/eslint/bin/eslint.js src/components/piku-game)",
       "Bash(node node_modules/@playwright/test/cli.js test tests/date-validation.spec.ts --reporter=list)",
-      "Bash(git commit -m ' *)"
+      "Bash(git commit -m ' *)",
+      "Bash(node node_modules/@playwright/test/cli.js test --reporter=line)",
+      "Bash(sips -g hasAlpha -g pixelWidth -g pixelHeight \"public/design/why-office-collaboration.png\")",
+      "Bash(git check-ignore *)",
+      "mcp__claude_ai_Figma__get_design_context",
+      "Bash(node node_modules/eslint/bin/eslint.js src/components/sections/hero.tsx src/lib/data.ts)",
+      "Bash(node node_modules/eslint/bin/eslint.js src/components/sections/trusted.tsx src/lib/data.ts)",
+      "Bash(git commit *)",
+      "mcp__claude_ai_Figma__get_metadata",
+      "mcp__claude_ai_Figma__get_screenshot",
+      "Bash(curl -sL -o /private/tmp/claude-501/-Users-syedamjad-Downloads-AvaGift/c3d0244a-6bbd-4092-b6bb-7b20af8191e7/scratchpad/s06.png https://www.figma.com/api/mcp/asset/0d52db80-3400-4137-95f3-b2179b1a3a0d.png)",
+      "mcp__claude_ai_Figma__get_figma_skill"
     ]
   }
 }

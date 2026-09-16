@@ -24,9 +24,10 @@ async function auditPage(page, label) {
   );
   check(`${label}: no h-overflow`, overflow <= 0, `${overflow}px`);
 
-  // images have alt
+  // images have alt (an explicit alt="" is a valid decorative marking — only a
+  // missing attribute is a WCAG failure)
   const imgsNoAlt = await page.evaluate(() =>
-    [...document.querySelectorAll("img")].filter((i) => !i.alt).length,
+    [...document.querySelectorAll("img")].filter((i) => !i.hasAttribute("alt")).length,
   );
   check(`${label}: all <img> have alt`, imgsNoAlt === 0, `${imgsNoAlt} missing`);
 

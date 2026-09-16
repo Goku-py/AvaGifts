@@ -42,11 +42,14 @@ yarn-error.log*
 next-env.d.ts
 
 # runtime logs
-server.log
+server*.log
 
 # local tooling artifacts
 .playwright-mcp/
 test-results/
+.claude/settings.local.json
+__pycache__/
+*.pyc
 
 
 # Raw design hand-off from Figma (incl. a Figma.dmg installer and

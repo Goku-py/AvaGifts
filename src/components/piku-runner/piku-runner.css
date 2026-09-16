@@ -1,0 +1,42 @@
+/*
+ * Piku Runner — canvas window.
+ * The canvas keeps a fixed logical resolution (400x150) and is upscaled
+ * with nearest-neighbour rendering so the pixel grid stays crisp at every
+ * viewport size. Website chrome (frame, footer) is styled in the TSX with
+ * design tokens; this file only owns the game surface itself.
+ */
+
+.piku-runner {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  background: #eaf2fb; /* day sky top band — matches PALETTES[0].skyTop */
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+  outline: none;
+}
+
+.piku-runner-canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 400 / 150;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  border-radius: inherit;
+  touch-action: none;
+  cursor: pointer;
+}
+
+.piku-runner .sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}

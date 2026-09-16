@@ -81,6 +81,27 @@
   --color-brand-hover: #0e63cc; /* alias of interactive-hover */
   --color-accent-ink: #0e63cc; /* legacy hover alias of interactive */
 
+  /* ---------------------------------------------------------------- */
+  /* Piku 2.0 — brand-mascot UI tokens (Phase 1).                     */
+  /* These are interface colours (bubble, focus, chips, confetti,     */
+  /* states). The character artwork itself keeps its canonical        */
+  /* rendered identity — never recolour the WebP from these.          */
+  /* ---------------------------------------------------------------- */
+  --color-piku-black: #111111;
+  --color-piku-white: #ffffff;
+  --color-piku-orange: #f28c28;
+  --color-piku-orange-soft: #f59e0b; /* soft amber; doubles as warning */
+  --color-piku-yellow: #ffc857;
+  --color-piku-blue: #2f80ed;
+  --color-piku-blue-deep: #2468c7;
+  --color-piku-cream: #fff8e8;
+  --color-piku-surface: #f5f6f7;
+  --color-piku-text: #171717;
+  --color-piku-muted: #6b7280;
+  --color-piku-success: #22c55e;
+  --color-piku-warning: #f59e0b;
+  --color-piku-error: #ef4444;
+
   /*
    * Type — Jost is the primary CONTENT face (section labels, headlines,
    * body copy all render in Jost in the design). Inter is reserved for UI

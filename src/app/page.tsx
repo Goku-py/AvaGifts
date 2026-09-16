@@ -5,6 +5,7 @@ import { GiftingJournal } from "@/components/sections/gifting-journal";
 import { GiftDiscoveries } from "@/components/sections/gift-discoveries";
 import { Hero } from "@/components/sections/hero";
 import { HowWeExecute } from "@/components/sections/how-we-execute";
+import { PikuRunnerBand } from "@/components/sections/piku-runner-band";
 import { TrustedCustomers } from "@/components/sections/trusted";
 import { WhyAvadheshCo } from "@/components/sections/why-avadheshco";
 
@@ -16,6 +17,7 @@ export default function Home() {
       <GiftDiscoveries />
       <WhyAvadheshCo />
       <HowWeExecute />
+      <PikuRunnerBand />
       <AvaAssurance />
       <GiftingBanner />
       <GiftingJournal />
