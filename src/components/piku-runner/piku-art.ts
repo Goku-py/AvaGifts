@@ -469,7 +469,7 @@ export const DRONE_1: Art = [
   '.....k..................k.....',
   '......k................k......',
   '........kkkkkkkkkkkkkk........',
-  ...DRONE_0.slice(3),
+  ...DRONE_0.slice(4),
 ];
 
 export const BALLOON_PARCEL_0: Art = [
